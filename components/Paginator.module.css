@@ -1,0 +1,31 @@
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 40px;
+}
+
+.btn {
+  padding: 8px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #2b6cb0;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.btn:hover:not(.disabled) {
+  background: #ebf8ff;
+}
+
+.disabled {
+  color: #a0aec0;
+  cursor: not-allowed;
+}
+
+.info {
+  font-size: 13px;
+  color: #718096;
+}
