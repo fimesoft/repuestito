@@ -30,13 +30,15 @@ export default async function Home({ searchParams }: PageProps) {
       </div>
       {error && <p className={styles.error}>{error}</p>}
       <div className={styles.grid}>
-        {result.data.map((part: Replacement) => (
+        {result.data.map((part: Replacement, index: number) => (
           <PartCard
             key={part.id}
+            id={part.id}
             image={part.imageUrl}
             brand={part.brand}
             name={part.name}
             price={part.price}
+            priority={index === 0}
           />
         ))}
       </div>

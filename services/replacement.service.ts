@@ -29,6 +29,13 @@ export interface ReplacementQuery {
   limit?: number;
 }
 
+export async function getReplacement(id: string, options?: RequestInit): Promise<Replacement> {
+  const url = `${process.env.NEXT_PUBLIC_API_URL}/api/replacements/${id}`;
+  const res = await fetch(url, options);
+  if (!res.ok) throw new Error('Error al obtener el repuesto');
+  return res.json() as Promise<Replacement>;
+}
+
 export async function getReplacements(
   query: ReplacementQuery = {},
   options?: RequestInit,

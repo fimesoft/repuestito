@@ -4,6 +4,19 @@
   padding: 48px 24px;
 }
 
+.back {
+  display: inline-block;
+  margin-bottom: 24px;
+  color: #2b6cb0;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.back:hover {
+  text-decoration: underline;
+}
+
 .title {
   font-size: 22px;
   font-weight: 700;
