@@ -146,6 +146,7 @@ export default function EditReplacementForm({ replacement }: EditReplacementForm
       <div className={styles.actions}>
         <Button
           label={loading ? 'Guardando...' : 'Guardar cambios'}
+          type="submit"
           variant="solid"
           color="primary"
           shadow

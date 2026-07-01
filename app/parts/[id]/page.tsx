@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getReplacement } from '@/services/replacement.service';
 import PartMapWrapper from '@/components/PartMapWrapper';
+import DistanceBadge from '@/components/DistanceBadge';
 import styles from './page.module.css';
 
 interface PageProps {
@@ -41,6 +42,8 @@ export default async function PartDetailPage({ params }: PageProps) {
             <dd>{part.stock} unidades</dd>
             <dt>País</dt>
             <dd>{part.country}</dd>
+            <dt>Distancia</dt>
+            <DistanceBadge storeLat={part.latitude} storeLng={part.longitude} />
           </dl>
         </div>
       </div>

@@ -27,6 +27,7 @@ export interface ReplacementQuery {
   search?: string;
   page?: number;
   limit?: number;
+  country?: string;
 }
 
 export async function getReplacement(id: string, options?: RequestInit): Promise<Replacement> {
@@ -44,6 +45,7 @@ export async function getReplacements(
   if (query.search) params.set('search', query.search);
   if (query.page) params.set('page', String(query.page));
   if (query.limit) params.set('limit', String(query.limit));
+  if (query.country) params.set('country', query.country);
 
   const url = `${process.env.NEXT_PUBLIC_API_URL}/api/replacements?${params.toString()}`;
   const res = await fetch(url, options);
