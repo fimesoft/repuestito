@@ -14,10 +14,22 @@
   margin-bottom: 24px;
 }
 
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.5rem;
+}
+
 .grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 24px;
+  gap: 10px;
+}
+
+@media (max-width: 480px) {
+  .grid {
+    flex-direction: column;
+  }
 }
 
 .error {
