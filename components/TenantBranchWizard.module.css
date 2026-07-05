@@ -1,0 +1,126 @@
+.stepper {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  background: #e2e8f0;
+  color: #a0aec0;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.dot.active {
+  background: #2b6cb0;
+  color: #fff;
+}
+
+.dot.done {
+  background: #276749;
+  color: #fff;
+}
+
+.stepLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: #a0aec0;
+  transition: color 0.2s ease;
+}
+
+.stepLabel.active {
+  color: #2b6cb0;
+}
+
+.connector {
+  width: 60px;
+  height: 2px;
+  background: #e2e8f0;
+  margin-top: 13px;
+  flex-shrink: 0;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.optional {
+  font-weight: 400;
+  color: #a0aec0;
+}
+
+.input {
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1a202c;
+  outline: none;
+  transition: border-color 0.15s ease;
+  width: 100%;
+}
+
+.input:focus {
+  border-color: #2b6cb0;
+}
+
+.textarea {
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1a202c;
+  outline: none;
+  transition: border-color 0.15s ease;
+  width: 100%;
+  resize: vertical;
+  min-height: 72px;
+  font-family: inherit;
+}
+
+.textarea:focus {
+  border-color: #2b6cb0;
+}
+
+.error {
+  font-size: 13px;
+  color: #c53030;
+}
+
+@media (max-width: 480px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+}
