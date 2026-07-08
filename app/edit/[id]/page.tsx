@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { getReplacement } from '@/services/replacement.service';
-import EditReplacementForm from '@/components/EditReplacementForm';
+import EditReplacementForm from '@/components/features/replacements/EditReplacementForm';
 import styles from '@/styles/Create.module.css';
 
 interface PageProps {

@@ -1,40 +1,96 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# Repuestito — Frontend
 
-## Getting Started
+Next.js App Router · TypeScript · CSS Modules
 
-First, run the development server:
+## Inicio rápido
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre [http://localhost:3000](http://localhost:3000) en el browser.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+---
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+## Arquitectura de componentes
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+La carpeta `components/` sigue una estructura modular de tres niveles:
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+components/
+├── ui/                     # Componentes reutilizables y sin lógica de negocio
+│   ├── Button/
+│   │   ├── Button.tsx
+│   │   ├── Button.module.css
+│   │   └── index.ts
+│   ├── Modal/
+│   │   ├── Modal.tsx
+│   │   ├── Modal.module.css
+│   │   └── index.ts
+│   ├── ImageUpload.tsx
+│   └── Paginator.tsx
+│
+├── shared/                 # Componentes globales con algo de lógica propia
+│   ├── Header.tsx
+│   └── PageCount.tsx
+│
+└── features/               # Componentes específicos de una sección del producto
+    ├── auth/
+    │   └── LoginForm.tsx
+    └── replacements/
+        ├── PartCard.tsx
+        └── PartMapWrapper.tsx
+```
 
-## Learn More
+### `ui/`
 
-To learn more about Next.js, take a look at the following resources:
+Componentes puramente presentacionales. No conocen el dominio de la app, no hacen fetching, no dependen de contextos globales. Se pueden reutilizar en cualquier parte del proyecto.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
+- Cada componente con su propia carpeta + `index.ts` de barrel export cuando tiene múltiples archivos.
+- Sin lógica de negocio. Solo props, estilos y eventos locales.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### `shared/`
 
-## Deploy on Vercel
+Componentes que aparecen en múltiples páginas y pueden tener lógica propia (estado interno, hooks, acceso al router), pero no pertenecen a una sola feature.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Ejemplos: `Header`, `PageCount`, `Sidebar`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+### `features/`
+
+Componentes acoplados a una sección específica del producto. Pueden hacer fetching, usar contextos o depender de servicios. Se agrupan por dominio.
+
+```
+features/
+├── auth/          → login, registro, recuperación de contraseña
+├── replacements/  → listado, detalle y edición de repuestos
+└── tenants/       → wizard de creación de tenant + sucursales
+```
+
+---
+
+## Servicios
+
+La carpeta `services/` contiene las funciones de acceso a la API. Un archivo por recurso:
+
+```
+services/
+├── replacement.service.ts
+├── tenant.service.ts
+└── branch.service.ts
+```
+
+Cada servicio exporta las funciones de fetch junto con sus tipos de request/response. Los componentes nunca llaman a `fetch` directamente.
+
+---
+
+## Convenciones
+
+| Qué | Cómo |
+|---|---|
+| Componentes | PascalCase — `PartCard.tsx` |
+| Archivos CSS | Mismo nombre + `.module.css` — `PartCard.module.css` |
+| Servicios | camelCase + sufijo `.service.ts` |
+| Páginas | `app/<ruta>/page.tsx` (App Router) |
+| Server components | Por defecto. Agregar `'use client'` solo cuando se usen hooks o eventos. |
+| Tipos `any` | Prohibido. Usar tipos específicos, `unknown` con narrowing o utilidades de TypeScript. |

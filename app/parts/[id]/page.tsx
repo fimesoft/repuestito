@@ -1,8 +1,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { getReplacement } from '@/services/replacement.service';
-import PartMapWrapper from '@/components/PartMapWrapper';
-import DistanceBadge from '@/components/DistanceBadge';
+import PartMapWrapper from '@/components/features/replacements/PartMapWrapper';
+import DistanceBadge from '@/components/features/replacements/DistanceBadge';
 import styles from './page.module.css';
 
 interface PageProps {

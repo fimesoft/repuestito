@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import Button from "./Button";
+import Button from "../../ui/Button/Button";
 import styles from "./PartCard.module.css";
 
 interface PartCardProps {

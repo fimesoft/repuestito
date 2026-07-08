@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "@/styles/globals.css";
 import { CountryProvider } from "@/context/CountryContext";
-import Header from "@/components/Header";
+import Header from "@/components/shared/Header";
 
 export const metadata: Metadata = {
   title: "Repuestito",

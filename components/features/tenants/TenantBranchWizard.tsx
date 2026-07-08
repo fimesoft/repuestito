@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useRef, FormEvent } from 'react';
-import Modal from './Modal';
-import Button from './Button';
+import Modal from '../../ui/Modal/Modal';
+import Button from '../../ui/Button/Button';
 import { createTenant } from '@/services/tenant.service';
 import { createBranch } from '@/services/branch.service';
 import styles from './TenantBranchWizard.module.css';

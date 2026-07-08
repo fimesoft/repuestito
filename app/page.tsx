@@ -1,6 +1,6 @@
-import PartCard from "@/components/PartCard";
-import Paginator from "@/components/Paginator";
-import PageCount from "@/components/PageCount";
+import PartCard from "@/components/features/replacements/PartCard";
+import Paginator from "@/components/ui/Paginator";
+import PageCount from "@/components/shared/PageCount";
 import { getReplacements, Replacement, PaginatedResult } from "@/services/replacement.service";
 import styles from "@/styles/Home.module.css";
 

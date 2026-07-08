@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import Button from './Button';
+import Button from '../ui/Button/Button';
 import styles from './Search.module.css';
 
 export default function Search() {

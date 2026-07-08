@@ -2,8 +2,8 @@
 
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import Button from "@/components/Button";
-import ImageUpload from "@/components/ImageUpload";
+import Button from "@/components/ui/Button/Button";
+import ImageUpload from "@/components/ui/ImageUpload";
 import styles from "@/styles/Create.module.css";
 
 interface ReplacementForm {

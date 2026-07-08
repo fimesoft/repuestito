@@ -3,8 +3,8 @@
 import { useState, Suspense } from 'react';
 import Search from './Search';
 import CountrySelect from './CountrySelect';
-import Button from './Button';
-import TenantBranchWizard from './TenantBranchWizard';
+import Button from '../ui/Button/Button';
+import TenantBranchWizard from '../features/tenants/TenantBranchWizard';
 import styles from './Header.module.css';
 
 export default function Header() {
