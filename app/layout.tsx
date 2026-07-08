@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "@/styles/globals.css";
 import { CountryProvider } from "@/context/CountryContext";
-import Header from "@/components/shared/Header";
 
 export const metadata: Metadata = {
   title: "Repuestito",
@@ -13,7 +12,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="es">
       <body>
         <CountryProvider>
-          <Header />
           {children}
         </CountryProvider>
       </body>

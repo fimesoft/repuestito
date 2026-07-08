@@ -69,6 +69,33 @@ features/
 
 ---
 
+## Estructura de rutas
+
+La carpeta `app/` usa route groups para controlar qué layouts aplican a cada ruta:
+
+```
+app/
+├── layout.tsx           # Root layout — html, body, providers globales (sin Header)
+│
+├── app/                 # Ruta /app — pantalla de autenticación (login, registro, recuperación)
+│   ├── page.tsx
+│   └── page.module.css
+│
+└── (main)/              # Route group — todas las rutas con Header
+    ├── layout.tsx       # Inyecta el Header
+    ├── page.tsx         → /
+    ├── create/          → /create
+    ├── edit/[id]/       → /edit/:id
+    ├── parts/[id]/      → /parts/:id
+    └── dashboard/       → /dashboard
+```
+
+### Por qué route groups
+
+El Header solo debe mostrarse en las rutas del producto. La ruta `/app` (autenticación) usa un layout limpio sin Header. En lugar de condicionar el Header por pathname, se usa un route group `(main)` que inyecta el Header vía su propio `layout.tsx`. El paréntesis en el nombre del grupo no afecta las URLs.
+
+---
+
 ## Servicios
 
 La carpeta `services/` contiene las funciones de acceso a la API. Un archivo por recurso:
