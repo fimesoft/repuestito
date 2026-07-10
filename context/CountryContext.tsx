@@ -11,8 +11,8 @@ interface CountryOption {
 }
 
 export const COUNTRIES: CountryOption[] = [
-  { code: 'VE', label: 'Venezuela', flag: '🇻🇪' },
-  { code: 'AR', label: 'Argentina', flag: '🇦🇷' },
+  { code: 'VE', label: 'VE', flag: '🇻🇪' },
+  { code: 'AR', label: 'AR', flag: '🇦🇷' },
 ];
 
 interface CountryContextValue {

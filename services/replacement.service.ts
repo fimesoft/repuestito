@@ -6,13 +6,49 @@ export interface Replacement {
   imageUrl: string | null;
   codeOem: string | null;
   stock: number;
-  storeId: string | null;
-  sellerId: string | null;
+  tenantId: string;
+  branchId: string | null;
   country: string;
-  latitude: number;
-  longitude: number;
+  latitude: number | null;
+  longitude: number | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface CreateReplacementPayload {
+  name: string;
+  brand: string;
+  price: number;
+  country: string;
+  latitude?: number;
+  longitude?: number;
+  tenantId: string;
+  stock?: number;
+  codeOem?: string;
+  imageUrl?: string;
+  branchId?: string;
+}
+
+export async function createReplacement(payload: CreateReplacementPayload): Promise<Replacement> {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/replacements`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const data: unknown = await res.json();
+    throw new Error(
+      data && typeof data === 'object' && 'message' in data
+        ? String((data as { message: unknown }).message)
+        : 'Error al crear el repuesto',
+    );
+  }
+  return res.json() as Promise<Replacement>;
+}
+
+export async function deleteReplacement(id: string): Promise<void> {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/replacements/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Error al eliminar el repuesto');
 }
 
 export interface PaginatedResult {

@@ -43,18 +43,22 @@ export default async function PartDetailPage({ params }: PageProps) {
             <dt>País</dt>
             <dd>{part.country}</dd>
             <dt>Distancia</dt>
-            <DistanceBadge storeLat={part.latitude} storeLng={part.longitude} />
+            {part.latitude != null && part.longitude != null && (
+              <DistanceBadge storeLat={part.latitude} storeLng={part.longitude} />
+            )}
           </dl>
         </div>
       </div>
 
       <section className={styles.mapSection}>
         <h2 className={styles.mapTitle}>Punto de venta</h2>
-        <PartMapWrapper
-          storeLat={part.latitude}
-          storeLng={part.longitude}
-          storeName={part.name}
-        />
+        {part.latitude != null && part.longitude != null && (
+          <PartMapWrapper
+            storeLat={part.latitude}
+            storeLng={part.longitude}
+            storeName={part.name}
+          />
+        )}
       </section>
     </main>
   );

@@ -19,8 +19,6 @@ export default function EditReplacementForm({ replacement }: EditReplacementForm
     price: String(replacement.price),
     stock: String(replacement.stock),
     codeOem: replacement.codeOem ?? '',
-    storeId: replacement.storeId ?? '',
-    sellerId: replacement.sellerId ?? '',
     country: replacement.country,
     latitude: String(replacement.latitude),
     longitude: String(replacement.longitude),
@@ -47,8 +45,6 @@ export default function EditReplacementForm({ replacement }: EditReplacementForm
       longitude: Number(form.longitude),
       stock: Number(form.stock),
       ...(form.codeOem ? { codeOem: form.codeOem } : {}),
-      ...(form.storeId ? { storeId: form.storeId } : {}),
-      ...(form.sellerId ? { sellerId: form.sellerId } : {}),
       ...(imageUrl ? { imageUrl } : {}),
     };
 
@@ -127,17 +123,6 @@ export default function EditReplacementForm({ replacement }: EditReplacementForm
         <label className={styles.label}>
           Longitud
           <input className={styles.input} name="longitude" type="number" step="any" value={form.longitude} onChange={handleChange} required />
-        </label>
-      </div>
-
-      <div className={styles.row}>
-        <label className={styles.label}>
-          Store ID <span className={styles.optional}>(opcional)</span>
-          <input className={styles.input} name="storeId" value={form.storeId} onChange={handleChange} />
-        </label>
-        <label className={styles.label}>
-          Seller ID <span className={styles.optional}>(opcional)</span>
-          <input className={styles.input} name="sellerId" value={form.sellerId} onChange={handleChange} />
         </label>
       </div>
 

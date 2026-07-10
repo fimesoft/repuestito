@@ -64,3 +64,84 @@
 - Para buscar una funcion o archivo especifico, usa Grep o Glob directo.
 
 @AGENTS.md
+
+---
+
+## Arquitectura Big Picture
+
+### Stack
+| Capa | Tech |
+|---|---|
+| Frontend | Next.js 16 (App Router), React 19, TypeScript, CSS Modules, Leaflet/React-Leaflet |
+| Backend | NestJS, TypeORM, PostgreSQL |
+| Auth | JWT en httpOnly cookie, bcrypt, Resend (emails), `jose` (verificación en middleware) |
+| Storage | Cloudinary (imágenes de repuestos) |
+| Docs API | Swagger en `/docs` |
+
+### Flujo general
+
+```
+Browser
+  │
+  ├─ /app          → LoginPage (AuthBlock: login/register/verify/reset)
+  │
+  ├─ / (main)      → Home: lista paginada de repuestos (Server Component)
+  │    └─ Header + CountrySelect + Search + PageCount + PartCard + Paginator
+  │
+  └─ /dashboard/** → protegido por middleware.ts (verifica cookie `token` con jose)
+                      redirige a /app si token inválido/ausente
+
+Frontend → NEXT_PUBLIC_API_URL (http://localhost:3000)
+              └─ /api/** → NestJS (puerto 3000)
+```
+
+### Módulos NestJS (`repuestito-api/src/`)
+
+```
+AppModule
+  ├─ AuthModule         POST /api/auth/{register,verify-email,login,logout,forgot-password,reset-password}
+  │    └─ usa Resend para emails de verificación y reset
+  ├─ UserModule         entidad User (roles: ADMIN | MODERATOR | SELLER)
+  ├─ ReplacementModule  GET/POST/PATCH /api/replacements  (búsqueda paginada por nombre + country)
+  ├─ VehicleModule      GET/POST /api/vehicles            (catálogo: brand/model/year/country/enums)
+  ├─ ReplacementCompatibilityModule  /api/compatibility   (junction Replacement ↔ Vehicle)
+  ├─ TenantModule       POST /api/tenants                 (negocio con subdomain único)
+  ├─ BranchModule       POST /api/branches                (sucursales de un Tenant)
+  ├─ CountryModule      /api/countries                    (catálogo de países con código/moneda)
+  ├─ UploadModule       POST /api/upload                  (Multer → Cloudinary)
+  └─ CloudinaryModule   servicio interno de upload
+```
+
+### Modelo de datos (relaciones clave)
+
+```
+Country ──< Tenant ──< Branch
+                │
+               (storeId en Replacement — UUID directo, sin FK declarada aún)
+
+Replacement >──< Vehicle   (vía ReplacementCompatibility, unique [replacementId, vehicleId])
+
+User (SELLER) → sellerId en Replacement (UUID directo, sin FK declarada aún)
+
+Replacement: id, name, brand, price, stock, country, latitude, longitude,
+             codeOem, imageUrl, storeId, sellerId
+Vehicle:     id, brand, model, year, country, engine, fuelType, transmission, bodyType
+```
+
+### Servicios del frontend (`repuestito/services/`)
+
+| Archivo | Qué hace |
+|---|---|
+| `auth.service.ts` | Wraps de fetch para todos los endpoints de auth; maneja cookie via `credentials: 'include'` |
+| `replacement.service.ts` | `getReplacements(query)` paginado, `getReplacement(id)` individual |
+| `tenant.service.ts` | `createTenant(payload)` |
+| `branch.service.ts` | `createBranch(payload)` |
+
+### Contexto y rutas del frontend
+
+- `context/CountryContext.tsx` — país seleccionado globalmente (filtro de búsqueda)
+- Rutas App Router:
+  - `app/(main)/` — layout con Header; página pública del marketplace
+  - `app/app/` — página de auth (login/register)
+  - `app/dashboard/` — área protegida (aún en construcción)
+- `middleware.ts` — verifica JWT con `jose`; solo aplica a `/dashboard/**`

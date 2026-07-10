@@ -1,0 +1,106 @@
+.page { padding: 2rem; }
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.title { font-size: 1.5rem; font-weight: 700; color: #1a202c; }
+
+.tableWrapper {
+  overflow-x: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+
+.table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+
+.table th {
+  text-align: left;
+  padding: 10px 16px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #718096;
+  background: #f7fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.table td {
+  padding: 10px 16px;
+  border-bottom: 1px solid #f0f4f8;
+  vertical-align: middle;
+}
+
+.table tr:last-child td { border-bottom: none; }
+.table tr:hover td { background: #f7fafc; }
+
+.tdImg { width: 56px; }
+
+.img { border-radius: 6px; object-fit: cover; }
+
+.imgPlaceholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  background: #e2e8f0;
+}
+
+.tdName { font-weight: 500; color: #1a202c; }
+.tdMeta { color: #718096; font-size: 13px; }
+
+.tdActions { text-align: right; }
+
+.btnDanger {
+  background: none;
+  border: none;
+  font-size: 13px;
+  color: #c53030;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+.btnDanger:hover { background: #fff5f5; }
+
+.empty { text-align: center; color: #a0aec0; font-size: 13px; padding: 2rem !important; }
+
+/* ── Modal form ── */
+
+.form { display: flex; flex-direction: column; gap: 16px; }
+
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+.label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.optional { font-weight: 400; color: #a0aec0; }
+
+.input, .select {
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1a202c;
+  outline: none;
+  background: #fff;
+  transition: border-color 0.15s;
+}
+
+.input:focus, .select:focus { border-color: #2b6cb0; }
+
+.select:disabled { background: #f7fafc; color: #a0aec0; cursor: not-allowed; }
+
+.error { font-size: 13px; color: #c53030; }
+
+@media (max-width: 560px) {
+  .row { grid-template-columns: 1fr; }
+}

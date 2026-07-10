@@ -4,6 +4,11 @@ export interface AuthUser {
   id: string;
   email: string;
   role: string;
+  tenantId: string | null;
+  branchId: string | null;
+  isEmailVerified: boolean;
+  active: boolean;
+  createdAt: string;
 }
 
 async function request<T>(path: string, body: Record<string, string>): Promise<T> {
@@ -46,4 +51,17 @@ export function resetPassword(email: string, code: string, password: string) {
 
 export async function logout() {
   await fetch(`${API}/api/auth/logout`, { method: 'POST', credentials: 'include' });
+}
+
+export async function getMe(cookieHeader: string): Promise<AuthUser | null> {
+  try {
+    const res = await fetch(`${API}/api/auth/me`, {
+      headers: { Cookie: cookieHeader },
+      cache: 'no-store',
+    });
+    if (!res.ok) return null;
+    return res.json() as Promise<AuthUser>;
+  } catch {
+    return null;
+  }
 }
