@@ -5,6 +5,7 @@ import Modal from '../../ui/Modal/Modal';
 import Button from '../../ui/Button/Button';
 import { createTenant } from '@/services/tenant.service';
 import { createBranch } from '@/services/branch.service';
+import { useCountry } from '@/context/CountryContext';
 import styles from './TenantBranchWizard.module.css';
 
 interface TenantForm {
@@ -28,6 +29,7 @@ const TENANT_INITIAL: TenantForm = { businessName: '', taxId: '', subdomain: '' 
 const BRANCH_INITIAL: BranchForm = { name: '', address: '', phone: '' };
 
 export default function TenantBranchWizard({ isOpen, onClose }: Props) {
+  const { country } = useCountry();
   const [step, setStep] = useState(1);
   const [tenantForm, setTenantForm] = useState<TenantForm>(TENANT_INITIAL);
   const [branchForm, setBranchForm] = useState<BranchForm>(BRANCH_INITIAL);
@@ -71,6 +73,7 @@ export default function TenantBranchWizard({ isOpen, onClose }: Props) {
         businessName: tenantForm.businessName,
         taxId: tenantForm.taxId,
         subdomain: tenantForm.subdomain,
+        country: country,
       });
       setTenantId(tenant.id);
       setStep(2);

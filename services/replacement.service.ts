@@ -1,3 +1,4 @@
+
 export interface Replacement {
   id: string;
   name: string;
@@ -46,6 +47,36 @@ export async function createReplacement(payload: CreateReplacementPayload): Prom
   return res.json() as Promise<Replacement>;
 }
 
+export interface UpdateReplacementPayload {
+  name?: string;
+  brand?: string;
+  price?: number;
+  stock?: number;
+  codeOem?: string;
+  imageUrl?: string;
+  branchId?: string;
+  tenantId?: string;
+  latitude?: number;
+  longitude?: number;
+}
+
+export async function updateReplacement(id: string, payload: UpdateReplacementPayload): Promise<Replacement> {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/replacements/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const data: unknown = await res.json();
+    throw new Error(
+      data && typeof data === 'object' && 'message' in data
+        ? String((data as { message: unknown }).message)
+        : 'Error al actualizar el repuesto',
+    );
+  }
+  return res.json() as Promise<Replacement>;
+}
+
 export async function deleteReplacement(id: string): Promise<void> {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/replacements/${id}`, { method: 'DELETE' });
   if (!res.ok) throw new Error('Error al eliminar el repuesto');
@@ -84,6 +115,7 @@ export async function getReplacements(
   if (query.country) params.set('country', query.country);
 
   const url = `${process.env.NEXT_PUBLIC_API_URL}/api/replacements?${params.toString()}`;
+  console.log(url)
   const res = await fetch(url, options);
   if (!res.ok) throw new Error('Error al obtener los repuestos');
   return res.json() as Promise<PaginatedResult>;

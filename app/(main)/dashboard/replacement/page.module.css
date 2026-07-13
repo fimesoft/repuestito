@@ -54,6 +54,18 @@
 
 .tdActions { text-align: right; }
 
+.btnText {
+  background: none;
+  border: none;
+  font-size: 13px;
+  color: #2b6cb0;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  margin-right: 4px;
+}
+.btnText:hover { background: #ebf8ff; }
+
 .btnDanger {
   background: none;
   border: none;

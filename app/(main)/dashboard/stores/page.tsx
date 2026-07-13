@@ -13,6 +13,7 @@ import {
   Branch, CreateBranchPayload, UpdateBranchPayload,
 } from '@/services/branch.service';
 import LocationSearch from '@/components/ui/LocationSearch/LocationSearch';
+import { useCountry } from '@/context/CountryContext';
 import styles from './page.module.css';
 
 export default function StoresPage() {
@@ -30,15 +31,16 @@ export default function StoresPage() {
   const [addBranchTenantId, setAddBranchTenantId] = useState<string | null>(null);
   const [newBranchForm, setNewBranchForm] = useState<CreateBranchPayload>({ name: '' });
 
+  const { country } = useCountry();
   const [saving, setSaving] = useState(false);
   const [modalError, setModalError] = useState<string | null>(null);
 
   async function loadTenants() {
-    const data = await getTenants();
+    const data = await getTenants(country);
     setTenants(data);
   }
 
-  useEffect(() => { loadTenants(); }, []);
+  useEffect(() => { loadTenants(); }, [country]);
 
   async function toggleExpand(tenantId: string) {
     const next = new Set(expanded);

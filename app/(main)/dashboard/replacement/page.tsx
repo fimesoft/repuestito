@@ -6,13 +6,14 @@ import Modal from '@/components/ui/Modal/Modal';
 import Button from '@/components/ui/Button/Button';
 import ImageUpload from '@/components/ui/ImageUpload';
 import {
-  getReplacements, createReplacement, deleteReplacement,
+  getReplacements, createReplacement, updateReplacement, deleteReplacement,
   Replacement, CreateReplacementPayload,
 } from '@/services/replacement.service';
 import { getTenants, Tenant } from '@/services/tenant.service';
 import { getBranches, Branch } from '@/services/branch.service';
 import { useCountry } from '@/context/CountryContext';
 import styles from './page.module.css';
+
 
 const EMPTY: Omit<CreateReplacementPayload, 'country'> = {
   name: '', brand: '', price: 0, tenantId: '',
@@ -32,13 +33,27 @@ export default function ReplacementDashboardPage() {
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
+  const [editingReplacement, setEditingReplacement] = useState<Replacement | null>(null);
+  const [editForm, setEditForm] = useState<Omit<CreateReplacementPayload, 'country'>>(EMPTY);
+  const [editPriceInput, setEditPriceInput] = useState('');
+  const [editImageUrl, setEditImageUrl] = useState<string | null>(null);
+  const [editBranches, setEditBranches] = useState<Branch[]>([]);
+  const [editError, setEditError] = useState<string | null>(null);
+
   useEffect(() => {
-    getReplacements({}, { cache: 'no-store' } as RequestInit).then(r => setReplacements(r.data));
-    getTenants().then(setTenants);
-  }, []);
+    getReplacements({ country }).then(r => setReplacements(r.data));
+  }, [country]);
+
+  useEffect(() => {
+    getTenants(country).then(setTenants);
+  }, [country]);
 
   function set(field: Partial<CreateReplacementPayload>) {
     setForm(p => ({ ...p, ...field }));
+  }
+
+  function setEdit(field: Partial<CreateReplacementPayload>) {
+    setEditForm(p => ({ ...p, ...field }));
   }
 
   async function onTenantChange(tenantId: string) {
@@ -57,6 +72,42 @@ export default function ReplacementDashboardPage() {
     setCreating(true);
   }
 
+  async function openEdit(r: Replacement) {
+    setEditForm({ name: r.name, brand: r.brand, price: r.price, tenantId: r.tenantId, stock: r.stock, codeOem: r.codeOem ?? '', branchId: r.branchId ?? '' });
+    setEditPriceInput(String(r.price));
+    setEditImageUrl(r.imageUrl);
+    setEditBranches([]);
+    setEditError(null);
+    if (r.tenantId) {
+      const data = await getBranches(r.tenantId);
+      setEditBranches(data);
+    }
+    setEditingReplacement(r);
+  }
+
+  async function onEditTenantChange(tenantId: string) {
+    setEditForm(({ branchId: _b, latitude: _lat, longitude: _lng, ...rest }) => ({ ...rest, tenantId, branchId: '' }));
+    if (!tenantId) { setEditBranches([]); return; }
+    const data = await getBranches(tenantId);
+    setEditBranches(data);
+  }
+
+  async function handleUpdate() {
+    if (!editingReplacement) return;
+    setSaving(true);
+    setEditError(null);
+    try {
+      const payload = { ...editForm, ...(editImageUrl ? { imageUrl: editImageUrl } : {}) };
+      const updated = await updateReplacement(editingReplacement.id, payload);
+      setReplacements(prev => prev.map(r => r.id === updated.id ? updated : r));
+      setEditingReplacement(null);
+    } catch (err) {
+      setEditError(err instanceof Error ? err.message : 'Error inesperado');
+    } finally {
+      setSaving(false);
+    }
+  }
+
   async function handleCreate() {
     if (!form.tenantId) { setFormError('Selecciona un local'); return; }
     setSaving(true);
@@ -64,7 +115,7 @@ export default function ReplacementDashboardPage() {
     try {
       const payload: CreateReplacementPayload = {
         ...form,
-        country,
+        country: country,
         ...(imageUrl ? { imageUrl } : {}),
       };
       const created = await createReplacement(payload);
@@ -94,6 +145,13 @@ export default function ReplacementDashboardPage() {
     </>
   );
 
+  const editFooter = (
+    <>
+      <Button label="Cancelar" variant="outline" color="neutral" onClick={() => setEditingReplacement(null)} disabled={saving} />
+      <Button label={saving ? 'Guardando...' : 'Guardar'} color="primary" onClick={handleUpdate} disabled={saving} />
+    </>
+  );
+
   return (
     <main className={styles.page}>
       <div className={styles.header}>
@@ -101,6 +159,7 @@ export default function ReplacementDashboardPage() {
         <Button label="+ Nuevo repuesto" onClick={openCreate} shadow />
       </div>
 
+      {JSON.stringify(replacements)}
       <div className={styles.tableWrapper}>
         <table className={styles.table}>
           <thead>
@@ -132,6 +191,7 @@ export default function ReplacementDashboardPage() {
                   {tenants.find(t => t.id === r.tenantId)?.businessName ?? '—'}
                 </td>
                 <td className={styles.tdActions}>
+                  <button className={styles.btnText} onClick={() => openEdit(r)}>Editar</button>
                   <button className={styles.btnDanger} onClick={() => handleDelete(r.id)}>Eliminar</button>
                 </td>
               </tr>
@@ -142,6 +202,86 @@ export default function ReplacementDashboardPage() {
           </tbody>
         </table>
       </div>
+
+      <Modal isOpen={!!editingReplacement} onClose={() => setEditingReplacement(null)} title="Editar repuesto" size="lg" footer={editFooter}>
+        <div className={styles.form}>
+          <label className={styles.label}>
+            Imagen <span className={styles.optional}>(opcional)</span>
+            <ImageUpload onUpload={setEditImageUrl} initialUrl={editImageUrl ?? undefined} />
+          </label>
+
+          <div className={styles.row}>
+            <label className={styles.label}>
+              Nombre
+              <input className={styles.input} value={editForm.name} onChange={e => setEdit({ name: e.target.value })} required />
+            </label>
+            <label className={styles.label}>
+              Marca
+              <input className={styles.input} value={editForm.brand} onChange={e => setEdit({ brand: e.target.value })} required />
+            </label>
+          </div>
+
+          <div className={styles.row}>
+            <label className={styles.label}>
+              Precio
+              <input
+                className={styles.input}
+                type="text"
+                inputMode="decimal"
+                value={editPriceInput}
+                onChange={e => {
+                  const v = e.target.value;
+                  if (/^\d*\.?\d*$/.test(v)) {
+                    setEditPriceInput(v);
+                    setEdit({ price: parseFloat(v) || 0 });
+                  }
+                }}
+                placeholder="0.00"
+                required
+              />
+            </label>
+            <label className={styles.label}>
+              Stock
+              <input className={styles.input} type="text" inputMode="numeric" value={editForm.stock ?? ''} onChange={e => { if (/^\d*$/.test(e.target.value)) setEdit({ stock: Number(e.target.value) }); }} placeholder="0" />
+            </label>
+          </div>
+
+          <div className={styles.row}>
+            <label className={styles.label}>
+              Código OEM <span className={styles.optional}>(opcional)</span>
+              <input className={styles.input} value={editForm.codeOem ?? ''} onChange={e => setEdit({ codeOem: e.target.value })} placeholder="ej. 15400-PLM-A02" />
+            </label>
+            <label className={styles.label}>
+              Local
+              <select className={styles.select} value={editForm.tenantId} onChange={e => onEditTenantChange(e.target.value)} required>
+                <option value="">Seleccionar local</option>
+                {tenants.map(t => <option key={t.id} value={t.id}>{t.businessName}</option>)}
+              </select>
+            </label>
+          </div>
+
+          <label className={styles.label}>
+            Sucursal <span className={styles.optional}>(opcional)</span>
+            <select
+              className={styles.select}
+              value={editForm.branchId ?? ''}
+              onChange={e => {
+                const branch = editBranches.find(b => b.id === e.target.value);
+                setEdit({
+                  branchId: e.target.value,
+                  ...(branch?.latitude != null && branch?.longitude != null && { latitude: branch.latitude, longitude: branch.longitude }),
+                });
+              }}
+              disabled={!editForm.tenantId}
+            >
+              <option value="">Sin asignar</option>
+              {editBranches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+            </select>
+          </label>
+
+          {editError && <p className={styles.error}>{editError}</p>}
+        </div>
+      </Modal>
 
       <Modal isOpen={creating} onClose={() => setCreating(false)} title="Nuevo repuesto" size="lg" footer={footer}>
         <div className={styles.form}>

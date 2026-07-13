@@ -2,7 +2,7 @@ export interface Tenant {
   id: string;
   businessName: string;
   taxId: string;
-  countryId: number | null;
+  country: string | null;
   subdomain: string;
   active: boolean;
   createdAt: string;
@@ -12,7 +12,7 @@ export interface CreateTenantPayload {
   businessName: string;
   taxId: string;
   subdomain: string;
-  countryId?: number;
+  country?: string;
 }
 
 export interface UpdateTenantPayload {
@@ -22,8 +22,10 @@ export interface UpdateTenantPayload {
   active?: boolean;
 }
 
-export async function getTenants(): Promise<Tenant[]> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tenants`, { cache: 'no-store' });
+export async function getTenants(country?: string): Promise<Tenant[]> {
+  const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/api/tenants`);
+  if (country) url.searchParams.set('country', country);
+  const res = await fetch(url.toString(), { cache: 'no-store' });
   if (!res.ok) throw new Error('Error al obtener los locales');
   return res.json() as Promise<Tenant[]>;
 }
