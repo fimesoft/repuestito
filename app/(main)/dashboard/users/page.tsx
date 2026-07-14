@@ -3,14 +3,14 @@
 import { useEffect, useState } from 'react';
 import Modal from '@/components/ui/Modal/Modal';
 import Button from '@/components/ui/Button/Button';
-import { getUsers, createUser, updateUser, deleteUser, UserRecord, CreateUserPayload, UpdateUserPayload } from '@/services/user.service';
+import { getUsers, inviteUser, updateUser, deleteUser, UserRecord, InviteUserPayload, UpdateUserPayload } from '@/services/user.service';
 import { getTenants, Tenant } from '@/services/tenant.service';
 import { getBranches, Branch } from '@/services/branch.service';
 import styles from './page.module.css';
 
 const ROLES = ['MODERATOR', 'SELLER'];
 
-const EMPTY_CREATE: CreateUserPayload = { email: '', password: '', role: 'MODERATOR' };
+const EMPTY_CREATE: InviteUserPayload = { email: '', role: 'MODERATOR' };
 
 export default function UsersPage() {
   const [users, setUsers] = useState<UserRecord[]>([]);
@@ -18,13 +18,14 @@ export default function UsersPage() {
   const [formBranches, setFormBranches] = useState<Branch[]>([]);
 
   const [creating, setCreating] = useState(false);
-  const [createForm, setCreateForm] = useState<CreateUserPayload>(EMPTY_CREATE);
+  const [createForm, setCreateForm] = useState<InviteUserPayload>(EMPTY_CREATE);
 
   const [editingUser, setEditingUser] = useState<UserRecord | null>(null);
   const [editForm, setEditForm] = useState<UpdateUserPayload>({});
 
   const [saving, setSaving] = useState(false);
   const [modalError, setModalError] = useState<string | null>(null);
+  const [inviteResult, setInviteResult] = useState<{ email: string; devCode?: string } | null>(null);
 
   useEffect(() => {
     getUsers().then(setUsers);
@@ -54,14 +55,19 @@ export default function UsersPage() {
     setSaving(true);
     setModalError(null);
     try {
-      const user = await createUser(createForm);
-      setUsers(prev => [user, ...prev]);
-      setCreating(false);
+      const result = await inviteUser(createForm);
+      await getUsers().then(setUsers);
+      setInviteResult({ email: createForm.email, devCode: result.devCode });
     } catch (err) {
-      setModalError(err instanceof Error ? err.message : 'Error al crear');
+      setModalError(err instanceof Error ? err.message : 'Error al invitar');
     } finally {
       setSaving(false);
     }
+  }
+
+  function closeCreate() {
+    setCreating(false);
+    setInviteResult(null);
   }
 
   // ── Edit ────────────────────────────────────────
@@ -105,10 +111,12 @@ export default function UsersPage() {
   }
 
   // ── Footers ─────────────────────────────────────
-  const createFooter = (
+  const createFooter = inviteResult ? (
+    <Button label="Cerrar" color="primary" onClick={closeCreate} />
+  ) : (
     <>
-      <Button label="Cancelar" variant="outline" color="neutral" onClick={() => setCreating(false)} disabled={saving} />
-      <Button label={saving ? 'Guardando...' : 'Crear'} color="primary" onClick={handleCreate} disabled={saving} />
+      <Button label="Cancelar" variant="outline" color="neutral" onClick={closeCreate} disabled={saving} />
+      <Button label={saving ? 'Enviando...' : 'Enviar invitación'} color="primary" onClick={handleCreate} disabled={saving} />
     </>
   );
 
@@ -164,15 +172,23 @@ export default function UsersPage() {
       </div>
 
       {/* Create modal */}
-      <Modal isOpen={creating} onClose={() => setCreating(false)} title="Nuevo usuario" size="md" footer={createFooter}>
+      <Modal isOpen={creating} onClose={closeCreate} title="Invitar usuario" size="md" footer={createFooter}>
+        {inviteResult ? (
+          <div className={styles.inviteSuccess}>
+            <p className={styles.inviteSuccessMsg}>Invitación enviada a <strong>{inviteResult.email}</strong></p>
+            {inviteResult.devCode && (
+              <div className={styles.devCode}>
+                <span className={styles.devCodeLabel}>Código (solo desarrollo)</span>
+                <code className={styles.devCodeValue}>{inviteResult.devCode}</code>
+                <p className={styles.devCodeHint}>El usuario debe ir a <strong>/app</strong> e ingresar este código junto a su nueva contraseña.</p>
+              </div>
+            )}
+          </div>
+        ) : (
         <div className={styles.form}>
           <label className={styles.formLabel}>
             Email
             <input className={styles.formInput} type="email" value={createForm.email} onChange={e => setCreateForm(p => ({ ...p, email: e.target.value }))} />
-          </label>
-          <label className={styles.formLabel}>
-            Contraseña
-            <input className={styles.formInput} type="password" value={createForm.password} onChange={e => setCreateForm(p => ({ ...p, password: e.target.value }))} />
           </label>
           <label className={styles.formLabel}>
             Rol
@@ -198,6 +214,7 @@ export default function UsersPage() {
           </div>
           {modalError && <p className={styles.error}>{modalError}</p>}
         </div>
+        )}
       </Modal>
 
       {/* Edit modal */}

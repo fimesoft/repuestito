@@ -218,3 +218,48 @@
   font-size: 13px;
   color: #c53030;
 }
+
+/* ── Invite success ──────────── */
+
+.inviteSuccess {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.inviteSuccessMsg {
+  font-size: 14px;
+  color: #276749;
+}
+
+.devCode {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #fffbeb;
+  border: 1px solid #f6e05e;
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.devCodeLabel {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #744210;
+}
+
+.devCodeValue {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: #1a202c;
+  font-family: monospace;
+}
+
+.devCodeHint {
+  font-size: 12px;
+  color: #744210;
+  margin: 0;
+}

@@ -28,6 +28,12 @@
   border-color: #2b6cb0;
 }
 
+.countrySelect:disabled {
+  cursor: default;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
 .rightSlot {
   display: flex;
   align-items: center;

@@ -8,10 +8,17 @@ import styles from './AuthBlock.module.css';
 
 type View = 'login' | 'register' | 'verify' | 'forgot' | 'reset';
 
-export default function AuthBlock() {
+interface Props {
+  initialView?: string;
+  initialEmail?: string;
+}
+
+export default function AuthBlock({ initialView, initialEmail }: Props) {
   const router = useRouter();
-  const [view, setView] = useState<View>('login');
-  const [email, setEmail] = useState('');
+  const [view, setView] = useState<View>(
+    initialView === 'reset' ? 'reset' : 'login',
+  );
+  const [email, setEmail] = useState(initialEmail ?? '');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [code, setCode] = useState('');

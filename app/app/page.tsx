@@ -4,11 +4,16 @@ import styles from './page.module.css';
 
 export const metadata = { title: 'Ingresar — Repuestito' };
 
-export default function LoginPage() {
+interface PageProps {
+  searchParams: Promise<{ view?: string; email?: string }>;
+}
+
+export default async function LoginPage({ searchParams }: PageProps) {
+  const { view, email } = await searchParams;
   return (
     <main className={styles.page}>
       <div className={styles.left}>
-        <AuthBlock />
+        <AuthBlock initialView={view} initialEmail={email} />
       </div>
 
       <div className={styles.right}>
