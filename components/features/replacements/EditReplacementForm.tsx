@@ -77,10 +77,10 @@ export default function EditReplacementForm({ replacement }: EditReplacementForm
 
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
-      <label className={styles.label}>
+      <div className={styles.label}>
         Imagen del repuesto <span className={styles.optional}>(opcional)</span>
         <ImageUpload onUpload={setImageUrl} initialUrl={imageUrl ?? undefined} />
-      </label>
+      </div>
 
       <div className={styles.row}>
         <label className={styles.label}>

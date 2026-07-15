@@ -6,6 +6,7 @@ import Button from '@/components/ui/Button/Button';
 import { getUsers, inviteUser, updateUser, deleteUser, UserRecord, InviteUserPayload, UpdateUserPayload } from '@/services/user.service';
 import { getTenants, Tenant } from '@/services/tenant.service';
 import { getBranches, Branch } from '@/services/branch.service';
+import { useCountry } from '@/context/CountryContext';
 import styles from './page.module.css';
 
 const ROLES = ['MODERATOR', 'SELLER'];
@@ -13,6 +14,7 @@ const ROLES = ['MODERATOR', 'SELLER'];
 const EMPTY_CREATE: InviteUserPayload = { email: '', role: 'MODERATOR' };
 
 export default function UsersPage() {
+  const { country } = useCountry();
   const [users, setUsers] = useState<UserRecord[]>([]);
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [formBranches, setFormBranches] = useState<Branch[]>([]);
@@ -29,8 +31,11 @@ export default function UsersPage() {
 
   useEffect(() => {
     getUsers().then(setUsers);
-    getTenants().then(setTenants);
   }, []);
+
+  useEffect(() => {
+    getTenants(country).then(setTenants);
+  }, [country]);
 
   async function loadBranches(tenantId: string | undefined, setter: (b: Branch[]) => void) {
     if (!tenantId) { setter([]); return; }
@@ -116,7 +121,7 @@ export default function UsersPage() {
   ) : (
     <>
       <Button label="Cancelar" variant="outline" color="neutral" onClick={closeCreate} disabled={saving} />
-      <Button label={saving ? 'Enviando...' : 'Enviar invitación'} color="primary" onClick={handleCreate} disabled={saving} />
+      <Button label={saving ? 'Enviando...' : 'Enviar invitación'} color="primary" onClick={handleCreate} disabled={saving || !createForm.email || !createForm.tenantId} />
     </>
   );
 

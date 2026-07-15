@@ -73,9 +73,9 @@ function IconClose() {
 
 const NAV = [
   { href: '/dashboard/replacement', label: 'Repuestos', Icon: IconWrench },
-  { href: '/dashboard/vehicles', label: 'Vehículos', Icon: IconCar },
   { href: '/dashboard/stores', label: 'Locales', Icon: IconStore },
   { href: '/dashboard/users', label: 'Usuarios', Icon: IconUsers },
+  { href: '/dashboard/vehicles', label: 'Vehículos', Icon: IconCar },
   { href: '/dashboard/settings', label: 'Configuración', Icon: IconSettings },
 ];
 

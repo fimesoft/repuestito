@@ -53,6 +53,16 @@ export async function logout() {
   await fetch(`${API}/api/auth/logout`, { method: 'POST', credentials: 'include' });
 }
 
+export async function getMeClient(): Promise<AuthUser | null> {
+  try {
+    const res = await fetch(`${API}/api/auth/me`, { credentials: 'include' });
+    if (!res.ok) return null;
+    return res.json() as Promise<AuthUser>;
+  } catch {
+    return null;
+  }
+}
+
 export async function getMe(cookieHeader: string): Promise<AuthUser | null> {
   try {
     const res = await fetch(`${API}/api/auth/me`, {

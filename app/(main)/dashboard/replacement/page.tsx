@@ -11,6 +11,7 @@ import {
 } from '@/services/replacement.service';
 import { getTenants, Tenant } from '@/services/tenant.service';
 import { getBranches, Branch } from '@/services/branch.service';
+import { getMeClient, AuthUser } from '@/services/auth.service';
 import { useCountry } from '@/context/CountryContext';
 import styles from './page.module.css';
 
@@ -20,11 +21,14 @@ const EMPTY: Omit<CreateReplacementPayload, 'country'> = {
 };
 
 export default function ReplacementDashboardPage() {
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [replacements, setReplacements] = useState<Replacement[]>([]);
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [formBranches, setFormBranches] = useState<Branch[]>([]);
 
   const { country } = useCountry();
+  const isAdmin = currentUser?.role === 'ADMIN';
+  const visibleTenants = isAdmin ? tenants : tenants.filter(t => t.id === currentUser?.tenantId);
 
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState<Omit<CreateReplacementPayload, 'country'>>(EMPTY);
@@ -39,6 +43,10 @@ export default function ReplacementDashboardPage() {
   const [editImageUrl, setEditImageUrl] = useState<string | null>(null);
   const [editBranches, setEditBranches] = useState<Branch[]>([]);
   const [editError, setEditError] = useState<string | null>(null);
+
+  useEffect(() => {
+    getMeClient().then(setCurrentUser);
+  }, []);
 
   useEffect(() => {
     getReplacements({ country }).then(r => setReplacements(r.data));
@@ -63,13 +71,25 @@ export default function ReplacementDashboardPage() {
     setFormBranches(data);
   }
 
-  function openCreate() {
-    setForm(EMPTY);
+  async function openCreate() {
+    const tenantId = !isAdmin && currentUser?.tenantId ? currentUser.tenantId : '';
+    setForm({ ...EMPTY, tenantId });
     setPriceInput('');
     setImageUrl(null);
     setFormBranches([]);
     setFormError(null);
     setCreating(true);
+    if (tenantId) {
+      const branches = await getBranches(tenantId);
+      setFormBranches(branches);
+      if (branches.length === 1) {
+        const b = branches[0];
+        set({
+          branchId: b.id,
+          ...(b.latitude != null && b.longitude != null && { latitude: b.latitude, longitude: b.longitude }),
+        });
+      }
+    }
   }
 
   async function openEdit(r: Replacement) {
@@ -138,10 +158,12 @@ export default function ReplacementDashboardPage() {
     }
   }
 
+  const canCreate = !!form.name && !!form.brand && form.price > 0 && !!form.tenantId;
+
   const footer = (
     <>
       <Button label="Cancelar" variant="outline" color="neutral" onClick={() => setCreating(false)} disabled={saving} />
-      <Button label={saving ? 'Guardando...' : 'Guardar'} color="primary" onClick={handleCreate} disabled={saving} />
+      <Button label={saving ? 'Guardando...' : 'Guardar'} color="primary" onClick={handleCreate} disabled={saving || !canCreate} />
     </>
   );
 
@@ -205,10 +227,10 @@ export default function ReplacementDashboardPage() {
 
       <Modal isOpen={!!editingReplacement} onClose={() => setEditingReplacement(null)} title="Editar repuesto" size="lg" footer={editFooter}>
         <div className={styles.form}>
-          <label className={styles.label}>
+          <div className={styles.label}>
             Imagen <span className={styles.optional}>(opcional)</span>
             <ImageUpload onUpload={setEditImageUrl} initialUrl={editImageUrl ?? undefined} />
-          </label>
+          </div>
 
           <div className={styles.row}>
             <label className={styles.label}>
@@ -285,10 +307,10 @@ export default function ReplacementDashboardPage() {
 
       <Modal isOpen={creating} onClose={() => setCreating(false)} title="Nuevo repuesto" size="lg" footer={footer}>
         <div className={styles.form}>
-          <label className={styles.label}>
+          <div className={styles.label}>
             Imagen <span className={styles.optional}>(opcional)</span>
             <ImageUpload onUpload={setImageUrl} />
-          </label>
+          </div>
 
           <div className={styles.row}>
             <label className={styles.label}>
@@ -333,9 +355,9 @@ export default function ReplacementDashboardPage() {
             </label>
             <label className={styles.label}>
               Local
-              <select className={styles.select} value={form.tenantId} onChange={e => onTenantChange(e.target.value)} required>
+              <select className={styles.select} value={form.tenantId} onChange={e => onTenantChange(e.target.value)} disabled={!isAdmin} required>
                 <option value="">Seleccionar local</option>
-                {tenants.map(t => <option key={t.id} value={t.id}>{t.businessName}</option>)}
+                {visibleTenants.map(t => <option key={t.id} value={t.id}>{t.businessName}</option>)}
               </select>
             </label>
           </div>
