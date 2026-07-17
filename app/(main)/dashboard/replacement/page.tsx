@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import Modal from '@/components/ui/Modal/Modal';
 import Button from '@/components/ui/Button/Button';
 import ImageUpload from '@/components/ui/ImageUpload';
@@ -11,7 +12,7 @@ import {
 } from '@/services/replacement.service';
 import { getTenants, Tenant } from '@/services/tenant.service';
 import { getBranches, Branch } from '@/services/branch.service';
-import { getMeClient, AuthUser } from '@/services/auth.service';
+import { usePermissions } from '@/hooks/usePermissions';
 import { useCountry } from '@/context/CountryContext';
 import styles from './page.module.css';
 
@@ -21,13 +22,12 @@ const EMPTY: Omit<CreateReplacementPayload, 'country'> = {
 };
 
 export default function ReplacementDashboardPage() {
-  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [replacements, setReplacements] = useState<Replacement[]>([]);
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [formBranches, setFormBranches] = useState<Branch[]>([]);
 
   const { country } = useCountry();
-  const isAdmin = currentUser?.role === 'ADMIN';
+  const { currentUser, isAdmin, canManage } = usePermissions();
   const visibleTenants = isAdmin ? tenants : tenants.filter(t => t.id === currentUser?.tenantId);
 
   const [creating, setCreating] = useState(false);
@@ -43,10 +43,6 @@ export default function ReplacementDashboardPage() {
   const [editImageUrl, setEditImageUrl] = useState<string | null>(null);
   const [editBranches, setEditBranches] = useState<Branch[]>([]);
   const [editError, setEditError] = useState<string | null>(null);
-
-  useEffect(() => {
-    getMeClient().then(setCurrentUser);
-  }, []);
 
   useEffect(() => {
     getReplacements({ country }).then(r => setReplacements(r.data));
@@ -178,7 +174,7 @@ export default function ReplacementDashboardPage() {
     <main className={styles.page}>
       <div className={styles.header}>
         <h1 className={styles.title}>Repuestos</h1>
-        <Button label="+ Nuevo repuesto" onClick={openCreate} shadow />
+        {canManage && <Button label="+ Nuevo repuesto" onClick={openCreate} shadow />}
       </div>
 
       {JSON.stringify(replacements)}
@@ -213,8 +209,9 @@ export default function ReplacementDashboardPage() {
                   {tenants.find(t => t.id === r.tenantId)?.businessName ?? '—'}
                 </td>
                 <td className={styles.tdActions}>
-                  <button className={styles.btnText} onClick={() => openEdit(r)}>Editar</button>
-                  <button className={styles.btnDanger} onClick={() => handleDelete(r.id)}>Eliminar</button>
+                  <Link href={`/dashboard/replacement/${r.id}`} className={styles.btnText}>Compatibilidades</Link>
+                  {canManage && <button className={styles.btnText} onClick={() => openEdit(r)}>Editar</button>}
+                  {canManage && <button className={styles.btnDanger} onClick={() => handleDelete(r.id)}>Eliminar</button>}
                 </td>
               </tr>
             ))}

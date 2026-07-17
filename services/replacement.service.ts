@@ -95,6 +95,7 @@ export interface ReplacementQuery {
   page?: number;
   limit?: number;
   country?: string;
+  ids?: string;
 }
 
 export async function getReplacement(id: string, options?: RequestInit): Promise<Replacement> {
@@ -113,6 +114,7 @@ export async function getReplacements(
   if (query.page) params.set('page', String(query.page));
   if (query.limit) params.set('limit', String(query.limit));
   if (query.country) params.set('country', query.country);
+  if (query.ids) params.set('ids', query.ids);
 
   const url = `${process.env.NEXT_PUBLIC_API_URL}/api/replacements?${params.toString()}`;
   console.log(url)

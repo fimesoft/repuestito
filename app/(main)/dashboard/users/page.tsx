@@ -6,6 +6,7 @@ import Button from '@/components/ui/Button/Button';
 import { getUsers, inviteUser, updateUser, deleteUser, UserRecord, InviteUserPayload, UpdateUserPayload } from '@/services/user.service';
 import { getTenants, Tenant } from '@/services/tenant.service';
 import { getBranches, Branch } from '@/services/branch.service';
+import { usePermissions } from '@/hooks/usePermissions';
 import { useCountry } from '@/context/CountryContext';
 import styles from './page.module.css';
 
@@ -15,6 +16,7 @@ const EMPTY_CREATE: InviteUserPayload = { email: '', role: 'MODERATOR' };
 
 export default function UsersPage() {
   const { country } = useCountry();
+  const { currentUser, isAdmin, canManage } = usePermissions();
   const [users, setUsers] = useState<UserRecord[]>([]);
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [formBranches, setFormBranches] = useState<Branch[]>([]);
@@ -115,6 +117,10 @@ export default function UsersPage() {
     }
   }
 
+  const visibleUsers = isAdmin
+    ? users
+    : users.filter(u => u.tenantId === currentUser?.tenantId);
+
   // ── Footers ─────────────────────────────────────
   const createFooter = inviteResult ? (
     <Button label="Cerrar" color="primary" onClick={closeCreate} />
@@ -136,7 +142,7 @@ export default function UsersPage() {
     <main className={styles.page}>
       <div className={styles.header}>
         <h1 className={styles.title}>Usuarios</h1>
-        <Button label="+ Nuevo usuario" onClick={openCreate} shadow />
+        {canManage && <Button label="+ Nuevo usuario" onClick={openCreate} shadow />}
       </div>
 
       <div className={styles.tableWrapper}>
@@ -152,7 +158,7 @@ export default function UsersPage() {
             </tr>
           </thead>
           <tbody>
-            {users.map(user => (
+            {visibleUsers.map(user => (
               <tr key={user.id}>
                 <td className={styles.tdEmail}>{user.email}</td>
                 <td><span className={styles[`role${user.role}`]}>{user.role}</span></td>
@@ -164,12 +170,12 @@ export default function UsersPage() {
                   </span>
                 </td>
                 <td className={styles.tdActions}>
-                  <button className={styles.btnText} onClick={() => openEdit(user)}>Editar</button>
-                  <button className={styles.btnDanger} onClick={() => handleDelete(user.id)}>Eliminar</button>
+                  {canManage && <button className={styles.btnText} onClick={() => openEdit(user)}>Editar</button>}
+                  {canManage && <button className={styles.btnDanger} onClick={() => handleDelete(user.id)}>Eliminar</button>}
                 </td>
               </tr>
             ))}
-            {users.length === 0 && (
+            {visibleUsers.length === 0 && (
               <tr><td colSpan={6} className={styles.empty}>No hay usuarios registrados.</td></tr>
             )}
           </tbody>

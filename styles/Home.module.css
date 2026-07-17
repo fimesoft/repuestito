@@ -16,8 +16,17 @@
 
 .toolbar {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 1.5rem;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.empty {
+  font-size: 14px;
+  color: #a0aec0;
+  padding: 2rem 0;
 }
 
 .grid {

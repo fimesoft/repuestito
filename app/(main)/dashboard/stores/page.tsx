@@ -14,6 +14,7 @@ import {
 } from '@/services/branch.service';
 import LocationSearch from '@/components/ui/LocationSearch/LocationSearch';
 import { useCountry } from '@/context/CountryContext';
+import { usePermissions } from '@/hooks/usePermissions';
 import styles from './page.module.css';
 
 export default function StoresPage() {
@@ -32,6 +33,7 @@ export default function StoresPage() {
   const [newBranchForm, setNewBranchForm] = useState<CreateBranchPayload>({ name: '' });
 
   const { country } = useCountry();
+  const { canManage } = usePermissions();
   const [saving, setSaving] = useState(false);
   const [modalError, setModalError] = useState<string | null>(null);
 
@@ -167,7 +169,7 @@ export default function StoresPage() {
     <main className={styles.page}>
       <div className={styles.header}>
         <h1 className={styles.title}>Locales</h1>
-        <Button label="+ Nuevo local" onClick={() => setWizardOpen(true)} shadow />
+        {canManage && <Button label="+ Nuevo local" onClick={() => setWizardOpen(true)} shadow />}
       </div>
 
       <ul className={styles.list}>
@@ -182,8 +184,8 @@ export default function StoresPage() {
                 <span className={tenant.active ? styles.badgeActive : styles.badgeInactive}>
                   {tenant.active ? 'Activo' : 'Inactivo'}
                 </span>
-                <button className={styles.btnText} onClick={() => openEditTenant(tenant)}>Editar</button>
-                <button className={styles.btnDanger} onClick={() => handleDeleteTenant(tenant.id)}>Eliminar</button>
+                {canManage && <button className={styles.btnText} onClick={() => openEditTenant(tenant)}>Editar</button>}
+                {canManage && <button className={styles.btnDanger} onClick={() => handleDeleteTenant(tenant.id)}>Eliminar</button>}
                 <button className={styles.btnExpand} onClick={() => toggleExpand(tenant.id)}>
                   {expanded.has(tenant.id) ? '▲' : '▼'} Sucursales
                 </button>
@@ -203,17 +205,21 @@ export default function StoresPage() {
                           {branch.address && <span className={styles.branchMeta}>{branch.address}</span>}
                           {branch.phone && <span className={styles.branchMeta}>{branch.phone}</span>}
                         </div>
-                        <div className={styles.branchActions}>
-                          <button className={styles.btnText} onClick={() => openEditBranch(branch)}>Editar</button>
-                          <button className={styles.btnDanger} onClick={() => handleDeleteBranch(tenant.id, branch.id)}>Eliminar</button>
-                        </div>
+                        {canManage && (
+                          <div className={styles.branchActions}>
+                            <button className={styles.btnText} onClick={() => openEditBranch(branch)}>Editar</button>
+                            <button className={styles.btnDanger} onClick={() => handleDeleteBranch(tenant.id, branch.id)}>Eliminar</button>
+                          </div>
+                        )}
                       </li>
                     ))}
                   </ul>
                 )}
-                <button className={styles.btnAddBranch} onClick={() => openAddBranch(tenant.id)}>
-                  + Añadir sucursal
-                </button>
+                {canManage && (
+                  <button className={styles.btnAddBranch} onClick={() => openAddBranch(tenant.id)}>
+                    + Añadir sucursal
+                  </button>
+                )}
               </div>
             )}
           </li>

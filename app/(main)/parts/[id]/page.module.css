@@ -108,6 +108,60 @@
   margin: 0;
 }
 
+.compatSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.compatTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0;
+}
+
+.compatList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.compatItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #2d3748;
+  padding: 8px 14px;
+  background: #f7fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.compatBrand {
+  font-weight: 600;
+  color: #1a202c;
+}
+
+.compatYears {
+  margin-left: auto;
+  font-size: 12px;
+  color: #718096;
+  background: #edf2f7;
+  padding: 2px 8px;
+  border-radius: 100px;
+}
+
+.compatEmpty {
+  font-size: 13px;
+  color: #a0aec0;
+  margin: 0;
+}
+
 @media (max-width: 640px) {
   .detail {
     flex-direction: column;
