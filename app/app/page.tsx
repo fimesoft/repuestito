@@ -1,4 +1,5 @@
 import AuthBlock from '@/components/features/auth/AuthBlock';
+import Logo from '@/components/shared/Logo';
 import styles from './page.module.css';
 
 export const metadata = { title: 'Ingresar — Repuestito' };
@@ -12,13 +13,19 @@ export default async function LoginPage({ searchParams }: PageProps) {
   return (
     <main className={styles.page}>
       <div className={styles.left}>
-        <AuthBlock initialView={view} initialEmail={email} />
+        <div className={styles.leftInner}>
+          <div className={styles.logoWrap}>
+            <Logo href="/" />
+          </div>
+          <div className={styles.formWrap}>
+            <AuthBlock initialView={view} initialEmail={email} />
+          </div>
+        </div>
       </div>
-
       <div className={styles.right}>
         <div className={styles.tagline}>
-          <h2>El marketplace de repuestos que necesitas</h2>
-          <p>Encuentra piezas originales y alternativas para tu vehículo.</p>
+          <h2>El marketplace de autopartes que conecta al mundo</h2>
+          <p>Stock, pedidos y facturación de repuestos originales y alternativos, en un solo panel.</p>
         </div>
       </div>
     </main>

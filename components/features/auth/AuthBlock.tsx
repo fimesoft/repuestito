@@ -126,7 +126,7 @@ export default function AuthBlock({ initialView, initialEmail }: Props) {
       {view === 'login' && (
         <>
           <h1 className={styles.heading}>Bienvenido</h1>
-          <p className={styles.sub}>Ingresa a tu cuenta para administrar tu negocio</p>
+          <p className={styles.sub}>Ingresa a tu cuenta para administrar tu marketplace</p>
           <form className={styles.form} onSubmit={handleLogin}>
             <label className={styles.label}>
               Correo electrónico
@@ -162,7 +162,7 @@ export default function AuthBlock({ initialView, initialEmail }: Props) {
             </div>
           </form>
           <div className={styles.divider}>o</div>
-          <Button label="Crear cuenta" variant="outline" color="neutral" fullWidth onClick={() => goTo('register')} />
+          <Button label="Crear cuenta" variant="outline" color="neutral" size="lg" fullWidth onClick={() => goTo('register')} />
         </>
       )}
 

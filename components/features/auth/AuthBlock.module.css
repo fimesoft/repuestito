@@ -16,9 +16,11 @@
 }
 
 .sub {
-  font-size: 0.875rem;
+  font-size: 15px;
   color: var(--color-text-muted);
   margin: -1rem 0 0;
+  margin-bottom: 16px;
+  font-weight: 600;
 }
 
 .form {
@@ -31,9 +33,9 @@
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--color-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
 }
 
 .input {
@@ -43,6 +45,10 @@
   font-size: 0.9375rem;
   outline: none;
   transition: border-color 0.15s;
+}
+
+.input::placeholder {
+  color: var(--color-text-faint);
 }
 
 .input:focus {
@@ -82,14 +88,16 @@
 }
 
 .link {
-  font-size: 0.8125rem;
+  display: block;
+  text-align: center;
+  margin-top: 5px;
+  font-size: 13.5px;
   color: var(--color-primary);
   background: none;
   border: none;
   padding: 0;
   cursor: pointer;
-  text-align: left;
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 .link:hover {
