@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
+import { Public_Sans, Manrope } from "next/font/google";
 import "@/styles/globals.css";
 import { CountryProvider } from "@/context/CountryContext";
+
+const publicSans = Public_Sans({ subsets: ["latin"], display: "swap" });
+const manrope = Manrope({ subsets: ["latin"], display: "swap", variable: "--font-manrope" });
 
 export const metadata: Metadata = {
   title: "Repuestito",
@@ -9,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es">
+    <html lang="es" className={`${publicSans.className} ${manrope.variable}`}>
       <body>
         <CountryProvider>
           {children}

@@ -1,42 +1,29 @@
 .page {
   display: flex;
   min-height: 100vh;
+  background: var(--bg);
 }
 
 .left {
-  flex: 1;
+  flex: 0 0 42%;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 3rem 2rem;
-  background: #fff;
+  background: var(--bg);
 }
 
 .right {
   flex: 1;
   position: relative;
-  overflow: hidden;
-}
-
-.right::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.55) 0%, rgba(0, 0, 0, 0.45) 100%);
-  z-index: 1;
-}
-
-.image {
-  object-fit: cover;
+  background: var(--bg-dark);
+  display: flex;
+  align-items: flex-end;
+  padding: 3rem 2.5rem;
 }
 
 .tagline {
-  position: absolute;
-  bottom: 3rem;
-  left: 2.5rem;
-  right: 2.5rem;
-  z-index: 2;
-  color: #fff;
+  color: var(--color-text-inverse);
 }
 
 .tagline h2 {

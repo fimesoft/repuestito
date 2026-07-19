@@ -3,19 +3,21 @@
   max-width: 420px;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .heading {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #111;
-  margin: 0;
+  font-family: var(--font-manrope), sans-serif;
+  font-weight: 800;
+  font-size: 34px;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
+  margin: 0 0 8px;
 }
 
 .sub {
   font-size: 0.875rem;
-  color: #666;
+  color: var(--color-text-muted);
   margin: -1rem 0 0;
 }
 
@@ -31,12 +33,12 @@
   gap: 0.35rem;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #333;
+  color: var(--color-text-secondary);
 }
 
 .input {
   padding: 0.65rem 0.875rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   font-size: 0.9375rem;
   outline: none;
@@ -44,8 +46,8 @@
 }
 
 .input:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-ring);
 }
 
 .codeRow {
@@ -62,13 +64,13 @@
 
 .error {
   font-size: 0.8125rem;
-  color: #dc2626;
+  color: var(--color-error);
   margin: 0;
 }
 
 .success {
   font-size: 0.8125rem;
-  color: #16a34a;
+  color: var(--color-success);
   margin: 0;
 }
 
@@ -81,7 +83,7 @@
 
 .link {
   font-size: 0.8125rem;
-  color: #2563eb;
+  color: var(--color-primary);
   background: none;
   border: none;
   padding: 0;
@@ -91,14 +93,14 @@
 }
 
 .link:hover {
-  color: #1d4ed8;
+  color: var(--color-primary-hover);
 }
 
 .divider {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  color: #9ca3af;
+  color: var(--color-text-faint);
   font-size: 0.8125rem;
 }
 
@@ -107,5 +109,5 @@
   content: '';
   flex: 1;
   height: 1px;
-  background: #e5e7eb;
+  background: var(--color-border-subtle);
 }

@@ -1,8 +1,8 @@
 .dropzone {
   position: relative;
-  border: 2px dashed #cbd5e0;
+  border: 2px dashed var(--color-border-dashed);
   border-radius: 12px;
-  background: #f7fafc;
+  background: var(--bg-subtle);
   cursor: pointer;
   transition: border-color 0.15s ease, background 0.15s ease;
   min-height: 180px;
@@ -13,13 +13,11 @@
 
 .dropzone:hover,
 .dragging {
-  border-color: #2b6cb0;
-  background: #ebf8ff;
+  border-color: var(--color-primary);
+  background: var(--color-primary-subtle);
 }
 
-.hidden {
-  display: none;
-}
+.hidden { display: none; }
 
 .placeholder {
   display: flex;
@@ -33,19 +31,19 @@
 
 .icon {
   font-size: 28px;
-  color: #a0aec0;
+  color: var(--color-text-faint);
 }
 
 .placeholder p {
   font-size: 14px;
   font-weight: 500;
-  color: #4a5568;
+  color: var(--color-text-secondary);
   margin: 0;
 }
 
 .hint {
   font-size: 11px;
-  color: #a0aec0;
+  color: var(--color-text-faint);
 }
 
 .preview {
@@ -56,9 +54,7 @@
   overflow: hidden;
 }
 
-.previewImg {
-  object-fit: cover;
-}
+.previewImg { object-fit: cover; }
 
 .overlay {
   position: absolute;
@@ -67,7 +63,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--color-text-inverse);
   font-size: 14px;
   font-weight: 600;
 }
@@ -79,5 +75,5 @@
   right: 0;
   text-align: center;
   font-size: 12px;
-  color: #c53030;
+  color: var(--color-error);
 }

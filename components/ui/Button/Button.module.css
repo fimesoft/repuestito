@@ -3,7 +3,7 @@
   align-items: center;
   justify-content: center;
   padding: 8px 16px;
-  border-radius: 8px;
+  border-radius: 13px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -16,43 +16,43 @@
   cursor: not-allowed;
 }
 
-.fullWidth {
-  width: 100%;
-}
+.fullWidth { width: 100%; }
 
-.shadow {
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-}
+.shadow { box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); }
+
+.sm { padding: 6px 12px;  font-size: 12px; }
+.md { padding: 9px 16px;  font-size: 13px; }
+.lg { padding: 12px 20px; font-size: 15px; }
 
 /* --- solid --- */
-.solid.primary  { background: #2b6cb0; color: #fff; }
-.solid.success  { background: #276749; color: #fff; }
-.solid.danger   { background: #c53030; color: #fff; }
-.solid.neutral  { background: #898d94; color: #fff; }
+.solid.primary  { background: var(--color-primary);  color: var(--color-text-inverse); }
+.solid.success  { background: var(--color-success);  color: var(--color-text-inverse); }
+.solid.danger   { background: var(--color-error);    color: var(--color-text-inverse); }
+.solid.neutral  { background: var(--color-neutral);  color: var(--color-text-inverse); }
 
-.solid.primary:hover:not(:disabled)  { background: #2c5282; }
-.solid.success:hover:not(:disabled)  { background: #22543d; }
-.solid.danger:hover:not(:disabled)   { background: #9b2c2c; }
-.solid.neutral:hover:not(:disabled)  { background: #2d3748; }
+.solid.primary:hover:not(:disabled)  { background: var(--color-primary-hover); }
+.solid.success:hover:not(:disabled)  { background: var(--color-success-hover); }
+.solid.danger:hover:not(:disabled)   { background: var(--color-error-hover); }
+.solid.neutral:hover:not(:disabled)  { background: var(--color-neutral-hover); }
 
 /* --- outline --- */
-.outline.primary  { border-color: #2b6cb0; color: #2b6cb0; background: transparent; }
-.outline.success  { border-color: #276749; color: #276749; background: transparent; }
-.outline.danger   { border-color: #c53030; color: #c53030; background: transparent; }
-.outline.neutral  { border-color: #4a5568; color: #4a5568; background: transparent; }
+.outline.primary { border-color: var(--color-primary);         color: var(--color-primary);         background: transparent; }
+.outline.success { border-color: var(--color-success);         color: var(--color-success);         background: transparent; }
+.outline.danger  { border-color: var(--color-error);           color: var(--color-error);           background: transparent; }
+.outline.neutral { border-color: var(--color-text-secondary);  color: var(--color-text-secondary);  background: transparent; }
 
-.outline.primary:hover:not(:disabled)  { background: #ebf8ff; }
-.outline.success:hover:not(:disabled)  { background: #f0fff4; }
-.outline.danger:hover:not(:disabled)   { background: #fff5f5; }
-.outline.neutral:hover:not(:disabled)  { background: #edf2f7; }
+.outline.primary:hover:not(:disabled)  { background: var(--color-primary-subtle); }
+.outline.success:hover:not(:disabled)  { background: var(--color-success-subtle); }
+.outline.danger:hover:not(:disabled)   { background: var(--color-error-bg); }
+.outline.neutral:hover:not(:disabled)  { background: var(--bg-muted); }
 
 /* --- ghost --- */
-.ghost.primary  { color: #2b6cb0; background: transparent; }
-.ghost.success  { color: #276749; background: transparent; }
-.ghost.danger   { color: #c53030; background: transparent; }
-.ghost.neutral  { color: #4a5568; background: transparent; }
+.ghost.primary  { color: var(--color-primary);        background: transparent; }
+.ghost.success  { color: var(--color-success);        background: transparent; }
+.ghost.danger   { color: var(--color-error);          background: transparent; }
+.ghost.neutral  { color: var(--color-text-secondary); background: transparent; }
 
-.ghost.primary:hover:not(:disabled)  { background: #ebf8ff; }
-.ghost.success:hover:not(:disabled)  { background: #f0fff4; }
-.ghost.danger:hover:not(:disabled)   { background: #fff5f5; }
-.ghost.neutral:hover:not(:disabled)  { background: #edf2f7; }
+.ghost.primary:hover:not(:disabled)  { background: var(--color-primary-subtle); }
+.ghost.success:hover:not(:disabled)  { background: var(--color-success-subtle); }
+.ghost.danger:hover:not(:disabled)   { background: var(--color-error-bg); }
+.ghost.neutral:hover:not(:disabled)  { background: var(--bg-muted); }

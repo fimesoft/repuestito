@@ -8,16 +8,14 @@
 }
 
 .back {
-  color: #2b6cb0;
+  color: var(--color-primary);
   text-decoration: none;
   font-size: 14px;
   font-weight: 500;
   width: fit-content;
 }
 
-.back:hover {
-  text-decoration: underline;
-}
+.back:hover { text-decoration: underline; }
 
 .detail {
   display: flex;
@@ -30,20 +28,18 @@
   flex-shrink: 0;
   width: 320px;
   height: 280px;
-  background: #f7fafc;
+  background: var(--bg-subtle);
   border-radius: 12px;
   overflow: hidden;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
 }
 
-.image {
-  object-fit: contain;
-}
+.image { object-fit: contain; }
 
 .imagePlaceholder {
   width: 100%;
   height: 100%;
-  background: #edf2f7;
+  background: var(--bg-muted);
 }
 
 .info {
@@ -57,14 +53,14 @@
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
-  color: #718096;
+  color: var(--color-text-muted);
   letter-spacing: 0.06em;
 }
 
 .name {
   font-size: 24px;
   font-weight: 700;
-  color: #1a202c;
+  color: var(--color-text);
   margin: 0;
   line-height: 1.3;
 }
@@ -72,7 +68,7 @@
 .price {
   font-size: 28px;
   font-weight: 700;
-  color: #2b6cb0;
+  color: var(--color-primary);
   margin: 4px 0 12px;
 }
 
@@ -86,12 +82,12 @@
 .meta dt {
   font-size: 13px;
   font-weight: 600;
-  color: #718096;
+  color: var(--color-text-muted);
 }
 
 .meta dd {
   font-size: 13px;
-  color: #2d3748;
+  color: var(--color-text);
   margin: 0;
 }
 
@@ -104,7 +100,7 @@
 .mapTitle {
   font-size: 18px;
   font-weight: 600;
-  color: #1a202c;
+  color: var(--color-text);
   margin: 0;
 }
 
@@ -117,7 +113,7 @@
 .compatTitle {
   font-size: 18px;
   font-weight: 600;
-  color: #1a202c;
+  color: var(--color-text);
   margin: 0;
 }
 
@@ -135,40 +131,34 @@
   align-items: center;
   gap: 6px;
   font-size: 14px;
-  color: #2d3748;
+  color: var(--color-text);
   padding: 8px 14px;
-  background: #f7fafc;
+  background: var(--bg-subtle);
   border-radius: 8px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
 }
 
 .compatBrand {
   font-weight: 600;
-  color: #1a202c;
+  color: var(--color-text);
 }
 
 .compatYears {
   margin-left: auto;
   font-size: 12px;
-  color: #718096;
-  background: #edf2f7;
+  color: var(--color-text-muted);
+  background: var(--bg-muted);
   padding: 2px 8px;
   border-radius: 100px;
 }
 
 .compatEmpty {
   font-size: 13px;
-  color: #a0aec0;
+  color: var(--color-text-faint);
   margin: 0;
 }
 
 @media (max-width: 640px) {
-  .detail {
-    flex-direction: column;
-  }
-
-  .imageWrapper {
-    width: 100%;
-    height: 220px;
-  }
+  .detail { flex-direction: column; }
+  .imageWrapper { width: 100%; height: 220px; }
 }

@@ -8,13 +8,11 @@
   width: 100%;
   max-width: 360px;
   padding: 8px 14px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   font-size: 14px;
   outline: none;
   transition: border-color 0.15s ease;
 }
 
-.input:focus {
-  border-color: #2b6cb0;
-}
+.input:focus { border-color: var(--color-primary); }

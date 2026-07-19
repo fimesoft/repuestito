@@ -6,13 +6,11 @@
 .title {
   font-size: 24px;
   font-weight: 700;
-  color: #1a202c;
+  color: var(--color-text);
   margin-bottom: 32px;
 }
 
-.searchWrapper {
-  margin-bottom: 24px;
-}
+.searchWrapper { margin-bottom: 24px; }
 
 .toolbar {
   display: flex;
@@ -25,7 +23,7 @@
 
 .empty {
   font-size: 14px;
-  color: #a0aec0;
+  color: var(--color-text-faint);
   padding: 2rem 0;
 }
 
@@ -36,13 +34,11 @@
 }
 
 @media (max-width: 480px) {
-  .grid {
-    flex-direction: column;
-  }
+  .grid { flex-direction: column; }
 }
 
 .error {
   font-size: 14px;
-  color: #c53030;
+  color: var(--color-error);
   margin-bottom: 16px;
 }

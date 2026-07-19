@@ -126,7 +126,7 @@ export default function AuthBlock({ initialView, initialEmail }: Props) {
       {view === 'login' && (
         <>
           <h1 className={styles.heading}>Bienvenido</h1>
-          <p className={styles.sub}>Ingresa a tu cuenta para continuar</p>
+          <p className={styles.sub}>Ingresa a tu cuenta para administrar tu negocio</p>
           <form className={styles.form} onSubmit={handleLogin}>
             <label className={styles.label}>
               Correo electrónico
@@ -155,7 +155,7 @@ export default function AuthBlock({ initialView, initialEmail }: Props) {
             {error && <p className={styles.error}>{error}</p>}
             {success && <p className={styles.success}>{success}</p>}
             <div className={styles.actions}>
-              <Button label={loading ? 'Ingresando...' : 'Ingresar'} type="submit" variant="solid" color="primary" fullWidth disabled={loading} />
+              <Button label={loading ? 'Ingresando...' : 'Ingresar'} type="submit" variant="solid" color="primary" size="lg" fullWidth disabled={loading} />
               <button type="button" className={styles.link} onClick={() => goTo('forgot')}>
                 ¿Olvidaste tu contraseña?
               </button>
@@ -209,7 +209,7 @@ export default function AuthBlock({ initialView, initialEmail }: Props) {
             </label>
             {error && <p className={styles.error}>{error}</p>}
             <div className={styles.actions}>
-              <Button label={loading ? 'Registrando...' : 'Registrarse'} type="submit" variant="solid" color="primary" fullWidth disabled={loading} />
+              <Button label={loading ? 'Registrando...' : 'Registrarse'} type="submit" variant="solid" color="primary" size="lg" fullWidth disabled={loading} />
               <button type="button" className={styles.link} onClick={() => goTo('login')}>
                 ¿Ya tienes cuenta? Ingresa aquí
               </button>
@@ -239,7 +239,7 @@ export default function AuthBlock({ initialView, initialEmail }: Props) {
             {error && <p className={styles.error}>{error}</p>}
             {success && <p className={styles.success}>{success}</p>}
             <div className={styles.actions}>
-              <Button label={loading ? 'Verificando...' : 'Verificar'} type="submit" variant="solid" color="primary" fullWidth disabled={loading} />
+              <Button label={loading ? 'Verificando...' : 'Verificar'} type="submit" variant="solid" color="primary" size="lg" fullWidth disabled={loading} />
               <button type="button" className={styles.link} onClick={() => goTo('register')}>
                 Volver al registro
               </button>
@@ -268,7 +268,7 @@ export default function AuthBlock({ initialView, initialEmail }: Props) {
             {error && <p className={styles.error}>{error}</p>}
             {success && <p className={styles.success}>{success}</p>}
             <div className={styles.actions}>
-              <Button label={loading ? 'Enviando...' : 'Enviar código'} type="submit" variant="solid" color="primary" fullWidth disabled={loading} />
+              <Button label={loading ? 'Enviando...' : 'Enviar código'} type="submit" variant="solid" color="primary" size="lg" fullWidth disabled={loading} />
               <button type="button" className={styles.link} onClick={() => goTo('login')}>
                 Volver al inicio de sesión
               </button>
@@ -321,7 +321,7 @@ export default function AuthBlock({ initialView, initialEmail }: Props) {
             </label>
             {error && <p className={styles.error}>{error}</p>}
             <div className={styles.actions}>
-              <Button label={loading ? 'Guardando...' : 'Guardar contraseña'} type="submit" variant="solid" color="primary" fullWidth disabled={loading} />
+              <Button label={loading ? 'Guardando...' : 'Guardar contraseña'} type="submit" variant="solid" color="primary" size="lg" fullWidth disabled={loading} />
               <button type="button" className={styles.link} onClick={() => goTo('forgot')}>
                 Volver
               </button>

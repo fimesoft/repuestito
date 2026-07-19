@@ -6,22 +6,20 @@
 
 .total {
   font-size: 13px;
-  color: #718096;
+  color: var(--color-text-muted);
   font-weight: 500;
 }
 
 .select {
   padding: 6px 10px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   font-size: 13px;
-  color: #1a202c;
-  background: #fff;
+  color: var(--color-text);
+  background: var(--bg-surface);
   cursor: pointer;
   outline: none;
   transition: border-color 0.15s ease;
 }
 
-.select:focus {
-  border-color: #2b6cb0;
-}
+.select:focus { border-color: var(--color-primary); }

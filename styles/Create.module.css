@@ -7,20 +7,18 @@
 .back {
   display: inline-block;
   margin-bottom: 24px;
-  color: #2b6cb0;
+  color: var(--color-primary);
   text-decoration: none;
   font-size: 14px;
   font-weight: 500;
 }
 
-.back:hover {
-  text-decoration: underline;
-}
+.back:hover { text-decoration: underline; }
 
 .title {
   font-size: 22px;
   font-weight: 700;
-  color: #1a202c;
+  color: var(--color-text);
   margin-bottom: 32px;
 }
 
@@ -42,31 +40,29 @@
   gap: 6px;
   font-size: 13px;
   font-weight: 600;
-  color: #4a5568;
+  color: var(--color-text-secondary);
 }
 
 .optional {
   font-weight: 400;
-  color: #a0aec0;
+  color: var(--color-text-faint);
 }
 
 .input {
   padding: 8px 12px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   font-size: 14px;
-  color: #1a202c;
+  color: var(--color-text);
   outline: none;
   transition: border-color 0.15s ease;
 }
 
-.input:focus {
-  border-color: #2b6cb0;
-}
+.input:focus { border-color: var(--color-primary); }
 
 .error {
   font-size: 13px;
-  color: #c53030;
+  color: var(--color-error);
 }
 
 .actions {
@@ -76,7 +72,5 @@
 }
 
 @media (max-width: 560px) {
-  .row {
-    grid-template-columns: 1fr;
-  }
+  .row { grid-template-columns: 1fr; }
 }

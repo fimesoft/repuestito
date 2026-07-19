@@ -8,25 +8,25 @@
 
 .btn {
   padding: 8px 16px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   font-size: 13px;
   font-weight: 600;
-  color: #2b6cb0;
+  color: var(--color-primary);
   text-decoration: none;
   transition: background 0.15s ease;
 }
 
 .btn:hover:not(.disabled) {
-  background: #ebf8ff;
+  background: var(--color-primary-subtle);
 }
 
 .disabled {
-  color: #a0aec0;
+  color: var(--color-text-faint);
   cursor: not-allowed;
 }
 
 .info {
   font-size: 13px;
-  color: #718096;
+  color: var(--color-text-muted);
 }

@@ -1,23 +1,19 @@
 .card {
   display: flex;
   flex-direction: column;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   overflow: hidden;
-  background: #fff;
+  background: var(--bg-surface);
   transition: box-shadow 0.2s ease;
   width: 220px;
 }
 
 @media (max-width: 480px) {
-  .card {
-    width: 100%;
-  }
+  .card { width: 100%; }
 }
 
-.card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-}
+.card:hover { box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1); }
 
 .cardLink {
   text-decoration: none;
@@ -26,25 +22,21 @@
   flex-direction: column;
 }
 
-.cardFooter {
-  padding: 0 16px 16px;
-}
+.cardFooter { padding: 0 16px 16px; }
 
 .imageWrapper {
   position: relative;
   width: 100%;
   height: 160px;
-  background: #f7fafc;
+  background: var(--bg-subtle);
 }
 
-.image {
-  object-fit: contain;
-}
+.image { object-fit: contain; }
 
 .imagePlaceholder {
   width: 100%;
   height: 100%;
-  background: #edf2f7;
+  background: var(--bg-muted);
 }
 
 .body {
@@ -58,14 +50,14 @@
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
-  color: #718096;
+  color: var(--color-text-muted);
   letter-spacing: 0.05em;
 }
 
 .name {
   font-size: 14px;
   font-weight: 600;
-  color: #1a202c;
+  color: var(--color-text);
   margin: 0;
   line-height: 1.3;
 }
@@ -73,6 +65,6 @@
 .price {
   font-size: 16px;
   font-weight: 700;
-  color: #2b6cb0;
+  color: var(--color-primary);
   margin: 4px 0 0;
 }

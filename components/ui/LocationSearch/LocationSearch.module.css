@@ -9,16 +9,16 @@
 .input {
   width: 100%;
   padding: 8px 32px 8px 12px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   font-size: 14px;
-  color: #1a202c;
+  color: var(--color-text);
   outline: none;
-  background: #fff;
+  background: var(--bg-surface);
   transition: border-color 0.15s;
 }
 
-.input:focus { border-color: #2b6cb0; }
+.input:focus { border-color: var(--color-primary); }
 
 .clearBtn {
   position: absolute;
@@ -27,21 +27,21 @@
   border: none;
   font-size: 18px;
   line-height: 1;
-  color: #a0aec0;
+  color: var(--color-text-faint);
   cursor: pointer;
   padding: 0 2px;
 }
-.clearBtn:hover { color: #4a5568; }
+.clearBtn:hover { color: var(--color-text-secondary); }
 
-.hint { font-size: 12px; color: #a0aec0; margin: 4px 0 0; }
+.hint { font-size: 12px; color: var(--color-text-faint); margin: 4px 0 0; }
 
 .dropdown {
   position: absolute;
   top: calc(100% + 4px);
   left: 0;
   right: 0;
-  background: #fff;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-surface);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   list-style: none;
@@ -55,15 +55,15 @@
 .option {
   padding: 8px 12px;
   font-size: 13px;
-  color: #2d3748;
+  color: var(--color-text);
   cursor: pointer;
   line-height: 1.4;
 }
-.option:hover { background: #ebf8ff; }
+.option:hover { background: var(--color-primary-subtle); }
 
 .coords {
   font-size: 11px;
-  color: #718096;
+  color: var(--color-text-muted);
   margin: 4px 0 0;
   font-variant-numeric: tabular-nums;
 }

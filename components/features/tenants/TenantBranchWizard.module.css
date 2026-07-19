@@ -21,36 +21,34 @@
   justify-content: center;
   font-size: 12px;
   font-weight: 700;
-  background: #e2e8f0;
-  color: #a0aec0;
+  background: var(--color-border);
+  color: var(--color-text-faint);
   transition: background 0.2s ease, color 0.2s ease;
 }
 
 .dot.active {
-  background: #2b6cb0;
-  color: #fff;
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
 }
 
 .dot.done {
-  background: #276749;
-  color: #fff;
+  background: var(--color-success);
+  color: var(--color-text-inverse);
 }
 
 .stepLabel {
   font-size: 11px;
   font-weight: 600;
-  color: #a0aec0;
+  color: var(--color-text-faint);
   transition: color 0.2s ease;
 }
 
-.stepLabel.active {
-  color: #2b6cb0;
-}
+.stepLabel.active { color: var(--color-primary); }
 
 .connector {
   width: 60px;
   height: 2px;
-  background: #e2e8f0;
+  background: var(--color-border);
   margin-top: 13px;
   flex-shrink: 0;
 }
@@ -73,35 +71,33 @@
   gap: 6px;
   font-size: 13px;
   font-weight: 600;
-  color: #4a5568;
+  color: var(--color-text-secondary);
 }
 
 .optional {
   font-weight: 400;
-  color: #a0aec0;
+  color: var(--color-text-faint);
 }
 
 .input {
   padding: 8px 12px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   font-size: 14px;
-  color: #1a202c;
+  color: var(--color-text);
   outline: none;
   transition: border-color 0.15s ease;
   width: 100%;
 }
 
-.input:focus {
-  border-color: #2b6cb0;
-}
+.input:focus { border-color: var(--color-primary); }
 
 .textarea {
   padding: 8px 12px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   font-size: 14px;
-  color: #1a202c;
+  color: var(--color-text);
   outline: none;
   transition: border-color 0.15s ease;
   width: 100%;
@@ -110,17 +106,13 @@
   font-family: inherit;
 }
 
-.textarea:focus {
-  border-color: #2b6cb0;
-}
+.textarea:focus { border-color: var(--color-primary); }
 
 .error {
   font-size: 13px;
-  color: #c53030;
+  color: var(--color-error);
 }
 
 @media (max-width: 480px) {
-  .row {
-    grid-template-columns: 1fr;
-  }
+  .row { grid-template-columns: 1fr; }
 }

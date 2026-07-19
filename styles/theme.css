@@ -1,0 +1,65 @@
+:root {
+  /* ── Brand ──────────────────────────────── */
+  --color-primary:          #3D63DD;
+  --color-primary-hover:    #3254c5;
+  --color-primary-subtle:   #eef2ff;
+  --color-primary-ring:     rgba(61, 99, 221, 0.12);
+
+  /* ── Text ───────────────────────────────── */
+  --color-text:             #1a202c;
+  --color-text-secondary:   #4a5568;
+  --color-text-muted:       #718096;
+  --color-text-faint:       #a0aec0;
+  --color-text-inverse:     #fff;
+
+  /* ── Borders ────────────────────────────── */
+  --color-border:           #e2e8f0;
+  --color-border-subtle:    #f0f4f8;
+  --color-border-dashed:    #cbd5e0;
+
+  /* ── Surfaces ───────────────────────────── */
+  --bg:                     #f4f5f7;
+  --bg-surface:             #fff;
+  --bg-subtle:              #f7fafc;
+  --bg-muted:               #edf2f7;
+  --bg-header:              #f1f5f9;
+  --bg-dark:                #1a2540;
+
+  /* ── Feedback ───────────────────────────── */
+  --color-error:            #c53030;
+  --color-error-hover:      #9b2c2c;
+  --color-error-bg:         #fff5f5;
+  --color-success:          #276749;
+  --color-success-hover:    #22543d;
+  --color-success-subtle:   #f0fff4;
+  --color-success-bg:       #c6f6d5;
+  --color-warning-bg:       #fffbeb;
+  --color-warning-border:   #f6e05e;
+  --color-warning-text:     #744210;
+
+  /* ── Neutral (button variant) ───────────── */
+  --color-neutral:          #898d94;
+  --color-neutral-hover:    #2d3748;
+
+  /* ── Sidebar ────────────────────────────── */
+  --sidebar-bg:             #0f172a;
+  --sidebar-border:         #1e293b;
+  --sidebar-text:           #e2e8f0;
+  --sidebar-text-bright:    #f8fafc;
+  --sidebar-text-muted:     #94a3b8;
+  --sidebar-active-bg:      #1e3a5f;
+  --sidebar-active-text:    #93c5fd;
+  --sidebar-active-dot:     #3b82f6;
+
+  /* ── Badges ─────────────────────────────── */
+  --badge-active-bg:        #c6f6d5;
+  --badge-active-text:      #276749;
+  --badge-inactive-bg:      #fed7d7;
+  --badge-inactive-text:    #c53030;
+  --badge-admin-bg:         #e9d8fd;
+  --badge-admin-text:       #553c9a;
+  --badge-moderator-bg:     #bee3f8;
+  --badge-moderator-text:   #2a69ac;
+  --badge-seller-bg:        #fefcbf;
+  --badge-seller-text:      #744210;
+}

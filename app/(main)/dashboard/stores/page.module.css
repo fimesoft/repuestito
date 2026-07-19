@@ -1,6 +1,4 @@
-.page {
-  padding: 2rem;
-}
+.page { padding: 2rem; }
 
 .header {
   display: flex;
@@ -12,7 +10,7 @@
 .title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1a202c;
+  color: var(--color-text);
 }
 
 .list {
@@ -25,8 +23,8 @@
 }
 
 .card {
-  background: #fff;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-surface);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   overflow: hidden;
 }
@@ -40,22 +38,19 @@
   flex-wrap: wrap;
 }
 
-.info {
-  flex: 1;
-  min-width: 0;
-}
+.info { flex: 1; min-width: 0; }
 
 .name {
   display: block;
   font-weight: 600;
-  color: #1a202c;
+  color: var(--color-text);
   font-size: 0.95rem;
 }
 
 .meta {
   display: block;
   font-size: 0.8rem;
-  color: #718096;
+  color: var(--color-text-muted);
   margin-top: 2px;
 }
 
@@ -72,8 +67,8 @@
   border-radius: 100px;
   font-size: 11px;
   font-weight: 600;
-  background: #c6f6d5;
-  color: #276749;
+  background: var(--badge-active-bg);
+  color: var(--badge-active-text);
 }
 
 .badgeInactive {
@@ -81,58 +76,52 @@
   border-radius: 100px;
   font-size: 11px;
   font-weight: 600;
-  background: #fed7d7;
-  color: #c53030;
+  background: var(--badge-inactive-bg);
+  color: var(--badge-inactive-text);
 }
 
 .btnText {
   background: none;
   border: none;
   font-size: 13px;
-  color: #2b6cb0;
+  color: var(--color-primary);
   cursor: pointer;
   padding: 4px 6px;
   border-radius: 4px;
 }
 
-.btnText:hover {
-  background: #ebf8ff;
-}
+.btnText:hover { background: var(--color-primary-subtle); }
 
 .btnDanger {
   background: none;
   border: none;
   font-size: 13px;
-  color: #c53030;
+  color: var(--color-error);
   cursor: pointer;
   padding: 4px 6px;
   border-radius: 4px;
 }
 
-.btnDanger:hover {
-  background: #fff5f5;
-}
+.btnDanger:hover { background: var(--color-error-bg); }
 
 .btnExpand {
   background: none;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
   font-size: 12px;
-  color: #4a5568;
+  color: var(--color-text-secondary);
   cursor: pointer;
   padding: 4px 10px;
   border-radius: 6px;
 }
 
-.btnExpand:hover {
-  background: #f7fafc;
-}
+.btnExpand:hover { background: var(--bg-subtle); }
 
 /* ── Branches ─────────────────── */
 
 .branches {
-  border-top: 1px solid #f0f4f8;
+  border-top: 1px solid var(--color-border-subtle);
   padding: 12px 1.25rem;
-  background: #f7fafc;
+  background: var(--bg-subtle);
 }
 
 .branchList {
@@ -148,49 +137,42 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #fff;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-surface);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 10px 14px;
   gap: 8px;
 }
 
-.branchInfo {
-  flex: 1;
-  min-width: 0;
-}
+.branchInfo { flex: 1; min-width: 0; }
 
 .branchName {
   display: block;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #1a202c;
+  color: var(--color-text);
 }
 
 .branchMeta {
   display: block;
   font-size: 0.75rem;
-  color: #718096;
+  color: var(--color-text-muted);
   margin-top: 1px;
 }
 
-.branchActions {
-  display: flex;
-  gap: 4px;
-  flex-shrink: 0;
-}
+.branchActions { display: flex; gap: 4px; flex-shrink: 0; }
 
 .empty {
   font-size: 13px;
-  color: #a0aec0;
+  color: var(--color-text-faint);
   margin: 0 0 10px;
 }
 
 .btnAddBranch {
   background: none;
-  border: 1px dashed #cbd5e0;
+  border: 1px dashed var(--color-border-dashed);
   border-radius: 6px;
-  color: #4a5568;
+  color: var(--color-text-secondary);
   font-size: 13px;
   cursor: pointer;
   padding: 6px 12px;
@@ -198,23 +180,13 @@
   text-align: center;
 }
 
-.btnAddBranch:hover {
-  background: #edf2f7;
-}
+.btnAddBranch:hover { background: var(--bg-muted); }
 
 /* ── Modal forms ──────────────── */
 
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
+.form { display: flex; flex-direction: column; gap: 14px; }
 
-.formRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
+.formRow { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
 .formLabel {
   display: flex;
@@ -222,22 +194,20 @@
   gap: 6px;
   font-size: 13px;
   font-weight: 600;
-  color: #4a5568;
+  color: var(--color-text-secondary);
 }
 
 .formInput {
   padding: 8px 12px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   font-size: 14px;
-  color: #1a202c;
+  color: var(--color-text);
   outline: none;
   transition: border-color 0.15s;
 }
 
-.formInput:focus {
-  border-color: #2b6cb0;
-}
+.formInput:focus { border-color: var(--color-primary); }
 
 .formCheckbox {
   display: flex;
@@ -245,11 +215,8 @@
   gap: 8px;
   font-size: 13px;
   font-weight: 600;
-  color: #4a5568;
+  color: var(--color-text-secondary);
   cursor: pointer;
 }
 
-.error {
-  font-size: 13px;
-  color: #c53030;
-}
+.error { font-size: 13px; color: var(--color-error); }

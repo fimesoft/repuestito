@@ -1,5 +1,10 @@
 # Reglas del proyecto
 
+## Diseño y paleta de colores
+- La paleta de colores del frontend está definida en `styles/theme.css` como variables CSS (`--color-primary`, etc.).
+- Al escribir o modificar estilos, usar siempre las variables de `theme.css`. Prohibido hardcodear colores que ya existan como variable.
+- Si se necesita un color nuevo, agregarlo primero en `theme.css` y luego consumirlo vía variable.
+
 ## TypeScript
 - No usar el tipo `any`. Usar siempre tipos específicos, `unknown` con narrowing, o tipos de utilidad (`Partial`, `Pick`, `Record`, etc.).
 
