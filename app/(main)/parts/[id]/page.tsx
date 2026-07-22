@@ -15,8 +15,8 @@ export default async function PartDetailPage({ params }: PageProps) {
   const { id } = await params;
   const part = await getReplacement(id, { next: { revalidate: 60 } } as RequestInit);
 
-  const compatCountry = COMPATIBILITY_COUNTRIES.includes(part.country as CompatibilityCountry)
-    ? (part.country as CompatibilityCountry)
+  const compatCountry = COMPATIBILITY_COUNTRIES.includes(part.globalReplacement?.countryCode as CompatibilityCountry)
+    ? (part.globalReplacement?.countryCode as CompatibilityCountry)
     : null;
   const compatibility = compatCountry
     ? await getCompatibilityByReplacement(compatCountry, id)
@@ -28,29 +28,29 @@ export default async function PartDetailPage({ params }: PageProps) {
 
       <div className={styles.detail}>
         <div className={styles.imageWrapper}>
-          {part.imageUrl ? (
-            <Image src={part.imageUrl} alt={part.name} fill sizes="100%" className={styles.image} priority />
+          {part.globalReplacement?.imageUrl ? (
+            <Image src={part.globalReplacement.imageUrl} alt={part.globalReplacement.name} fill sizes="100%" className={styles.image} priority />
           ) : (
             <div className={styles.imagePlaceholder} />
           )}
         </div>
 
         <div className={styles.info}>
-          <span className={styles.brand}>{part.brand}</span>
-          <h1 className={styles.name}>{part.name}</h1>
+          <span className={styles.brand}>{part.globalReplacement?.brand?.name}</span>
+          <h1 className={styles.name}>{part.globalReplacement?.name}</h1>
           <p className={styles.price}>${part.price.toLocaleString()}</p>
 
           <dl className={styles.meta}>
-            {part.codeOem && (
+            {part.globalReplacement?.codeOem && (
               <>
                 <dt>Código OEM</dt>
-                <dd>{part.codeOem}</dd>
+                <dd>{part.globalReplacement.codeOem}</dd>
               </>
             )}
             <dt>Stock</dt>
             <dd>{part.stock} unidades</dd>
             <dt>País</dt>
-            <dd>{part.country}</dd>
+            <dd>{part.globalReplacement?.countryCode}</dd>
             <dt>Distancia</dt>
             {part.latitude != null && part.longitude != null && (
               <DistanceBadge storeLat={part.latitude} storeLng={part.longitude} />
@@ -89,7 +89,7 @@ export default async function PartDetailPage({ params }: PageProps) {
           <PartMapWrapper
             storeLat={part.latitude}
             storeLng={part.longitude}
-            storeName={part.name}
+            storeName={part.globalReplacement?.name ?? ''}
           />
         )}
       </section>

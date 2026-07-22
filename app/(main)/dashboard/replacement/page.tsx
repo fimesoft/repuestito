@@ -8,22 +8,30 @@ import Button from '@/components/ui/Button/Button';
 import ImageUpload from '@/components/ui/ImageUpload';
 import {
   getReplacements, createReplacement, updateReplacement, deleteReplacement,
-  Replacement, CreateReplacementPayload,
+  Replacement, CreateReplacementPayload, UpdateReplacementPayload,
 } from '@/services/replacement.service';
 import { getTenants, Tenant } from '@/services/tenant.service';
 import { getBranches, Branch } from '@/services/branch.service';
+import { getBrands, Brand } from '@/services/brands.service';
 import { usePermissions } from '@/hooks/usePermissions';
 import { useCountry } from '@/context/CountryContext';
 import styles from './page.module.css';
 
-
-const EMPTY: Omit<CreateReplacementPayload, 'country'> = {
-  name: '', brand: '', price: 0, tenantId: '',
+const EMPTY: Omit<CreateReplacementPayload, 'countryCode'> = {
+  name: '', brandId: 0, price: 0, tenantId: '',
 };
+
+interface EditFormState extends UpdateReplacementPayload {
+  tenantId: string;
+  branchId?: string;
+}
+
+const EMPTY_EDIT: EditFormState = { price: 0, stock: 0, tenantId: '' };
 
 export default function ReplacementDashboardPage() {
   const [replacements, setReplacements] = useState<Replacement[]>([]);
   const [tenants, setTenants] = useState<Tenant[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
   const [formBranches, setFormBranches] = useState<Branch[]>([]);
 
   const { country } = useCountry();
@@ -31,16 +39,15 @@ export default function ReplacementDashboardPage() {
   const visibleTenants = isAdmin ? tenants : tenants.filter(t => t.id === currentUser?.tenantId);
 
   const [creating, setCreating] = useState(false);
-  const [form, setForm] = useState<Omit<CreateReplacementPayload, 'country'>>(EMPTY);
+  const [form, setForm] = useState<Omit<CreateReplacementPayload, 'countryCode'>>(EMPTY);
   const [priceInput, setPriceInput] = useState('');
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
   const [editingReplacement, setEditingReplacement] = useState<Replacement | null>(null);
-  const [editForm, setEditForm] = useState<Omit<CreateReplacementPayload, 'country'>>(EMPTY);
+  const [editForm, setEditForm] = useState<EditFormState>(EMPTY_EDIT);
   const [editPriceInput, setEditPriceInput] = useState('');
-  const [editImageUrl, setEditImageUrl] = useState<string | null>(null);
   const [editBranches, setEditBranches] = useState<Branch[]>([]);
   const [editError, setEditError] = useState<string | null>(null);
 
@@ -52,11 +59,15 @@ export default function ReplacementDashboardPage() {
     getTenants(country).then(setTenants);
   }, [country]);
 
+  useEffect(() => {
+    getBrands(country ?? undefined).then(setBrands);
+  }, [country]);
+
   function set(field: Partial<CreateReplacementPayload>) {
     setForm(p => ({ ...p, ...field }));
   }
 
-  function setEdit(field: Partial<CreateReplacementPayload>) {
+  function setEdit(field: Partial<EditFormState>) {
     setEditForm(p => ({ ...p, ...field }));
   }
 
@@ -89,9 +100,8 @@ export default function ReplacementDashboardPage() {
   }
 
   async function openEdit(r: Replacement) {
-    setEditForm({ name: r.name, brand: r.brand, price: r.price, tenantId: r.tenantId, stock: r.stock, codeOem: r.codeOem ?? '', branchId: r.branchId ?? '' });
+    setEditForm({ price: r.price, stock: r.stock, tenantId: r.tenantId, branchId: r.branchId ?? '' });
     setEditPriceInput(String(r.price));
-    setEditImageUrl(r.imageUrl);
     setEditBranches([]);
     setEditError(null);
     if (r.tenantId) {
@@ -113,7 +123,7 @@ export default function ReplacementDashboardPage() {
     setSaving(true);
     setEditError(null);
     try {
-      const payload = { ...editForm, ...(editImageUrl ? { imageUrl: editImageUrl } : {}) };
+      const { tenantId: _t, ...payload } = editForm;
       const updated = await updateReplacement(editingReplacement.id, payload);
       setReplacements(prev => prev.map(r => r.id === updated.id ? updated : r));
       setEditingReplacement(null);
@@ -131,7 +141,7 @@ export default function ReplacementDashboardPage() {
     try {
       const payload: CreateReplacementPayload = {
         ...form,
-        country: country,
+        countryCode: country ?? '',
         ...(imageUrl ? { imageUrl } : {}),
       };
       const created = await createReplacement(payload);
@@ -154,7 +164,7 @@ export default function ReplacementDashboardPage() {
     }
   }
 
-  const canCreate = !!form.name && !!form.brand && form.price > 0 && !!form.tenantId;
+  const canCreate = !!form.name && form.brandId > 0 && form.price > 0 && !!form.tenantId;
 
   const footer = (
     <>
@@ -177,7 +187,6 @@ export default function ReplacementDashboardPage() {
         {canManage && <Button label="+ Nuevo repuesto" onClick={openCreate} shadow />}
       </div>
 
-      {JSON.stringify(replacements)}
       <div className={styles.tableWrapper}>
         <table className={styles.table}>
           <thead>
@@ -196,14 +205,14 @@ export default function ReplacementDashboardPage() {
             {replacements.map(r => (
               <tr key={r.id}>
                 <td className={styles.tdImg}>
-                  {r.imageUrl
-                    ? <Image src={r.imageUrl} alt={r.name} width={40} height={40} className={styles.img} />
+                  {r.globalReplacement?.imageUrl
+                    ? <Image src={r.globalReplacement.imageUrl} alt={r.globalReplacement.name} width={40} height={40} className={styles.img} />
                     : <div className={styles.imgPlaceholder} />}
                 </td>
-                <td className={styles.tdName}>{r.name}</td>
-                <td className={styles.tdMeta}>{r.brand}</td>
+                <td className={styles.tdName}>{r.globalReplacement?.name}</td>
+                <td className={styles.tdMeta}>{r.globalReplacement?.brand?.name}</td>
                 <td className={styles.tdMeta}>${Number(r.price).toFixed(2)}</td>
-                <td className={styles.tdMeta}>{r.country}</td>
+                <td className={styles.tdMeta}>{r.globalReplacement?.countryCode}</td>
                 <td className={styles.tdMeta}>{r.stock}</td>
                 <td className={styles.tdMeta}>
                   {tenants.find(t => t.id === r.tenantId)?.businessName ?? '—'}
@@ -224,21 +233,18 @@ export default function ReplacementDashboardPage() {
 
       <Modal isOpen={!!editingReplacement} onClose={() => setEditingReplacement(null)} title="Editar repuesto" size="lg" footer={editFooter}>
         <div className={styles.form}>
-          <div className={styles.label}>
-            Imagen <span className={styles.optional}>(opcional)</span>
-            <ImageUpload onUpload={setEditImageUrl} initialUrl={editImageUrl ?? undefined} />
-          </div>
-
-          <div className={styles.row}>
-            <label className={styles.label}>
-              Nombre
-              <input className={styles.input} value={editForm.name} onChange={e => setEdit({ name: e.target.value })} required />
-            </label>
-            <label className={styles.label}>
-              Marca
-              <input className={styles.input} value={editForm.brand} onChange={e => setEdit({ brand: e.target.value })} required />
-            </label>
-          </div>
+          {editingReplacement && (
+            <div className={styles.row}>
+              <div className={styles.label}>
+                Nombre
+                <p className={styles.readOnly}>{editingReplacement.globalReplacement?.name}</p>
+              </div>
+              <div className={styles.label}>
+                Marca
+                <p className={styles.readOnly}>{editingReplacement.globalReplacement?.brand?.name}</p>
+              </div>
+            </div>
+          )}
 
           <div className={styles.row}>
             <label className={styles.label}>
@@ -267,36 +273,31 @@ export default function ReplacementDashboardPage() {
 
           <div className={styles.row}>
             <label className={styles.label}>
-              Código OEM <span className={styles.optional}>(opcional)</span>
-              <input className={styles.input} value={editForm.codeOem ?? ''} onChange={e => setEdit({ codeOem: e.target.value })} placeholder="ej. 15400-PLM-A02" />
-            </label>
-            <label className={styles.label}>
               Local
               <select className={styles.select} value={editForm.tenantId} onChange={e => onEditTenantChange(e.target.value)} required>
                 <option value="">Seleccionar local</option>
                 {tenants.map(t => <option key={t.id} value={t.id}>{t.businessName}</option>)}
               </select>
             </label>
+            <label className={styles.label}>
+              Sucursal <span className={styles.optional}>(opcional)</span>
+              <select
+                className={styles.select}
+                value={editForm.branchId ?? ''}
+                onChange={e => {
+                  const branch = editBranches.find(b => b.id === e.target.value);
+                  setEdit({
+                    branchId: e.target.value,
+                    ...(branch?.latitude != null && branch?.longitude != null && { latitude: branch.latitude, longitude: branch.longitude }),
+                  });
+                }}
+                disabled={!editForm.tenantId}
+              >
+                <option value="">Sin asignar</option>
+                {editBranches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+              </select>
+            </label>
           </div>
-
-          <label className={styles.label}>
-            Sucursal <span className={styles.optional}>(opcional)</span>
-            <select
-              className={styles.select}
-              value={editForm.branchId ?? ''}
-              onChange={e => {
-                const branch = editBranches.find(b => b.id === e.target.value);
-                setEdit({
-                  branchId: e.target.value,
-                  ...(branch?.latitude != null && branch?.longitude != null && { latitude: branch.latitude, longitude: branch.longitude }),
-                });
-              }}
-              disabled={!editForm.tenantId}
-            >
-              <option value="">Sin asignar</option>
-              {editBranches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-            </select>
-          </label>
 
           {editError && <p className={styles.error}>{editError}</p>}
         </div>
@@ -316,7 +317,15 @@ export default function ReplacementDashboardPage() {
             </label>
             <label className={styles.label}>
               Marca
-              <input className={styles.input} value={form.brand} onChange={e => set({ brand: e.target.value })} required />
+              <select
+                className={styles.select}
+                value={form.brandId ?? 0}
+                onChange={e => set({ brandId: Number(e.target.value) })}
+                required
+              >
+                <option value={0}>Seleccionar marca</option>
+                {brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+              </select>
             </label>
           </div>
 

@@ -1,15 +1,23 @@
+import { Brand } from './brands.service';
+
+export interface GlobalReplacementInfo {
+  id: number;
+  name: string;
+  brand: Brand;
+  codeOem: string | null;
+  imageUrl: string | null;
+  countryCode: string;
+  isVerified: boolean;
+}
 
 export interface Replacement {
   id: string;
-  name: string;
-  brand: string;
+  globalReplacementId: number;
+  globalReplacement: GlobalReplacementInfo;
   price: number;
-  imageUrl: string | null;
-  codeOem: string | null;
   stock: number;
   tenantId: string;
   branchId: string | null;
-  country: string;
   latitude: number | null;
   longitude: number | null;
   createdAt: string;
@@ -18,16 +26,16 @@ export interface Replacement {
 
 export interface CreateReplacementPayload {
   name: string;
-  brand: string;
-  price: number;
-  country: string;
-  latitude?: number;
-  longitude?: number;
-  tenantId: string;
-  stock?: number;
+  brandId: number;
+  countryCode: string;
   codeOem?: string;
   imageUrl?: string;
+  price: number;
+  tenantId: string;
   branchId?: string;
+  stock?: number;
+  latitude?: number;
+  longitude?: number;
 }
 
 export async function createReplacement(payload: CreateReplacementPayload): Promise<Replacement> {
@@ -48,16 +56,11 @@ export async function createReplacement(payload: CreateReplacementPayload): Prom
 }
 
 export interface UpdateReplacementPayload {
-  name?: string;
-  brand?: string;
   price?: number;
   stock?: number;
-  codeOem?: string;
-  imageUrl?: string;
-  branchId?: string;
-  tenantId?: string;
   latitude?: number;
   longitude?: number;
+  branchId?: string;
 }
 
 export async function updateReplacement(id: string, payload: UpdateReplacementPayload): Promise<Replacement> {
@@ -117,7 +120,6 @@ export async function getReplacements(
   if (query.ids) params.set('ids', query.ids);
 
   const url = `${process.env.NEXT_PUBLIC_API_URL}/api/replacements?${params.toString()}`;
-  console.log(url)
   const res = await fetch(url, options);
   if (!res.ok) throw new Error('Error al obtener los repuestos');
   return res.json() as Promise<PaginatedResult>;

@@ -96,7 +96,7 @@ export default function ReplacementCompatibilityPage({ params }: PageProps) {
   return (
     <main className={styles.page}>
       <Link href="/dashboard/replacement" className={styles.back}>← Volver a repuestos</Link>
-      <h1 className={styles.title}>Compatibilidades — {replacement?.name ?? '...'}</h1>
+      <h1 className={styles.title}>Compatibilidades — {replacement?.globalReplacement?.name ?? '...'}</h1>
 
       <div className={styles.tabs}>
         {COMPATIBILITY_COUNTRIES.map(c => (

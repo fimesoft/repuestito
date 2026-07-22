@@ -55,9 +55,9 @@ export default async function Home({ searchParams }: PageProps) {
           <PartCard
             key={part.id}
             id={part.id}
-            image={part.imageUrl}
-            brand={part.brand}
-            name={part.name}
+            image={part.globalReplacement?.imageUrl ?? null}
+            brand={part.globalReplacement?.brand?.name ?? ''}
+            name={part.globalReplacement?.name ?? ''}
             price={part.price}
             priority={index === 0}
           />
