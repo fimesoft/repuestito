@@ -1,17 +1,12 @@
-.form {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
 .input {
   width: 100%;
-  max-width: 360px;
+  max-width: 340px;
   padding: 8px 14px;
   border: 1px solid var(--color-border);
   border-radius: 8px;
   font-size: 14px;
   outline: none;
+  background: var(--bg);
   transition: border-color 0.15s ease;
 }
 

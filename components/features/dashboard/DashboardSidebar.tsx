@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import Logo from '@/components/shared/Logo';
 import styles from './DashboardSidebar.module.css';
 
 function IconWrench() {
@@ -95,7 +96,7 @@ export default function DashboardSidebar() {
 
       <nav className={`${styles.sidebar} ${open ? styles.open : ''}`} aria-label="Menú del dashboard">
         <div className={styles.sidebarHeader}>
-          <span className={styles.brand}>Dashboard</span>
+          <Logo href="/dashboard" className={styles.logoSidebar} />
           <button className={styles.closeBtn} onClick={close} aria-label="Cerrar menú">
             <IconClose />
           </button>

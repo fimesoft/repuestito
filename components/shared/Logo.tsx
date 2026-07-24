@@ -2,11 +2,12 @@ import styles from './Logo.module.css';
 
 interface LogoProps {
   href?: string;
+  className?: string;
 }
 
-export default function Logo({ href = '/' }: LogoProps) {
+export default function Logo({ href = '/', className }: LogoProps) {
   return (
-    <a href={href} className={styles.logo}>
+    <a href={href} className={`${styles.logo}${className ? ` ${className}` : ''}`}>
       <span className={styles.icon}>
         <span className={styles.inner} />
       </span>

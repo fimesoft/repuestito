@@ -21,3 +21,9 @@ a {
   color: inherit;
   text-decoration: none;
 }
+
+@media (min-width: 769px) {
+  body:has(nav[aria-label="Menú del dashboard"]) header {
+    margin-left: 240px;
+  }
+}

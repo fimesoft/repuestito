@@ -1,24 +1,31 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
-import Button from '../ui/Button/Button';
+import { useSearchParams, useRouter } from 'next/navigation';
 import styles from './Search.module.css';
 
 export default function Search() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const country = searchParams.get('country');
 
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const value = e.target.value;
+    if (value.length === 0 || value.length >= 3) {
+      const params = new URLSearchParams();
+      if (country) params.set('country', country);
+      if (value) params.set('search', value);
+      router.push(`/?${params.toString()}`);
+    }
+  }
+
   return (
-    <form className={styles.form} method="GET" action="/">
-      {country && <input type="hidden" name="country" value={country} />}
-      <input
-        className={styles.input}
-        name="search"
-        defaultValue={searchParams.get('search') ?? ''}
-        placeholder="Buscar por nombre..."
-        autoComplete="off"
-      />
-      <Button label="Buscar" type="submit" variant="solid" color="primary" />
-    </form>
+    <input
+      className={styles.input}
+      name="search"
+      defaultValue={searchParams.get('search') ?? ''}
+      placeholder="Buscar por nombre, marca o código..."
+      autoComplete="off"
+      onChange={handleChange}
+    />
   );
 }

@@ -2,9 +2,11 @@
   display: flex;
   min-height: calc(100vh - 57px);
   align-items: stretch;
+  padding-left: 240px;
 }
 
 .content {
   flex: 1;
   overflow: auto;
+  background: var(--bg);
 }

@@ -8,6 +8,7 @@
 }
 
 .title { font-size: 1.5rem; font-weight: 700; color: var(--color-text); }
+.subtitle { font-size: 0.875rem; color: var(--color-text-muted); margin-top: 4px; font-weight: 500; }
 
 .tableWrapper {
   overflow-x: auto;
@@ -19,13 +20,13 @@
 
 .table th {
   text-align: left;
-  padding: 10px 16px;
+  padding: 20px 16px;
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--color-text-muted);
-  background: var(--bg-subtle);
+  background: var(--bg);
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -33,10 +34,31 @@
   padding: 10px 16px;
   border-bottom: 1px solid var(--color-border-subtle);
   vertical-align: middle;
+  background: var(--bg-surface);
 }
 
 .table tr:last-child td { border-bottom: none; }
 .table tr:hover td { background: var(--bg-subtle); }
+
+.badgeActive {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--badge-active-bg);
+  color: var(--badge-active-text);
+}
+
+.badgeOut {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--badge-inactive-bg);
+  color: var(--badge-inactive-text);
+}
 
 .tdImg { width: 56px; }
 
@@ -49,8 +71,9 @@
   background: var(--color-border);
 }
 
-.tdName { font-weight: 500; color: var(--color-text); }
+.tdName { font-weight: 700; color: var(--color-text); }
 .tdMeta { color: var(--color-text-muted); font-size: 13px; }
+.tdPrice { font-weight: 700; color: var(--color-text); font-size: 13px; }
 
 .tdActions { text-align: right; }
 

@@ -45,7 +45,7 @@ export default function AuthBlock({ initialView, initialEmail }: Props) {
     setError(null);
     try {
       await auth.login(email, password);
-      router.push('/dashboard');
+      router.push('/dashboard/replacement');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error inesperado');
     } finally {

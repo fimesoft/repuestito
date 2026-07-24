@@ -183,7 +183,10 @@ export default function ReplacementDashboardPage() {
   return (
     <main className={styles.page}>
       <div className={styles.header}>
-        <h1 className={styles.title}>Repuestos</h1>
+        <div>
+          <h1 className={styles.title}>Repuestos</h1>
+          <p className={styles.subtitle}>Catálogo de piezas disponibles en tu red de locales</p>
+        </div>
         {canManage && <Button label="+ Nuevo repuesto" onClick={openCreate} shadow />}
       </div>
 
@@ -191,12 +194,13 @@ export default function ReplacementDashboardPage() {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th></th>
+              <th>Producto</th>
               <th>Nombre</th>
               <th>Marca</th>
               <th>Precio</th>
-              <th>País</th>
+              {isAdmin && <th>País</th>}
               <th>Stock</th>
+              <th>Estado</th>
               <th>Local</th>
               <th></th>
             </tr>
@@ -211,9 +215,18 @@ export default function ReplacementDashboardPage() {
                 </td>
                 <td className={styles.tdName}>{r.globalReplacement?.name}</td>
                 <td className={styles.tdMeta}>{r.globalReplacement?.brand?.name}</td>
-                <td className={styles.tdMeta}>${Number(r.price).toFixed(2)}</td>
-                <td className={styles.tdMeta}>{r.globalReplacement?.countryCode}</td>
-                <td className={styles.tdMeta}>{r.stock}</td>
+                <td className={styles.tdPrice}>${Number(r.price).toFixed(2)}</td>
+                {isAdmin && <td className={styles.tdMeta}>{r.globalReplacement?.countryCode}</td>}
+                <td>
+                  <span className={r.stock > 0 ? styles.badgeActive : styles.badgeOut}>
+                    {r.stock}
+                  </span>
+                </td>
+                <td>
+                  <span className={r.stock > 0 ? styles.badgeActive : styles.badgeOut}>
+                    {r.stock > 0 ? 'Activo' : 'Agotado'}
+                  </span>
+                </td>
                 <td className={styles.tdMeta}>
                   {tenants.find(t => t.id === r.tenantId)?.businessName ?? '—'}
                 </td>
@@ -225,7 +238,7 @@ export default function ReplacementDashboardPage() {
               </tr>
             ))}
             {replacements.length === 0 && (
-              <tr><td colSpan={8} className={styles.empty}>No hay repuestos registrados.</td></tr>
+              <tr><td colSpan={isAdmin ? 9 : 8} className={styles.empty}>No hay repuestos registrados.</td></tr>
             )}
           </tbody>
         </table>
