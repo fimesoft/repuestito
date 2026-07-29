@@ -12,6 +12,7 @@ export interface Invoice {
   tenantId: string;
   invoiceNumber: string;
   buyerName: string | null;
+  buyerLastname: string | null;
   buyerDoc: string | null;
   buyerPhone: string | null;
   customerId: string | null;
@@ -33,6 +34,7 @@ export interface CreateInvoicePayload {
   sellerId?: string;
   customerId?: string;
   buyerName?: string;
+  buyerLastname?: string;
   buyerDoc?: string;
   buyerPhone?: string;
   paymentMethod?: string;

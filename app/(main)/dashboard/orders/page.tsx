@@ -3,21 +3,33 @@
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { usePermissions } from '@/hooks/usePermissions';
-import { getInvoices, cancelInvoice, Invoice } from '@/services/billing.service';
+import { getOrders, confirmOrder, cancelOrder, Order } from '@/services/orders.service';
 import styles from './page.module.css';
 
 const PAGE_SIZE = 20;
 
-export default function BillingPage() {
+const STATUS_LABELS: Record<string, string> = {
+  pending: 'Pendiente',
+  confirmed: 'Confirmado',
+  fulfilled: 'Facturado',
+  cancelled: 'Cancelado',
+};
+
+const STATUS_BADGE: Record<string, string> = {
+  pending: styles.badgePending,
+  confirmed: styles.badgeConfirmed,
+  fulfilled: styles.badgeFulfilled,
+  cancelled: styles.badgeCancelled,
+};
+
+export default function OrdersPage() {
   const { currentUser } = usePermissions();
 
-  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [from, setFrom] = useState('');
-  const [to, setTo] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
 
   const load = useCallback(async (p: number) => {
@@ -25,33 +37,42 @@ export default function BillingPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await getInvoices({
+      const res = await getOrders({
         tenantId: currentUser.tenantId,
-        from: from || undefined,
-        to: to || undefined,
+        status: statusFilter || undefined,
         page: p,
         limit: PAGE_SIZE,
       });
-      setInvoices(res.data);
+      setOrders(res.data);
       setTotal(res.total);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al cargar facturas');
+      setError(err instanceof Error ? err.message : 'Error al cargar pedidos');
     } finally {
       setLoading(false);
     }
-  }, [currentUser?.tenantId, from, to]);
+  }, [currentUser?.tenantId, statusFilter]);
 
   useEffect(() => {
     void load(1);
     setPage(1);
   }, [load]);
 
+  async function handleConfirm(id: string) {
+    if (!currentUser?.tenantId) return;
+    try {
+      await confirmOrder(id, currentUser.tenantId);
+      setOrders(prev => prev.map(o => o.id === id ? { ...o, status: 'confirmed' as const } : o));
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Error al confirmar');
+    }
+  }
+
   async function handleCancel(id: string) {
     if (!currentUser?.tenantId) return;
-    if (!confirm('¿Cancelar esta factura? Se restaurará el stock.')) return;
+    if (!confirm('¿Cancelar este pedido? Se restaurará el stock.')) return;
     try {
-      const updated = await cancelInvoice(id, currentUser.tenantId);
-      setInvoices(prev => prev.map(inv => inv.id === id ? updated : inv));
+      const updated = await cancelOrder(id, currentUser.tenantId);
+      setOrders(prev => prev.map(o => o.id === id ? updated : o));
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Error al cancelar');
     }
@@ -59,35 +80,25 @@ export default function BillingPage() {
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
-  const visibleInvoices = statusFilter
-    ? invoices.filter(inv => inv.status === statusFilter)
-    : invoices;
-
   return (
     <main className={styles.page}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Facturación</h1>
-          <p className={styles.subtitle}>{total} facturas registradas</p>
+          <h1 className={styles.title}>Pedidos</h1>
+          <p className={styles.subtitle}>{total} pedidos registrados</p>
         </div>
-        <Link href="/dashboard/billing/new" className={styles.btnNew}>+ Nueva venta</Link>
+        <Link href="/dashboard/orders/new" className={styles.btnNew}>+ Nuevo pedido</Link>
       </div>
 
       <div className={styles.filters}>
         <label className={styles.filterLabel}>
-          Desde
-          <input type="date" className={styles.input} value={from} onChange={e => setFrom(e.target.value)} />
-        </label>
-        <label className={styles.filterLabel}>
-          Hasta
-          <input type="date" className={styles.input} value={to} onChange={e => setTo(e.target.value)} />
-        </label>
-        <label className={styles.filterLabel}>
           Estado
           <select className={styles.select} value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
             <option value="">Todos</option>
-            <option value="completed">Completada</option>
-            <option value="cancelled">Cancelada</option>
+            <option value="pending">Pendiente</option>
+            <option value="confirmed">Confirmado</option>
+            <option value="fulfilled">Facturado</option>
+            <option value="cancelled">Cancelado</option>
           </select>
         </label>
       </div>
@@ -101,7 +112,6 @@ export default function BillingPage() {
               <th>Número</th>
               <th>Comprador</th>
               <th>Total</th>
-              <th>Pago</th>
               <th>Estado</th>
               <th>Fecha</th>
               <th></th>
@@ -109,23 +119,22 @@ export default function BillingPage() {
           </thead>
           <tbody>
             {loading && (
-              <tr><td colSpan={7} className={styles.empty}>Cargando...</td></tr>
+              <tr><td colSpan={6} className={styles.empty}>Cargando...</td></tr>
             )}
-            {!loading && visibleInvoices.map(inv => (
-              <tr key={inv.id}>
-                <td className={styles.tdNumber}>{inv.invoiceNumber ?? '—'}</td>
+            {!loading && orders.map(order => (
+              <tr key={order.id}>
+                <td className={styles.tdNumber}>{order.orderNumber ?? '—'}</td>
                 <td className={styles.tdMeta}>
-                  {[inv.buyerName, inv.buyerLastname].filter(Boolean).join(' ') || '—'}
+                  {[order.buyerName, order.buyerLastname].filter(Boolean).join(' ') || '—'}
                 </td>
-                <td className={styles.tdPrice}>${Number(inv.total).toFixed(2)}</td>
-                <td className={styles.tdMeta}>{inv.paymentMethod}</td>
+                <td className={styles.tdPrice}>${Number(order.total).toFixed(2)}</td>
                 <td>
-                  <span className={inv.status === 'cancelled' ? styles.badgeCancelled : styles.badgeCompleted}>
-                    {inv.status === 'cancelled' ? 'Cancelada' : 'Completada'}
+                  <span className={`${styles.badge} ${STATUS_BADGE[order.status] ?? ''}`}>
+                    {STATUS_LABELS[order.status] ?? order.status}
                   </span>
                 </td>
                 <td className={styles.tdMeta}>
-                  {inv.issuedAt ? new Date(inv.issuedAt).toLocaleString('es-AR', {
+                  {order.createdAt ? new Date(order.createdAt).toLocaleString('es-AR', {
                     dateStyle: 'short',
                     timeStyle: 'short',
                     hour12: true,
@@ -133,21 +142,26 @@ export default function BillingPage() {
                 </td>
                 <td className={styles.tdActions}>
                   <Link
-                    href={`/dashboard/billing/${inv.id}?tenantId=${currentUser?.tenantId ?? ''}`}
+                    href={`/dashboard/orders/${order.id}?tenantId=${currentUser?.tenantId ?? ''}`}
                     className={styles.btnText}
                   >
                     Ver
                   </Link>
-                  {inv.status !== 'cancelled' && (
-                    <button className={styles.btnDanger} onClick={() => handleCancel(inv.id)}>
+                  {order.status === 'pending' && (
+                    <button className={styles.btnAction} onClick={() => handleConfirm(order.id)}>
+                      Confirmar
+                    </button>
+                  )}
+                  {(order.status === 'pending' || order.status === 'confirmed') && (
+                    <button className={styles.btnDanger} onClick={() => handleCancel(order.id)}>
                       Cancelar
                     </button>
                   )}
                 </td>
               </tr>
             ))}
-            {!loading && visibleInvoices.length === 0 && (
-              <tr><td colSpan={7} className={styles.empty}>No hay facturas.</td></tr>
+            {!loading && orders.length === 0 && (
+              <tr><td colSpan={6} className={styles.empty}>No hay pedidos.</td></tr>
             )}
           </tbody>
         </table>

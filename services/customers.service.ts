@@ -2,6 +2,7 @@ export interface Customer {
   id: string;
   tenantId: string;
   name: string;
+  lastname: string | null;
   doc: string | null;
   phone: string | null;
   email: string | null;
