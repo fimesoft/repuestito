@@ -19,13 +19,15 @@ export default function Search() {
   }
 
   return (
-    <input
-      className={styles.input}
-      name="search"
-      defaultValue={searchParams.get('search') ?? ''}
-      placeholder="Buscar por nombre, marca o código..."
-      autoComplete="off"
-      onChange={handleChange}
-    />
+    <>
+      <input
+        className={styles.input}
+        name="search"
+        defaultValue={searchParams.get('search') ?? ''}
+        placeholder="Buscar por nombre, marca o código..."
+        autoComplete="off"
+        onChange={handleChange}
+      />
+    </>
   );
 }

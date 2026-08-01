@@ -5,7 +5,7 @@ export interface VehicleModel {
   brand: string;
   model: string;
   yearFrom: number;
-  yearTo: number;
+  yearTo: number | null;
   country: string;
   createdAt: string;
 }
@@ -35,7 +35,7 @@ export function createVehicleModel(payload: {
   brand: string;
   model: string;
   yearFrom: number;
-  yearTo: number;
+  yearTo?: number;
   country: string;
 }): Promise<VehicleModel> {
   return fetch(`${API}/api/vehicle-models`, {

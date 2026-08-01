@@ -5,6 +5,10 @@ import Link from 'next/link';
 import { usePermissions } from '@/hooks/usePermissions';
 import { getInvoices, cancelInvoice, Invoice } from '@/services/billing.service';
 import styles from './page.module.css';
+import Search from '@/components/ui/Search';
+import Table, { Column } from '@/components/ui/Table';
+import Select from '@/components/ui/Select';
+import Button from '@/components/ui/Button/Button';
 
 const PAGE_SIZE = 20;
 
@@ -59,9 +63,14 @@ export default function BillingPage() {
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
-  const visibleInvoices = statusFilter
-    ? invoices.filter(inv => inv.status === statusFilter)
-    : invoices;
+  const [search, setSearch] = useState('');
+
+  const visibleInvoices = invoices.filter(inv => {
+    const matchesStatus = !statusFilter || inv.status === statusFilter;
+    const fullName = [inv.buyerName, inv.buyerLastname].filter(Boolean).join(' ').toLowerCase();
+    const matchesSearch = !search || fullName.includes(search.toLowerCase());
+    return matchesStatus && matchesSearch;
+  });
 
   return (
     <main className={styles.page}>
@@ -74,6 +83,7 @@ export default function BillingPage() {
       </div>
 
       <div className={styles.filters}>
+        <Search value={search} onChange={setSearch} placeholder="Buscar por comprador..." />
         <label className={styles.filterLabel}>
           Desde
           <input type="date" className={styles.input} value={from} onChange={e => setFrom(e.target.value)} />
@@ -84,92 +94,47 @@ export default function BillingPage() {
         </label>
         <label className={styles.filterLabel}>
           Estado
-          <select className={styles.select} value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
-            <option value="">Todos</option>
-            <option value="completed">Completada</option>
-            <option value="cancelled">Cancelada</option>
-          </select>
+          <Select
+            value={statusFilter}
+            onChange={setStatusFilter}
+            options={[{ value: 'completed', label: 'Completada' }, { value: 'cancelled', label: 'Cancelada' }]}
+            placeholder="Todos"
+          />
         </label>
       </div>
 
       {error && <p className={styles.error}>{error}</p>}
 
-      <div className={styles.tableWrapper}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Número</th>
-              <th>Comprador</th>
-              <th>Total</th>
-              <th>Pago</th>
-              <th>Estado</th>
-              <th>Fecha</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading && (
-              <tr><td colSpan={7} className={styles.empty}>Cargando...</td></tr>
-            )}
-            {!loading && visibleInvoices.map(inv => (
-              <tr key={inv.id}>
-                <td className={styles.tdNumber}>{inv.invoiceNumber ?? '—'}</td>
-                <td className={styles.tdMeta}>
-                  {[inv.buyerName, inv.buyerLastname].filter(Boolean).join(' ') || '—'}
-                </td>
-                <td className={styles.tdPrice}>${Number(inv.total).toFixed(2)}</td>
-                <td className={styles.tdMeta}>{inv.paymentMethod}</td>
-                <td>
-                  <span className={inv.status === 'cancelled' ? styles.badgeCancelled : styles.badgeCompleted}>
-                    {inv.status === 'cancelled' ? 'Cancelada' : 'Completada'}
-                  </span>
-                </td>
-                <td className={styles.tdMeta}>
-                  {inv.issuedAt ? new Date(inv.issuedAt).toLocaleString('es-AR', {
-                    dateStyle: 'short',
-                    timeStyle: 'short',
-                    hour12: true,
-                  }) : '—'}
-                </td>
-                <td className={styles.tdActions}>
-                  <Link
-                    href={`/dashboard/billing/${inv.id}?tenantId=${currentUser?.tenantId ?? ''}`}
-                    className={styles.btnText}
-                  >
-                    Ver
-                  </Link>
-                  {inv.status !== 'cancelled' && (
-                    <button className={styles.btnDanger} onClick={() => handleCancel(inv.id)}>
-                      Cancelar
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-            {!loading && visibleInvoices.length === 0 && (
-              <tr><td colSpan={7} className={styles.empty}>No hay facturas.</td></tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      <Table<Invoice>
+        rows={visibleInvoices}
+        getKey={inv => inv.id}
+        emptyMessage="No hay facturas."
+        loading={loading}
+        columns={[
+          { header: 'Número', render: inv => inv.invoiceNumber ?? '—', className: styles.tdNumber },
+          { header: 'Comprador', render: inv => [inv.buyerName, inv.buyerLastname].filter(Boolean).join(' ') || '—', className: styles.tdMeta },
+          { header: 'Total', render: inv => `$${Number(inv.total).toFixed(2)}`, className: styles.tdPrice },
+          { header: 'Pago', render: inv => inv.paymentMethod, className: styles.tdMeta },
+          { header: 'Estado', render: inv => (
+            <span className={inv.status === 'cancelled' ? styles.badgeCancelled : styles.badgeCompleted}>
+              {inv.status === 'cancelled' ? 'Cancelada' : 'Completada'}
+            </span>
+          ) },
+          { header: 'Fecha', render: inv => inv.issuedAt ? new Date(inv.issuedAt).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short', hour12: true }) : '—', className: styles.tdMeta },
+          { header: '', render: inv => (
+            <>
+              <Link href={`/dashboard/billing/${inv.id}?tenantId=${currentUser?.tenantId ?? ''}`} className={styles.btnText}>Ver</Link>
+              {inv.status !== 'cancelled' && <Button label="Cancelar" variant="ghost" color="danger" size="sm" onClick={() => handleCancel(inv.id)} />}
+            </>
+          ), className: styles.tdActions },
+        ] as Column<Invoice>[]}
+      />
 
       {totalPages > 1 && (
         <div className={styles.pagination}>
-          <button
-            className={styles.pageBtn}
-            disabled={page <= 1}
-            onClick={() => { const p = page - 1; setPage(p); void load(p); }}
-          >
-            ← Anterior
-          </button>
+          <Button label="← Anterior" variant="outline" color="neutral" disabled={page <= 1} onClick={() => { const p = page - 1; setPage(p); void load(p); }} />
           <span className={styles.pageInfo}>Página {page} de {totalPages}</span>
-          <button
-            className={styles.pageBtn}
-            disabled={page >= totalPages}
-            onClick={() => { const p = page + 1; setPage(p); void load(p); }}
-          >
-            Siguiente →
-          </button>
+          <Button label="Siguiente →" variant="outline" color="neutral" disabled={page >= totalPages} onClick={() => { const p = page + 1; setPage(p); void load(p); }} />
         </div>
       )}
     </main>

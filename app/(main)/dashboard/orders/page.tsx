@@ -5,6 +5,10 @@ import Link from 'next/link';
 import { usePermissions } from '@/hooks/usePermissions';
 import { getOrders, confirmOrder, cancelOrder, Order } from '@/services/orders.service';
 import styles from './page.module.css';
+import Search from '@/components/ui/Search';
+import Table, { Column } from '@/components/ui/Table';
+import Select from '@/components/ui/Select';
+import Button from '@/components/ui/Button/Button';
 
 const PAGE_SIZE = 20;
 
@@ -31,6 +35,12 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('');
+  const [search, setSearch] = useState('');
+
+  const visibleOrders = orders.filter(o => {
+    const fullName = [o.buyerName, o.buyerLastname].filter(Boolean).join(' ').toLowerCase();
+    return !search || fullName.includes(search.toLowerCase());
+  });
 
   const load = useCallback(async (p: number) => {
     if (!currentUser?.tenantId) return;
@@ -91,99 +101,51 @@ export default function OrdersPage() {
       </div>
 
       <div className={styles.filters}>
+        <Search value={search} onChange={setSearch} placeholder="Buscar por comprador..." />
         <label className={styles.filterLabel}>
           Estado
-          <select className={styles.select} value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
-            <option value="">Todos</option>
-            <option value="pending">Pendiente</option>
-            <option value="confirmed">Confirmado</option>
-            <option value="fulfilled">Facturado</option>
-            <option value="cancelled">Cancelado</option>
-          </select>
+          <Select
+            value={statusFilter}
+            onChange={setStatusFilter}
+            options={[
+              { value: 'pending', label: 'Pendiente' },
+              { value: 'confirmed', label: 'Confirmado' },
+              { value: 'fulfilled', label: 'Facturado' },
+              { value: 'cancelled', label: 'Cancelado' },
+            ]}
+            placeholder="Todos"
+          />
         </label>
       </div>
 
       {error && <p className={styles.error}>{error}</p>}
 
-      <div className={styles.tableWrapper}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Número</th>
-              <th>Comprador</th>
-              <th>Total</th>
-              <th>Estado</th>
-              <th>Fecha</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading && (
-              <tr><td colSpan={6} className={styles.empty}>Cargando...</td></tr>
-            )}
-            {!loading && orders.map(order => (
-              <tr key={order.id}>
-                <td className={styles.tdNumber}>{order.orderNumber ?? '—'}</td>
-                <td className={styles.tdMeta}>
-                  {[order.buyerName, order.buyerLastname].filter(Boolean).join(' ') || '—'}
-                </td>
-                <td className={styles.tdPrice}>${Number(order.total).toFixed(2)}</td>
-                <td>
-                  <span className={`${styles.badge} ${STATUS_BADGE[order.status] ?? ''}`}>
-                    {STATUS_LABELS[order.status] ?? order.status}
-                  </span>
-                </td>
-                <td className={styles.tdMeta}>
-                  {order.createdAt ? new Date(order.createdAt).toLocaleString('es-AR', {
-                    dateStyle: 'short',
-                    timeStyle: 'short',
-                    hour12: true,
-                  }) : '—'}
-                </td>
-                <td className={styles.tdActions}>
-                  <Link
-                    href={`/dashboard/orders/${order.id}?tenantId=${currentUser?.tenantId ?? ''}`}
-                    className={styles.btnText}
-                  >
-                    Ver
-                  </Link>
-                  {order.status === 'pending' && (
-                    <button className={styles.btnAction} onClick={() => handleConfirm(order.id)}>
-                      Confirmar
-                    </button>
-                  )}
-                  {(order.status === 'pending' || order.status === 'confirmed') && (
-                    <button className={styles.btnDanger} onClick={() => handleCancel(order.id)}>
-                      Cancelar
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-            {!loading && orders.length === 0 && (
-              <tr><td colSpan={6} className={styles.empty}>No hay pedidos.</td></tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      <Table<Order>
+        rows={visibleOrders}
+        getKey={o => o.id}
+        emptyMessage="No hay pedidos."
+        loading={loading}
+        columns={[
+          { header: 'Número', render: o => o.orderNumber ?? '—', className: styles.tdNumber },
+          { header: 'Comprador', render: o => [o.buyerName, o.buyerLastname].filter(Boolean).join(' ') || '—', className: styles.tdMeta },
+          { header: 'Total', render: o => `$${Number(o.total).toFixed(2)}`, className: styles.tdPrice },
+          { header: 'Estado', render: o => <span className={`${styles.badge} ${STATUS_BADGE[o.status] ?? ''}`}>{STATUS_LABELS[o.status] ?? o.status}</span> },
+          { header: 'Fecha', render: o => o.createdAt ? new Date(o.createdAt).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short', hour12: true }) : '—', className: styles.tdMeta },
+          { header: '', render: o => (
+            <>
+              <Link href={`/dashboard/orders/${o.id}?tenantId=${currentUser?.tenantId ?? ''}`} className={styles.btnText}>Ver</Link>
+              {o.status === 'pending' && <Button label="Confirmar" variant="ghost" color="success" size="sm" onClick={() => handleConfirm(o.id)} />}
+              {(o.status === 'pending' || o.status === 'confirmed') && <Button label="Cancelar" variant="ghost" color="danger" size="sm" onClick={() => handleCancel(o.id)} />}
+            </>
+          ), className: styles.tdActions },
+        ] as Column<Order>[]}
+      />
 
       {totalPages > 1 && (
         <div className={styles.pagination}>
-          <button
-            className={styles.pageBtn}
-            disabled={page <= 1}
-            onClick={() => { const p = page - 1; setPage(p); void load(p); }}
-          >
-            ← Anterior
-          </button>
+          <Button label="← Anterior" variant="outline" color="neutral" disabled={page <= 1} onClick={() => { const p = page - 1; setPage(p); void load(p); }} />
           <span className={styles.pageInfo}>Página {page} de {totalPages}</span>
-          <button
-            className={styles.pageBtn}
-            disabled={page >= totalPages}
-            onClick={() => { const p = page + 1; setPage(p); void load(p); }}
-          >
-            Siguiente →
-          </button>
+          <Button label="Siguiente →" variant="outline" color="neutral" disabled={page >= totalPages} onClick={() => { const p = page + 1; setPage(p); void load(p); }} />
         </div>
       )}
     </main>

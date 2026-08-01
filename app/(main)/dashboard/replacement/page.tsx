@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import Modal from '@/components/ui/Modal/Modal';
@@ -16,6 +17,9 @@ import { getBrands, Brand } from '@/services/brands.service';
 import { usePermissions } from '@/hooks/usePermissions';
 import { useCountry } from '@/context/CountryContext';
 import styles from './page.module.css';
+import Search from '@/components/ui/Search';
+import Table, { Column } from '@/components/ui/Table';
+import Select from '@/components/ui/Select';
 
 const EMPTY: Omit<CreateReplacementPayload, 'countryCode'> = {
   name: '', brandId: 0, price: 0, tenantId: '',
@@ -29,6 +33,7 @@ interface EditFormState extends UpdateReplacementPayload {
 const EMPTY_EDIT: EditFormState = { price: 0, stock: 0, tenantId: '' };
 
 export default function ReplacementDashboardPage() {
+  const router = useRouter();
   const [replacements, setReplacements] = useState<Replacement[]>([]);
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
@@ -37,6 +42,10 @@ export default function ReplacementDashboardPage() {
   const { country } = useCountry();
   const { currentUser, isAdmin, canManage } = usePermissions();
   const visibleTenants = isAdmin ? tenants : tenants.filter(t => t.id === currentUser?.tenantId);
+  const [search, setSearch] = useState('');
+  const visibleReplacements = replacements.filter(r =>
+    !search || r.globalReplacement?.name?.toLowerCase().includes(search.toLowerCase()),
+  );
 
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState<Omit<CreateReplacementPayload, 'countryCode'>>(EMPTY);
@@ -190,59 +199,35 @@ export default function ReplacementDashboardPage() {
         {canManage && <Button label="+ Nuevo repuesto" onClick={openCreate} shadow />}
       </div>
 
-      <div className={styles.tableWrapper}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Producto</th>
-              <th>Nombre</th>
-              <th>Marca</th>
-              <th>Precio</th>
-              {isAdmin && <th>País</th>}
-              <th>Stock</th>
-              <th>Estado</th>
-              <th>Local</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {replacements.map(r => (
-              <tr key={r.id}>
-                <td className={styles.tdImg}>
-                  {r.globalReplacement?.imageUrl
-                    ? <Image src={r.globalReplacement.imageUrl} alt={r.globalReplacement.name} width={40} height={40} className={styles.img} />
-                    : <div className={styles.imgPlaceholder} />}
-                </td>
-                <td className={styles.tdName}>{r.globalReplacement?.name}</td>
-                <td className={styles.tdMeta}>{r.globalReplacement?.brand?.name}</td>
-                <td className={styles.tdPrice}>${Number(r.price).toFixed(2)}</td>
-                {isAdmin && <td className={styles.tdMeta}>{r.globalReplacement?.countryCode}</td>}
-                <td>
-                  <span className={r.stock > 0 ? styles.badgeActive : styles.badgeOut}>
-                    {r.stock}
-                  </span>
-                </td>
-                <td>
-                  <span className={r.stock > 0 ? styles.badgeActive : styles.badgeOut}>
-                    {r.stock > 0 ? 'Activo' : 'Agotado'}
-                  </span>
-                </td>
-                <td className={styles.tdMeta}>
-                  {tenants.find(t => t.id === r.tenantId)?.businessName ?? '—'}
-                </td>
-                <td className={styles.tdActions}>
-                  <Link href={`/dashboard/replacement/${r.id}`} className={styles.btnText}>Compatibilidades</Link>
-                  {canManage && <button className={styles.btnText} onClick={() => openEdit(r)}>Editar</button>}
-                  {canManage && <button className={styles.btnDanger} onClick={() => handleDelete(r.id)}>Eliminar</button>}
-                </td>
-              </tr>
-            ))}
-            {replacements.length === 0 && (
-              <tr><td colSpan={isAdmin ? 9 : 8} className={styles.empty}>No hay repuestos registrados.</td></tr>
-            )}
-          </tbody>
-        </table>
+      <div className={styles.controls}>
+        <Search value={search} onChange={setSearch} placeholder="Buscar por nombre de repuesto..." />
       </div>
+
+      <Table<Replacement>
+        rows={visibleReplacements}
+        getKey={r => r.id}
+        emptyMessage="No hay repuestos registrados."
+        onRowClick={r => router.push(`/dashboard/replacement/${r.id}/show`)}
+        columns={[
+          { header: 'Producto', render: r => r.globalReplacement?.imageUrl
+            ? <Image src={r.globalReplacement.imageUrl} alt={r.globalReplacement.name ?? ''} width={40} height={40} className={styles.img} />
+            : <div className={styles.imgPlaceholder} />, className: styles.tdImg },
+          { header: 'Nombre', render: r => r.globalReplacement?.name, className: styles.tdName },
+          { header: 'Marca', render: r => r.globalReplacement?.brand?.name, className: styles.tdMeta },
+          { header: 'Precio', render: r => `$${Number(r.price).toFixed(2)}`, className: styles.tdPrice },
+          ...(isAdmin ? [{ header: 'País', render: (r: Replacement) => r.globalReplacement?.countryCode, className: styles.tdMeta } as Column<Replacement>] : []),
+          { header: 'Stock', render: r => <span className={r.stock > 0 ? styles.badgeActive : styles.badgeOut}>{r.stock}</span> },
+          { header: 'Estado', render: r => <span className={r.stock > 0 ? styles.badgeActive : styles.badgeOut}>{r.stock > 0 ? 'Activo' : 'Agotado'}</span> },
+          { header: 'Local', render: r => tenants.find(t => t.id === r.tenantId)?.businessName ?? '—', className: styles.tdMeta },
+          { header: '', render: r => (
+            <div onClick={e => e.stopPropagation()}>
+              <Link href={`/dashboard/replacement/${r.id}`} className={styles.btnText}>Compatibilidades</Link>
+              {canManage && <Button label="Editar" variant="ghost" color="neutral" size="sm" onClick={() => openEdit(r)} />}
+              {canManage && <Button label="Eliminar" variant="ghost" color="danger" size="sm" onClick={() => handleDelete(r.id)} />}
+            </div>
+          ), className: styles.tdActions },
+        ]}
+      />
 
       <Modal isOpen={!!editingReplacement} onClose={() => setEditingReplacement(null)} title="Editar repuesto" size="lg" footer={editFooter}>
         <div className={styles.form}>
@@ -287,28 +272,20 @@ export default function ReplacementDashboardPage() {
           <div className={styles.row}>
             <label className={styles.label}>
               Local
-              <select className={styles.select} value={editForm.tenantId} onChange={e => onEditTenantChange(e.target.value)} required>
-                <option value="">Seleccionar local</option>
-                {tenants.map(t => <option key={t.id} value={t.id}>{t.businessName}</option>)}
-              </select>
+              <Select value={editForm.tenantId} onChange={onEditTenantChange} options={tenants.map(t => ({ value: t.id, label: t.businessName }))} placeholder="Seleccionar local" required />
             </label>
             <label className={styles.label}>
               Sucursal <span className={styles.optional}>(opcional)</span>
-              <select
-                className={styles.select}
+              <Select
                 value={editForm.branchId ?? ''}
-                onChange={e => {
-                  const branch = editBranches.find(b => b.id === e.target.value);
-                  setEdit({
-                    branchId: e.target.value,
-                    ...(branch?.latitude != null && branch?.longitude != null && { latitude: branch.latitude, longitude: branch.longitude }),
-                  });
+                onChange={v => {
+                  const branch = editBranches.find(b => b.id === v);
+                  setEdit({ branchId: v, ...(branch?.latitude != null && branch?.longitude != null && { latitude: branch.latitude, longitude: branch.longitude }) });
                 }}
+                options={editBranches.map(b => ({ value: b.id, label: b.name }))}
+                placeholder="Sin asignar"
                 disabled={!editForm.tenantId}
-              >
-                <option value="">Sin asignar</option>
-                {editBranches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-              </select>
+              />
             </label>
           </div>
 
@@ -330,15 +307,7 @@ export default function ReplacementDashboardPage() {
             </label>
             <label className={styles.label}>
               Marca
-              <select
-                className={styles.select}
-                value={form.brandId ?? 0}
-                onChange={e => set({ brandId: Number(e.target.value) })}
-                required
-              >
-                <option value={0}>Seleccionar marca</option>
-                {brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-              </select>
+              <Select value={form.brandId || ''} onChange={v => set({ brandId: Number(v) || 0 })} options={brands.map(b => ({ value: b.id, label: b.name }))} placeholder="Seleccionar marca" required />
             </label>
           </div>
 
@@ -374,30 +343,22 @@ export default function ReplacementDashboardPage() {
             </label>
             <label className={styles.label}>
               Local
-              <select className={styles.select} value={form.tenantId} onChange={e => onTenantChange(e.target.value)} disabled={!isAdmin} required>
-                <option value="">Seleccionar local</option>
-                {visibleTenants.map(t => <option key={t.id} value={t.id}>{t.businessName}</option>)}
-              </select>
+              <Select value={form.tenantId} onChange={onTenantChange} options={visibleTenants.map(t => ({ value: t.id, label: t.businessName }))} placeholder="Seleccionar local" disabled={!isAdmin} required />
             </label>
           </div>
 
           <label className={styles.label}>
             Sucursal <span className={styles.optional}>(opcional)</span>
-            <select
-              className={styles.select}
+            <Select
               value={form.branchId ?? ''}
-              onChange={e => {
-                const branch = formBranches.find(b => b.id === e.target.value);
-                set({
-                  branchId: e.target.value,
-                  ...(branch?.latitude != null && branch?.longitude != null && { latitude: branch.latitude, longitude: branch.longitude }),
-                });
+              onChange={v => {
+                const branch = formBranches.find(b => b.id === v);
+                set({ branchId: v, ...(branch?.latitude != null && branch?.longitude != null && { latitude: branch.latitude, longitude: branch.longitude }) });
               }}
+              options={formBranches.map(b => ({ value: b.id, label: b.name }))}
+              placeholder="Sin asignar"
               disabled={!form.tenantId}
-            >
-              <option value="">Sin asignar</option>
-              {formBranches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-            </select>
+            />
           </label>
 
           {formError && <p className={styles.error}>{formError}</p>}

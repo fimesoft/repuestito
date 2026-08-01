@@ -8,7 +8,7 @@ interface ButtonProps {
   type?: "button" | "submit" | "reset";
   variant?: "solid" | "outline" | "ghost";
   color?: "primary" | "success" | "danger" | "neutral";
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
   shadow?: boolean;
   disabled?: boolean;
   fullWidth?: boolean;

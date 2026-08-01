@@ -184,8 +184,8 @@ export default function StoresPage() {
                 <span className={tenant.active ? styles.badgeActive : styles.badgeInactive}>
                   {tenant.active ? 'Activo' : 'Inactivo'}
                 </span>
-                {canManage && <button className={styles.btnText} onClick={() => openEditTenant(tenant)}>Editar</button>}
-                {canManage && <button className={styles.btnDanger} onClick={() => handleDeleteTenant(tenant.id)}>Eliminar</button>}
+                {canManage && <Button label="Editar" variant="ghost" color="neutral" size="sm" onClick={() => openEditTenant(tenant)} />}
+                {canManage && <Button label="Eliminar" variant="ghost" color="danger" size="sm" onClick={() => handleDeleteTenant(tenant.id)} />}
                 <button className={styles.btnExpand} onClick={() => toggleExpand(tenant.id)}>
                   {expanded.has(tenant.id) ? '▲' : '▼'} Sucursales
                 </button>
@@ -207,8 +207,8 @@ export default function StoresPage() {
                         </div>
                         {canManage && (
                           <div className={styles.branchActions}>
-                            <button className={styles.btnText} onClick={() => openEditBranch(branch)}>Editar</button>
-                            <button className={styles.btnDanger} onClick={() => handleDeleteBranch(tenant.id, branch.id)}>Eliminar</button>
+                            <Button label="Editar" variant="ghost" color="neutral" size="sm" onClick={() => openEditBranch(branch)} />
+                            <Button label="Eliminar" variant="ghost" color="danger" size="sm" onClick={() => handleDeleteBranch(tenant.id, branch.id)} />
                           </div>
                         )}
                       </li>
@@ -216,9 +216,7 @@ export default function StoresPage() {
                   </ul>
                 )}
                 {canManage && (
-                  <button className={styles.btnAddBranch} onClick={() => openAddBranch(tenant.id)}>
-                    + Añadir sucursal
-                  </button>
+                  <Button label="+ Añadir sucursal" variant="ghost" color="primary" size="sm" onClick={() => openAddBranch(tenant.id)} />
                 )}
               </div>
             )}

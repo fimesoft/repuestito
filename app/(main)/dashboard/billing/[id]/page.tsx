@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { getInvoice, Invoice } from '@/services/billing.service';
+import Button from '@/components/ui/Button/Button';
 import styles from './page.module.css';
 
 export default function InvoiceDetailPage() {
@@ -31,8 +32,8 @@ export default function InvoiceDetailPage() {
   return (
     <main className={styles.page}>
       <div className={styles.noPrint}>
-        <button className={styles.btnBack} onClick={() => router.back()}>← Volver</button>
-        <button className={styles.btnPrint} onClick={() => window.print()}>Imprimir</button>
+        <Button label="← Volver" variant="ghost" color="neutral" onClick={() => router.back()} />
+        <Button label="Imprimir" variant="outline" color="neutral" onClick={() => window.print()} />
       </div>
 
       <div className={styles.invoice}>

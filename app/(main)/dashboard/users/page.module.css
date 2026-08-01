@@ -209,3 +209,5 @@
 }
 
 .devCodeHint { font-size: 12px; color: var(--color-warning-text); margin: 0; }
+
+.controls { display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; }

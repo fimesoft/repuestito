@@ -5,6 +5,7 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { usePermissions } from '@/hooks/usePermissions';
 import { getOrder, confirmOrder, fulfillOrder, cancelOrder, Order } from '@/services/orders.service';
+import Button from '@/components/ui/Button/Button';
 import styles from './page.module.css';
 
 const STATUS_LABELS: Record<string, string> = {
@@ -86,15 +87,15 @@ export default function OrderDetailPage() {
   return (
     <main className={styles.page}>
       <div className={styles.noPrint}>
-        <button className={styles.btnBack} onClick={() => router.back()}>← Volver</button>
+        <Button label="← Volver" variant="ghost" color="neutral" onClick={() => router.back()} />
         {order.status === 'pending' && (
-          <button className={styles.btnConfirm} onClick={handleConfirm}>Confirmar</button>
+          <Button label="Confirmar" color="success" onClick={handleConfirm} />
         )}
         {order.status === 'confirmed' && (
-          <button className={styles.btnFulfill} onClick={handleFulfill}>Convertir a factura</button>
+          <Button label="Convertir a factura" color="primary" onClick={handleFulfill} />
         )}
         {(order.status === 'pending' || order.status === 'confirmed') && (
-          <button className={styles.btnCancel} onClick={handleCancel}>Cancelar</button>
+          <Button label="Cancelar" variant="outline" color="danger" onClick={handleCancel} />
         )}
       </div>
 

@@ -15,7 +15,6 @@ export default async function Header() {
   return (
     <header className={styles.header}>
       <Suspense fallback={null}>
-        <Search />
         <div className={styles.rightSlot}>
           <UserBadge />
           {isAdmin && <CountrySelect />}

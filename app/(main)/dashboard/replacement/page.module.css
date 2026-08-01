@@ -132,6 +132,8 @@
 
 .select:disabled { background: var(--bg-subtle); color: var(--color-text-faint); cursor: not-allowed; }
 
+.controls { display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; }
+
 .error { font-size: 13px; color: var(--color-error); }
 
 @media (max-width: 560px) {

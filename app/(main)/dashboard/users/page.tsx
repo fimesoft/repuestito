@@ -9,6 +9,9 @@ import { getBranches, Branch } from '@/services/branch.service';
 import { usePermissions } from '@/hooks/usePermissions';
 import { useCountry } from '@/context/CountryContext';
 import styles from './page.module.css';
+import Search from '@/components/ui/Search';
+import Table, { Column } from '@/components/ui/Table';
+import Select from '@/components/ui/Select';
 
 const ROLES = ['MODERATOR', 'SELLER'];
 
@@ -117,9 +120,10 @@ export default function UsersPage() {
     }
   }
 
-  const visibleUsers = isAdmin
-    ? users
-    : users.filter(u => u.tenantId === currentUser?.tenantId);
+  const [search, setSearch] = useState('');
+
+  const visibleUsers = (isAdmin ? users : users.filter(u => u.tenantId === currentUser?.tenantId))
+    .filter(u => !search || u.email.toLowerCase().includes(search.toLowerCase()));
 
   // ── Footers ─────────────────────────────────────
   const createFooter = inviteResult ? (
@@ -145,42 +149,28 @@ export default function UsersPage() {
         {canManage && <Button label="+ Nuevo usuario" onClick={openCreate} shadow />}
       </div>
 
-      <div className={styles.tableWrapper}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Email</th>
-              <th>Rol</th>
-              <th>Local</th>
-              <th>Sucursal</th>
-              <th>Estado</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {visibleUsers.map(user => (
-              <tr key={user.id}>
-                <td className={styles.tdEmail}>{user.email}</td>
-                <td><span className={styles[`role${user.role}`]}>{user.role}</span></td>
-                <td className={styles.tdMeta}>{tenants.find(t => t.id === user.tenantId)?.businessName ?? '—'}</td>
-                <td className={styles.tdMeta}>{user.branchId ? user.branchId.slice(0, 8) + '…' : '—'}</td>
-                <td>
-                  <span className={user.active ? styles.badgeActive : styles.badgeInactive}>
-                    {user.active ? 'Activo' : 'Inactivo'}
-                  </span>
-                </td>
-                <td className={styles.tdActions}>
-                  {canManage && <button className={styles.btnText} onClick={() => openEdit(user)}>Editar</button>}
-                  {canManage && <button className={styles.btnDanger} onClick={() => handleDelete(user.id)}>Eliminar</button>}
-                </td>
-              </tr>
-            ))}
-            {visibleUsers.length === 0 && (
-              <tr><td colSpan={6} className={styles.empty}>No hay usuarios registrados.</td></tr>
-            )}
-          </tbody>
-        </table>
+      <div className={styles.controls}>
+        <Search value={search} onChange={setSearch} placeholder="Buscar por email..." />
       </div>
+
+      <Table<UserRecord>
+        rows={visibleUsers}
+        getKey={u => u.id}
+        emptyMessage="No hay usuarios registrados."
+        columns={[
+          { header: 'Email', render: u => u.email, className: styles.tdEmail },
+          { header: 'Rol', render: u => <span className={styles[`role${u.role}`]}>{u.role}</span> },
+          { header: 'Local', render: u => tenants.find(t => t.id === u.tenantId)?.businessName ?? '—', className: styles.tdMeta },
+          { header: 'Sucursal', render: u => u.branchId ? u.branchId.slice(0, 8) + '…' : '—', className: styles.tdMeta },
+          { header: 'Estado', render: u => <span className={u.active ? styles.badgeActive : styles.badgeInactive}>{u.active ? 'Activo' : 'Inactivo'}</span> },
+          { header: '', render: u => canManage ? (
+            <>
+              <Button label="Editar" variant="ghost" color="neutral" size="sm" onClick={() => openEdit(u)} />
+              <Button label="Eliminar" variant="ghost" color="danger" size="sm" onClick={() => handleDelete(u.id)} />
+            </>
+          ) : null, className: styles.tdActions },
+        ] as Column<UserRecord>[]}
+      />
 
       {/* Create modal */}
       <Modal isOpen={creating} onClose={closeCreate} title="Invitar usuario" size="md" footer={createFooter}>
@@ -203,24 +193,16 @@ export default function UsersPage() {
           </label>
           <label className={styles.formLabel}>
             Rol
-            <select className={styles.formSelect} value={createForm.role ?? 'MODERATOR'} onChange={e => setCreateForm(p => ({ ...p, role: e.target.value }))}>
-              {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
-            </select>
+            <Select value={createForm.role ?? 'MODERATOR'} onChange={v => setCreateForm(p => ({ ...p, role: v }))} options={ROLES.map(r => ({ value: r, label: r }))} />
           </label>
           <div className={styles.formRow}>
             <label className={styles.formLabel}>
               Local
-              <select className={styles.formSelect} value={createForm.tenantId ?? ''} onChange={e => onCreateTenantChange(e.target.value)}>
-                <option value="">Sin asignar</option>
-                {tenants.map(t => <option key={t.id} value={t.id}>{t.businessName}</option>)}
-              </select>
+              <Select value={createForm.tenantId ?? ''} onChange={onCreateTenantChange} options={tenants.map(t => ({ value: t.id, label: t.businessName }))} placeholder="Sin asignar" />
             </label>
             <label className={styles.formLabel}>
               Sucursal
-              <select className={styles.formSelect} value={createForm.branchId ?? ''} onChange={e => setCreateForm(p => ({ ...p, branchId: e.target.value || undefined }))} disabled={!createForm.tenantId}>
-                <option value="">Sin asignar</option>
-                {formBranches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-              </select>
+              <Select value={createForm.branchId ?? ''} onChange={v => setCreateForm(p => ({ ...p, branchId: v || undefined }))} options={formBranches.map(b => ({ value: b.id, label: b.name }))} placeholder="Sin asignar" disabled={!createForm.tenantId} />
             </label>
           </div>
           {modalError && <p className={styles.error}>{modalError}</p>}
@@ -241,25 +223,24 @@ export default function UsersPage() {
           </label>
           <label className={styles.formLabel}>
             Rol
-            <select className={styles.formSelect} value={editForm.role ?? ''} onChange={e => setEditForm(p => ({ ...p, role: e.target.value }))} disabled={editingUser?.role === 'ADMIN'}>
-              {editingUser?.role === 'ADMIN' && <option value="ADMIN">ADMIN</option>}
-              {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
-            </select>
+            <Select
+              value={editForm.role ?? ''}
+              onChange={v => setEditForm(p => ({ ...p, role: v }))}
+              options={[
+                ...(editingUser?.role === 'ADMIN' ? [{ value: 'ADMIN', label: 'ADMIN' }] : []),
+                ...ROLES.map(r => ({ value: r, label: r })),
+              ]}
+              disabled={editingUser?.role === 'ADMIN'}
+            />
           </label>
           <div className={styles.formRow}>
             <label className={styles.formLabel}>
               Local
-              <select className={styles.formSelect} value={editForm.tenantId ?? ''} onChange={e => onEditTenantChange(e.target.value)}>
-                <option value="">Sin asignar</option>
-                {tenants.map(t => <option key={t.id} value={t.id}>{t.businessName}</option>)}
-              </select>
+              <Select value={editForm.tenantId ?? ''} onChange={onEditTenantChange} options={tenants.map(t => ({ value: t.id, label: t.businessName }))} placeholder="Sin asignar" />
             </label>
             <label className={styles.formLabel}>
               Sucursal
-              <select className={styles.formSelect} value={editForm.branchId ?? ''} onChange={e => setEditForm(p => ({ ...p, branchId: e.target.value || null }))} disabled={!editForm.tenantId}>
-                <option value="">Sin asignar</option>
-                {formBranches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-              </select>
+              <Select value={editForm.branchId ?? ''} onChange={v => setEditForm(p => ({ ...p, branchId: v || null }))} options={formBranches.map(b => ({ value: b.id, label: b.name }))} placeholder="Sin asignar" disabled={!editForm.tenantId} />
             </label>
           </div>
           <label className={styles.formCheckbox}>

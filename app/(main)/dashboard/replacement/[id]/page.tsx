@@ -12,6 +12,7 @@ import {
 import { getVehicleModels, VehicleModel } from '@/services/vehicle-model.service';
 import { COMPATIBILITY_COUNTRIES, CompatibilityCountry } from '@/lib/compatibility-countries';
 import { usePermissions } from '@/hooks/usePermissions';
+import Table, { Column } from '@/components/ui/Table';
 import styles from './page.module.css';
 
 interface PageProps {
@@ -116,41 +117,20 @@ export default function ReplacementCompatibilityPage({ params }: PageProps) {
         </div>
       )}
 
-      <div className={styles.tableWrapper}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Marca</th>
-              <th>Modelo</th>
-              <th>Año desde</th>
-              <th>Año hasta</th>
-              {canManage && <th></th>}
-            </tr>
-          </thead>
-          <tbody>
-            {entries.map(entry => (
-              <tr key={entry.id}>
-                <td>{entry.vehicleModel.brand}</td>
-                <td>{entry.vehicleModel.model}</td>
-                <td className={styles.tdMeta}>{entry.vehicleModel.yearFrom}</td>
-                <td className={styles.tdMeta}>{entry.vehicleModel.yearTo}</td>
-                {canManage && (
-                  <td className={styles.tdActions}>
-                    <button className={styles.btnDanger} onClick={() => handleRemove(entry)}>Eliminar</button>
-                  </td>
-                )}
-              </tr>
-            ))}
-            {entries.length === 0 && (
-              <tr>
-                <td colSpan={canManage ? 5 : 4} className={styles.empty}>
-                  Sin compatibilidades para {activeCountry}.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      <Table<CompatibilityEntry>
+        rows={entries}
+        getKey={e => e.id}
+        emptyMessage={`Sin compatibilidades para ${activeCountry}.`}
+        columns={[
+          { header: 'Marca', render: e => e.vehicleModel.brand },
+          { header: 'Modelo', render: e => e.vehicleModel.model },
+          { header: 'Año desde', render: e => e.vehicleModel.yearFrom, className: styles.tdMeta },
+          { header: 'Año hasta', render: e => e.vehicleModel.yearTo, className: styles.tdMeta },
+          ...(canManage ? [{ header: '', render: (e: CompatibilityEntry) => (
+            <Button label="Eliminar" variant="ghost" color="danger" size="sm" onClick={() => handleRemove(e)} />
+          ), className: styles.tdActions } as Column<CompatibilityEntry>] : []),
+        ]}
+      />
 
       <Modal isOpen={adding} onClose={() => setAdding(false)} title="Agregar modelo compatible" size="md" footer={addFooter}>
         <div className={styles.form}>
