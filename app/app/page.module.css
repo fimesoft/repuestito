@@ -60,6 +60,14 @@
   }
 
   .left {
+    flex: 1;
     padding: 2rem 1.25rem;
+    align-items: center;
+  }
+
+  .leftInner {
+    max-width: 100%;
+    min-height: 100vh;
+    justify-content: center;
   }
 }

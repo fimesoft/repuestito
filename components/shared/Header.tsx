@@ -1,6 +1,5 @@
 import { Suspense } from 'react';
 import { cookies } from 'next/headers';
-import Search from './Search';
 import CountrySelect from './CountrySelect';
 import UserBadge from './UserBadge';
 import { getMe } from '@/services/auth.service';

@@ -5,6 +5,13 @@
   padding-left: 240px;
 }
 
+@media (max-width: 768px) {
+  .wrapper {
+    padding-left: 0;
+    padding-bottom: 64px;
+  }
+}
+
 .content {
   flex: 1;
   overflow: auto;

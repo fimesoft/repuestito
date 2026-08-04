@@ -17,6 +17,7 @@ import { getBrands, Brand } from '@/services/brands.service';
 import { usePermissions } from '@/hooks/usePermissions';
 import { useCountry } from '@/context/CountryContext';
 import styles from './page.module.css';
+import { getStockLevel } from '@/constants/replacement';
 import Search from '@/components/ui/Search';
 import Table, { Column } from '@/components/ui/Table';
 import Select from '@/components/ui/Select';
@@ -216,7 +217,10 @@ export default function ReplacementDashboardPage() {
           { header: 'Marca', render: r => r.globalReplacement?.brand?.name, className: styles.tdMeta },
           { header: 'Precio', render: r => `$${Number(r.price).toFixed(2)}`, className: styles.tdPrice },
           ...(isAdmin ? [{ header: 'País', render: (r: Replacement) => r.globalReplacement?.countryCode, className: styles.tdMeta } as Column<Replacement>] : []),
-          { header: 'Stock', render: r => <span className={r.stock > 0 ? styles.badgeActive : styles.badgeOut}>{r.stock}</span> },
+          { header: 'Stock', render: r => {
+            const levelClass = { low: styles.stockLow, normal: styles.stockNormal, full: styles.stockFull }[getStockLevel(r.stock)];
+            return <span className={`${styles.stockBadge} ${levelClass}`}>{r.stock} u.</span>;
+          }},
           { header: 'Estado', render: r => <span className={r.stock > 0 ? styles.badgeActive : styles.badgeOut}>{r.stock > 0 ? 'Activo' : 'Agotado'}</span> },
           { header: 'Local', render: r => tenants.find(t => t.id === r.tenantId)?.businessName ?? '—', className: styles.tdMeta },
           { header: '', render: r => (

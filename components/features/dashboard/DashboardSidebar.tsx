@@ -95,13 +95,13 @@ function IconClipboard() {
 }
 
 const NAV = [
-  { href: '/dashboard/replacement', label: 'Repuestos', Icon: IconWrench },
-  { href: '/dashboard/orders', label: 'Pedidos', Icon: IconClipboard },
-  { href: '/dashboard/billing', label: 'Facturación', Icon: IconReceipt },
-  { href: '/dashboard/stores', label: 'Locales', Icon: IconStore },
-  { href: '/dashboard/users', label: 'Usuarios', Icon: IconUsers },
-  { href: '/dashboard/vehicles', label: 'Vehículos', Icon: IconCar },
-  { href: '/dashboard/settings', label: 'Configuración', Icon: IconSettings },
+  { href: '/dashboard/replacement', label: 'Repuestos',     Icon: IconWrench,    mobileHidden: true },
+  { href: '/dashboard/orders',      label: 'Pedidos',       Icon: IconClipboard, mobileHidden: true },
+  { href: '/dashboard/billing',     label: 'Facturación',   Icon: IconReceipt },
+  { href: '/dashboard/stores',      label: 'Locales',       Icon: IconStore },
+  { href: '/dashboard/users',       label: 'Usuarios',      Icon: IconUsers,     mobileHidden: true },
+  { href: '/dashboard/vehicles',    label: 'Vehículos',     Icon: IconCar,       mobileHidden: true },
+  { href: '/dashboard/settings',    label: 'Configuración', Icon: IconSettings },
 ];
 
 export default function DashboardSidebar() {
@@ -127,10 +127,10 @@ export default function DashboardSidebar() {
         </div>
 
         <ul className={styles.nav} role="list">
-          {NAV.map(({ href, label, Icon }) => {
+          {NAV.map(({ href, label, Icon, mobileHidden }) => {
             const isActive = pathname === href;
             return (
-              <li key={href}>
+              <li key={href} className={mobileHidden ? styles.mobileHidden : undefined}>
                 <Link
                   href={href}
                   className={`${styles.navItem} ${isActive ? styles.active : ''}`}
