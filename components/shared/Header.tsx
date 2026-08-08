@@ -9,7 +9,7 @@ export default async function Header() {
   const cookieStore = await cookies();
   const token = cookieStore.get('token')?.value ?? '';
   const user = await getMe(`token=${token}`);
-  const isAdmin = user?.role === 'ADMIN';
+  const isAdmin = user?.role === 'GOD';
 
   return (
     <header className={styles.header}>

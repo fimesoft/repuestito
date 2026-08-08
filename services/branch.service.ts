@@ -31,7 +31,7 @@ export interface UpdateBranchPayload {
 export async function getBranches(tenantId?: string): Promise<Branch[]> {
   const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/api/branches`);
   if (tenantId) url.searchParams.set('tenantId', tenantId);
-  const res = await fetch(url.toString(), { cache: 'no-store' });
+  const res = await fetch(url.toString(), { cache: 'no-store', credentials: 'include' });
   if (!res.ok) throw new Error('Error al obtener las sucursales');
   return res.json() as Promise<Branch[]>;
 }
@@ -40,6 +40,7 @@ export async function updateBranch(id: string, payload: UpdateBranchPayload): Pr
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/branches/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify(payload),
   });
   if (!res.ok) {
@@ -54,7 +55,7 @@ export async function updateBranch(id: string, payload: UpdateBranchPayload): Pr
 }
 
 export async function deleteBranch(id: string): Promise<void> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/branches/${id}`, { method: 'DELETE' });
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/branches/${id}`, { method: 'DELETE', credentials: 'include' });
   if (!res.ok) throw new Error('Error al eliminar la sucursal');
 }
 
@@ -62,6 +63,7 @@ export async function createBranch(payload: CreateBranchPayload): Promise<Branch
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/branches`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify(payload),
   });
   if (!res.ok) {

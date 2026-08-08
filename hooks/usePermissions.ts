@@ -6,7 +6,7 @@ import { getMeClient, AuthUser } from '@/services/auth.service';
 export interface Permissions {
   currentUser: AuthUser | null;
   isAdmin: boolean;
-  canManage: boolean; // ADMIN or MODERATOR — can create/edit/delete
+  canManage: boolean; // GOD or MODERATOR — can create/edit/delete
   loading: boolean;
 }
 
@@ -23,8 +23,8 @@ export function usePermissions(): Permissions {
 
   return {
     currentUser,
-    isAdmin: currentUser?.role === 'ADMIN',
-    canManage: currentUser?.role === 'ADMIN' || currentUser?.role === 'MODERATOR',
+    isAdmin: currentUser?.role === 'GOD',
+    canManage: currentUser?.role === 'GOD' || currentUser?.role === 'MODERATOR',
     loading,
   };
 }

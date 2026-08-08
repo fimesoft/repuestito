@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 
-const SECRET = new TextEncoder().encode(process.env.JWT_SECRET ?? '');
+if (!process.env.JWT_SECRET) throw new Error('JWT_SECRET is not set');
+const SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 async function isValidToken(token: string): Promise<boolean> {
   try {
@@ -23,5 +24,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*'],
+  matcher: ['/dashboard/:path*', '/edit/:path*'],
 };

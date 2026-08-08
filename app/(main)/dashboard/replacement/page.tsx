@@ -21,6 +21,7 @@ import { getStockLevel } from '@/constants/replacement';
 import Search from '@/components/ui/Search';
 import Table, { Column } from '@/components/ui/Table';
 import Select from '@/components/ui/Select';
+import PartCard from '@/components/features/replacements/PartCard';
 
 const EMPTY: Omit<CreateReplacementPayload, 'countryCode'> = {
   name: '', brandId: 0, price: 0, tenantId: '',
@@ -33,6 +34,8 @@ interface EditFormState extends UpdateReplacementPayload {
 
 const EMPTY_EDIT: EditFormState = { price: 0, stock: 0, tenantId: '' };
 
+const LIMIT = 12;
+
 export default function ReplacementDashboardPage() {
   const router = useRouter();
   const [replacements, setReplacements] = useState<Replacement[]>([]);
@@ -44,9 +47,9 @@ export default function ReplacementDashboardPage() {
   const { currentUser, isAdmin, canManage } = usePermissions();
   const visibleTenants = isAdmin ? tenants : tenants.filter(t => t.id === currentUser?.tenantId);
   const [search, setSearch] = useState('');
-  const visibleReplacements = replacements.filter(r =>
-    !search || r.globalReplacement?.name?.toLowerCase().includes(search.toLowerCase()),
-  );
+  const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState<Omit<CreateReplacementPayload, 'countryCode'>>(EMPTY);
@@ -62,8 +65,15 @@ export default function ReplacementDashboardPage() {
   const [editError, setEditError] = useState<string | null>(null);
 
   useEffect(() => {
-    getReplacements({ country }).then(r => setReplacements(r.data));
-  }, [country]);
+    getReplacements({ country, page, limit: LIMIT, search }).then(r => {
+      setReplacements(r.data);
+      setTotalPages(r.totalPages);
+    });
+  }, [country, page, search]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [country, search]);
 
   useEffect(() => {
     getTenants(country).then(setTenants);
@@ -202,36 +212,64 @@ export default function ReplacementDashboardPage() {
 
       <div className={styles.controls}>
         <Search value={search} onChange={setSearch} placeholder="Buscar por nombre de repuesto..." />
+        <div className={styles.viewToggle}>
+          <button className={viewMode === 'table' ? styles.viewActive : styles.viewBtn} onClick={() => setViewMode('table')}>Tabla</button>
+          <button className={viewMode === 'grid' ? styles.viewActive : styles.viewBtn} onClick={() => setViewMode('grid')}>Tarjetas</button>
+        </div>
       </div>
 
-      <Table<Replacement>
-        rows={visibleReplacements}
-        getKey={r => r.id}
-        emptyMessage="No hay repuestos registrados."
-        onRowClick={r => router.push(`/dashboard/replacement/${r.id}/show`)}
-        columns={[
-          { header: 'Producto', render: r => r.globalReplacement?.imageUrl
-            ? <Image src={r.globalReplacement.imageUrl} alt={r.globalReplacement.name ?? ''} width={40} height={40} className={styles.img} />
-            : <div className={styles.imgPlaceholder} />, className: styles.tdImg },
-          { header: 'Nombre', render: r => r.globalReplacement?.name, className: styles.tdName },
-          { header: 'Marca', render: r => r.globalReplacement?.brand?.name, className: styles.tdMeta },
-          { header: 'Precio', render: r => `$${Number(r.price).toFixed(2)}`, className: styles.tdPrice },
-          ...(isAdmin ? [{ header: 'País', render: (r: Replacement) => r.globalReplacement?.countryCode, className: styles.tdMeta } as Column<Replacement>] : []),
-          { header: 'Stock', render: r => {
-            const levelClass = { low: styles.stockLow, normal: styles.stockNormal, full: styles.stockFull }[getStockLevel(r.stock)];
-            return <span className={`${styles.stockBadge} ${levelClass}`}>{r.stock} u.</span>;
-          }},
-          { header: 'Estado', render: r => <span className={r.stock > 0 ? styles.badgeActive : styles.badgeOut}>{r.stock > 0 ? 'Activo' : 'Agotado'}</span> },
-          { header: 'Local', render: r => tenants.find(t => t.id === r.tenantId)?.businessName ?? '—', className: styles.tdMeta },
-          { header: '', render: r => (
-            <div onClick={e => e.stopPropagation()}>
-              <Link href={`/dashboard/replacement/${r.id}`} className={styles.btnText}>Compatibilidades</Link>
-              {canManage && <Button label="Editar" variant="ghost" color="neutral" size="sm" onClick={() => openEdit(r)} />}
-              {canManage && <Button label="Eliminar" variant="ghost" color="danger" size="sm" onClick={() => handleDelete(r.id)} />}
-            </div>
-          ), className: styles.tdActions },
-        ]}
-      />
+      {viewMode === 'table' ? (
+        <Table<Replacement>
+          rows={replacements}
+          getKey={r => r.id}
+          emptyMessage="No hay repuestos registrados."
+          onRowClick={r => router.push(`/dashboard/replacement/${r.id}/show`)}
+          columns={[
+            { header: 'Producto', render: r => r.globalReplacement?.imageUrl
+              ? <Image src={r.globalReplacement.imageUrl} alt={r.globalReplacement.name ?? ''} width={40} height={40} className={styles.img} />
+              : <div className={styles.imgPlaceholder} />, className: styles.tdImg },
+            { header: 'Nombre', render: r => r.globalReplacement?.name, className: styles.tdName },
+            { header: 'Marca', render: r => r.globalReplacement?.brand?.name, className: styles.tdMeta },
+            { header: 'Precio', render: r => `$${Number(r.price).toFixed(2)}`, className: styles.tdPrice },
+            ...(isAdmin ? [{ header: 'País', render: (r: Replacement) => r.globalReplacement?.countryCode, className: styles.tdMeta } as Column<Replacement>] : []),
+            { header: 'Stock', render: r => {
+              const levelClass = { low: styles.stockLow, normal: styles.stockNormal, full: styles.stockFull }[getStockLevel(r.stock)];
+              return <span className={`${styles.stockBadge} ${levelClass}`}>{r.stock} u.</span>;
+            }},
+            { header: 'Estado', render: r => <span className={r.stock > 0 ? styles.badgeActive : styles.badgeOut}>{r.stock > 0 ? 'Activo' : 'Agotado'}</span> },
+            { header: 'Local', render: r => tenants.find(t => t.id === r.tenantId)?.businessName ?? '—', className: styles.tdMeta },
+            { header: '', render: r => (
+              <div onClick={e => e.stopPropagation()}>
+                <Link href={`/dashboard/replacement/${r.id}`} className={styles.btnText}>Compatibilidades</Link>
+                {canManage && <Button label="Editar" variant="ghost" color="neutral" size="sm" onClick={() => openEdit(r)} />}
+                {canManage && <Button label="Eliminar" variant="ghost" color="danger" size="sm" onClick={() => handleDelete(r.id)} />}
+              </div>
+            ), className: styles.tdActions },
+          ]}
+        />
+      ) : (
+        <div className={styles.grid}>
+          {replacements.map(r => (
+            <PartCard
+              key={r.id}
+              id={r.id}
+              image={r.globalReplacement?.imageUrl ?? null}
+              brand={r.globalReplacement?.brand?.name ?? ''}
+              name={r.globalReplacement?.name ?? ''}
+              price={r.price}
+            />
+          ))}
+          {replacements.length === 0 && <p className={styles.empty}>No hay repuestos registrados.</p>}
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className={styles.paginationWrapper}>
+          <button className={styles.pageBtn} onClick={() => setPage(p => p - 1)} disabled={page === 1}>←</button>
+          <span className={styles.pageInfo}>{page} / {totalPages}</span>
+          <button className={styles.pageBtn} onClick={() => setPage(p => p + 1)} disabled={page === totalPages}>→</button>
+        </div>
+      )}
 
       <Modal isOpen={!!editingReplacement} onClose={() => setEditingReplacement(null)} title="Editar repuesto" size="lg" footer={editFooter}>
         <div className={styles.form}>

@@ -227,10 +227,10 @@ export default function UsersPage() {
               value={editForm.role ?? ''}
               onChange={v => setEditForm(p => ({ ...p, role: v }))}
               options={[
-                ...(editingUser?.role === 'ADMIN' ? [{ value: 'ADMIN', label: 'ADMIN' }] : []),
+                ...(editingUser?.role === 'GOD' ? [{ value: 'GOD', label: 'GOD' }] : []),
                 ...ROLES.map(r => ({ value: r, label: r })),
               ]}
-              disabled={editingUser?.role === 'ADMIN'}
+              disabled={editingUser?.role === 'GOD'}
             />
           </label>
           <div className={styles.formRow}>

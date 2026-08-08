@@ -42,6 +42,7 @@ export async function createReplacement(payload: CreateReplacementPayload): Prom
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/replacements`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify(payload),
   });
   if (!res.ok) {
@@ -67,6 +68,7 @@ export async function updateReplacement(id: string, payload: UpdateReplacementPa
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/replacements/${id}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify(payload),
   });
   if (!res.ok) {
@@ -81,7 +83,7 @@ export async function updateReplacement(id: string, payload: UpdateReplacementPa
 }
 
 export async function deleteReplacement(id: string): Promise<void> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/replacements/${id}`, { method: 'DELETE' });
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/replacements/${id}`, { method: 'DELETE', credentials: 'include' });
   if (!res.ok) throw new Error('Error al eliminar el repuesto');
 }
 
@@ -103,7 +105,7 @@ export interface ReplacementQuery {
 
 export async function getReplacement(id: string, options?: RequestInit): Promise<Replacement> {
   const url = `${process.env.NEXT_PUBLIC_API_URL}/api/replacements/${id}`;
-  const res = await fetch(url, options);
+  const res = await fetch(url, { credentials: 'include', ...options });
   if (!res.ok) throw new Error('Error al obtener el repuesto');
   return res.json() as Promise<Replacement>;
 }
@@ -120,7 +122,7 @@ export async function getReplacements(
   if (query.ids) params.set('ids', query.ids);
 
   const url = `${process.env.NEXT_PUBLIC_API_URL}/api/replacements?${params.toString()}`;
-  const res = await fetch(url, options);
+  const res = await fetch(url, { credentials: 'include', ...options });
   if (!res.ok) throw new Error('Error al obtener los repuestos');
   return res.json() as Promise<PaginatedResult>;
 }
