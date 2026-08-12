@@ -5,6 +5,10 @@
 - Al escribir o modificar estilos, usar siempre las variables de `theme.css`. Prohibido hardcodear colores que ya existan como variable.
 - Si se necesita un color nuevo, agregarlo primero en `theme.css` y luego consumirlo vía variable.
 
+## Componentes UI
+- Antes de escribir un `<input>`, `<button>` u otro elemento HTML crudo, revisar si existe un componente en `components/ui/` o `components/shared/` que cubra el caso.
+- Solo crear HTML crudo si ningún componente existente sirve.
+
 ## TypeScript
 - No usar el tipo `any`. Usar siempre tipos específicos, `unknown` con narrowing, o tipos de utilidad (`Partial`, `Pick`, `Record`, etc.).
 
@@ -67,8 +71,6 @@
 ## 13. No usar Agent cuando Grep/Read basta
 - Agent duplica todo el contexto en un subproceso. Solo usalo para busquedas amplias o tareas complejas.
 - Para buscar una funcion o archivo especifico, usa Grep o Glob directo.
-
-@AGENTS.md
 
 ---
 

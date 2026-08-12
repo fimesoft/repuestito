@@ -4,205 +4,325 @@ import { useEffect, useState } from 'react';
 import Modal from '@/components/ui/Modal/Modal';
 import Button from '@/components/ui/Button/Button';
 import {
-  getVehicleModels, createVehicleModel, updateVehicleModel, deleteVehicleModel,
-  VehicleModel,
-} from '@/services/vehicle-model.service';
+  getBrands, createBrand, deleteBrand,
+  getModels, createModel, deleteModel,
+  getVersions, createVersion, deleteVersion,
+  VehicleBrand, VehicleModel, VehicleVersion,
+} from '@/services/vehicle.service';
 import { usePermissions } from '@/hooks/usePermissions';
-import { useCountry } from '@/context/CountryContext';
+import Search from '@/components/ui/Search/Search';
 import styles from './page.module.css';
 
-import { COMPATIBILITY_COUNTRIES, COUNTRY_LABELS, CompatibilityCountry } from '@/lib/compatibility-countries';
-import { getCarBrands, CarBrand } from '@/services/car-brand.service';
-import Autocomplete from '@/components/ui/Autocomplete';
-import Search from '@/components/ui/Search';
-import Table, { Column } from '@/components/ui/Table';
-import Select from '@/components/ui/Select';
-
-const EMPTY = { brand: '', model: '', yearFrom: '', yearTo: '', country: '' as CompatibilityCountry | '' };
-type ModalState = { mode: 'create'; form: typeof EMPTY } | { mode: 'edit'; form: typeof EMPTY; model: VehicleModel };
+type ModalView = 'models' | 'versions';
 
 export default function VehiclesPage() {
-  const { canManage, isAdmin } = usePermissions();
-  const { country } = useCountry();
+  const { isAdmin } = usePermissions();
+
+  // Brand grid
+  const [brands, setBrands] = useState<VehicleBrand[]>([]);
+  const [brandSearch, setBrandSearch] = useState('');
+  const [newBrandName, setNewBrandName] = useState('');
+  const [addingBrand, setAddingBrand] = useState(false);
+
+  // Modal state
+  const [activeBrand, setActiveBrand] = useState<VehicleBrand | null>(null);
+  const [view, setView] = useState<ModalView>('models');
+  const [activeModel, setActiveModel] = useState<VehicleModel | null>(null);
+
   const [models, setModels] = useState<VehicleModel[]>([]);
+  const [versions, setVersions] = useState<VehicleVersion[]>([]);
+
+  const [newModelName, setNewModelName] = useState('');
+  const [newVersionName, setNewVersionName] = useState('');
   const [search, setSearch] = useState('');
 
-  const [modal, setModal] = useState<ModalState | null>(null);
-
   const [saving, setSaving] = useState(false);
-  const [modalError, setModalError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const [brandSuggestions, setBrandSuggestions] = useState<CarBrand[]>([]);
+  useEffect(() => { getBrands().then(setBrands); }, []);
 
+  // Load models when brand modal opens
   useEffect(() => {
-    getVehicleModels().then(setModels);
-  }, []);
+    if (!activeBrand) return;
+    setModels([]);
+    setVersions([]);
+    setActiveModel(null);
+    setView('models');
+    getModels(activeBrand.id).then(setModels);
+  }, [activeBrand]);
 
+  // Load versions when model is selected
+  useEffect(() => {
+    if (!activeModel) return;
+    setVersions([]);
+    getVersions(activeModel.id).then(setVersions);
+  }, [activeModel]);
 
-  const [countryFilter, setCountryFilter] = useState<CompatibilityCountry | ''>('');
-
-  const visible = models.filter(m =>
-    (m.brand.toLowerCase().includes(search.toLowerCase()) ||
-    m.model.toLowerCase().includes(search.toLowerCase())) &&
-    (!countryFilter || m.country === countryFilter),
-  );
-
-  function openCreate() {
-    setModalError(null);
-    const prefilledCountry = !isAdmin && country ? country as CompatibilityCountry : '';
-    setModal({ mode: 'create', form: { ...EMPTY, country: prefilledCountry } });
+  function openBrand(brand: VehicleBrand) {
+    setError(null);
+    setSearch('');
+    setNewModelName('');
+    setNewVersionName('');
+    setActiveBrand(brand);
   }
 
-  async function handleCreate() {
-    if (!modal || modal.mode !== 'create') return;
+  function closeModal() {
+    setActiveBrand(null);
+    setActiveModel(null);
+    setView('models');
+  }
+
+  function drillIntoModel(model: VehicleModel) {
+    setActiveModel(model);
+    setSearch('');
+    setNewVersionName('');
+    setError(null);
+    setView('versions');
+  }
+
+  function backToModels() {
+    setView('models');
+    setSearch('');
+    setActiveModel(null);
+    setVersions([]);
+  }
+
+  // ── Brand CRUD ──────────────────────────────────────────────────────
+  async function handleAddBrand() {
+    if (!newBrandName.trim()) return;
     setSaving(true);
-    setModalError(null);
-    const resolvedCountry = isAdmin ? modal.form.country : (country ?? modal.form.country);
+    setError(null);
     try {
-      const created = await createVehicleModel({
-        brand: modal.form.brand,
-        model: modal.form.model,
-        yearFrom: Number(modal.form.yearFrom),
-        country: resolvedCountry as string,
-      });
-      setModels(prev => [...prev, created].sort((a, b) => a.brand.localeCompare(b.brand)));
-      setModal(null);
-    } catch (err) {
-      setModalError(err instanceof Error ? err.message : 'Error al crear');
+      const brand = await createBrand({ name: newBrandName.trim() });
+      setBrands(prev => [...prev, brand].sort((a, b) => a.name.localeCompare(b.name)));
+      setNewBrandName('');
+      setAddingBrand(false);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Error al crear marca');
     } finally {
       setSaving(false);
     }
   }
 
-  function openEdit(vm: VehicleModel) {
-    setModalError(null);
-    setModal({ mode: 'edit', form: { brand: vm.brand, model: vm.model, yearFrom: String(vm.yearFrom), yearTo: vm.yearTo != null ? String(vm.yearTo) : '', country: vm.country as CompatibilityCountry }, model: vm });
+  async function handleDeleteBrand(brand: VehicleBrand) {
+    if (!confirm(`¿Eliminar ${brand.name}? Se eliminarán todos sus modelos y versiones.`)) return;
+    try {
+      await deleteBrand(brand.id);
+      setBrands(prev => prev.filter(b => b.id !== brand.id));
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Error al eliminar');
+    }
   }
 
-  async function handleEdit() {
-    if (!modal || modal.mode !== 'edit') return;
+  // ── Model CRUD ──────────────────────────────────────────────────────
+  async function handleAddModel() {
+    if (!activeBrand || !newModelName.trim()) return;
     setSaving(true);
-    setModalError(null);
+    setError(null);
     try {
-      const updated = await updateVehicleModel(modal.model.id, {
-        brand: modal.form.brand,
-        model: modal.form.model,
-        yearFrom: Number(modal.form.yearFrom),
-        yearTo: Number(modal.form.yearTo),
-        country: modal.form.country as string,
-      });
-      setModels(prev => prev.map(m => m.id === updated.id ? updated : m));
-      setModal(null);
-    } catch (err) {
-      setModalError(err instanceof Error ? err.message : 'Error al guardar');
+      const model = await createModel({ brandId: activeBrand.id, name: newModelName.trim() });
+      setModels(prev => [...prev, model].sort((a, b) => a.name.localeCompare(b.name)));
+      setNewModelName('');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Error al crear modelo');
     } finally {
       setSaving(false);
     }
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm('¿Eliminar este modelo?')) return;
+  async function handleDeleteModel(model: VehicleModel) {
+    if (!confirm(`¿Eliminar ${model.name}?`)) return;
     try {
-      await deleteVehicleModel(id);
-      setModels(prev => prev.filter(m => m.id !== id));
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'Error al eliminar');
+      await deleteModel(model.id);
+      setModels(prev => prev.filter(m => m.id !== model.id));
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Error al eliminar');
     }
   }
 
-  function isCreateFormIncomplete() {
-    const countryMissing = isAdmin && !modal?.form.country;
-    return !modal?.form.brand || !modal?.form.model || !modal?.form.yearFrom || countryMissing;
+  // ── Version CRUD ─────────────────────────────────────────────────────
+  async function handleAddVersion() {
+    if (!activeModel || !newVersionName.trim()) return;
+    setSaving(true);
+    setError(null);
+    try {
+      const version = await createVersion({
+        modelId: activeModel.id,
+        countryId: 0,
+        externalId: `manual-${Date.now()}`,
+        name: newVersionName.trim(),
+        availableYears: [],
+      });
+      setVersions(prev => [...prev, version].sort((a, b) => a.name.localeCompare(b.name)));
+      setNewVersionName('');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Error al crear versión');
+    } finally {
+      setSaving(false);
+    }
   }
 
-  const footer = modal ? (
-    <>
-      <Button label="Cancelar" variant="outline" color="neutral" onClick={() => setModal(null)} disabled={saving} />
-      <Button
-        label={saving ? 'Guardando...' : modal.mode === 'create' ? 'Crear' : 'Guardar'}
-        color="primary"
-        onClick={modal.mode === 'create' ? handleCreate : handleEdit}
-        disabled={saving || (modal.mode === 'create' && isCreateFormIncomplete())}
-      />
-    </>
-  ) : null;
+  async function handleDeleteVersion(version: VehicleVersion) {
+    if (!confirm(`¿Eliminar ${version.name}?`)) return;
+    try {
+      await deleteVersion(version.id);
+      setVersions(prev => prev.filter(v => v.id !== version.id));
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Error al eliminar');
+    }
+  }
 
   return (
     <main className={styles.page}>
       <div className={styles.header}>
-        <h1 className={styles.title}>Modelos de vehículos</h1>
-        {canManage && <Button label="+ Nuevo modelo" onClick={openCreate} shadow />}
+        <h1 className={styles.title}>Parque automotor</h1>
+        {isAdmin && (
+          <Button label="+ Marca" onClick={() => setAddingBrand(true)} shadow />
+        )}
       </div>
 
-      <div className={styles.controls}>
-        <Search value={search} onChange={setSearch} placeholder="Buscar por marca o modelo..." />
-        <Select
-          value={countryFilter}
-          onChange={v => setCountryFilter(v as CompatibilityCountry | '')}
-          options={COMPATIBILITY_COUNTRIES.map(c => ({ value: c, label: COUNTRY_LABELS[c] }))}
-          placeholder="Todos los países"
-        />
-      </div>
+      {/* Add brand inline form */}
+      {addingBrand && (
+        <div className={styles.addForm} style={{ marginBottom: '1.5rem' }}>
+          <input
+            className={styles.addInput}
+            placeholder="Nombre de la marca"
+            value={newBrandName}
+            onChange={e => setNewBrandName(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleAddBrand()}
+            autoFocus
+          />
+          <Button label={saving ? '...' : 'Crear'} color="primary" onClick={handleAddBrand} disabled={saving} />
+          <Button label="Cancelar" variant="outline" color="neutral" onClick={() => { setAddingBrand(false); setNewBrandName(''); }} />
+          {error && <span className={styles.error}>{error}</span>}
+        </div>
+      )}
 
-      <Table<VehicleModel>
-        rows={visible}
-        getKey={vm => vm.id}
-        emptyMessage="No hay modelos registrados."
-        columns={[
-          { header: 'Marca', render: vm => vm.brand },
-          { header: 'Modelo', render: vm => vm.model },
-          { header: 'Año desde', render: vm => vm.yearFrom, className: styles.tdMeta },
-          ...(isAdmin ? [{ header: 'País', render: (vm: VehicleModel) => vm.country, className: styles.tdMeta } as Column<VehicleModel>] : []),
-          { header: '', render: vm => canManage ? (
-            <>
-              <Button label="Editar" variant="ghost" color="neutral" size="sm" onClick={() => openEdit(vm)} />
-              <Button label="Eliminar" variant="ghost" color="danger" size="sm" onClick={() => handleDelete(vm.id)} />
-            </>
-          ) : null, className: styles.tdActions },
-        ] as Column<VehicleModel>[]}
-      />
+      <Search value={brandSearch} onChange={setBrandSearch} placeholder="Buscar marca..." width={360} />
 
-      <Modal isOpen={modal !== null} onClose={() => setModal(null)} title={modal?.mode === 'create' ? 'Nuevo modelo' : 'Editar modelo'} size="md" footer={footer}>
-        {modal && (
-          <div className={styles.form}>
-            <div className={styles.formRow}>
-              <label className={styles.formLabel}>
-                Marca
-                <Autocomplete<CarBrand>
-                  value={modal.form.brand}
-                  onChange={v => setModal(prev => prev ? { ...prev, form: { ...prev.form, brand: v } } : prev)}
-                  onSearch={q => getCarBrands({ search: q }).then(setBrandSuggestions)}
-                  onSelect={b => setModal(prev => prev ? { ...prev, form: { ...prev.form, brand: b.name } } : prev)}
-                  suggestions={brandSuggestions}
-                  getLabel={b => b.name}
-                  getKey={b => b.id}
-                  placeholder="Escriba la marca para realizar la búsqueda..."
-                />
-              </label>
-              <label className={styles.formLabel}>
-                Modelo
-                <input className={styles.formInput} value={modal.form.model} onChange={e => setModal(prev => prev ? { ...prev, form: { ...prev.form, model: e.target.value } } : prev)} />
-              </label>
+      {/* Brand grid */}
+      {brands.filter(b => b.name.toLowerCase().includes(brandSearch.toLowerCase())).length === 0 ? (
+        <p className={styles.empty}>Sin resultados.</p>
+      ) : (
+        <div className={styles.grid}>
+          {brands.filter(b => b.name.toLowerCase().includes(brandSearch.toLowerCase())).map(brand => (
+            <div key={brand.id} className={styles.brandCard} onClick={() => openBrand(brand)}>
+              <img
+                src={`/vehicle-logos/${brand.slug}.svg`}
+                alt={brand.name}
+                className={styles.brandLogo}
+                onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+              />
+              <span className={styles.brandName}>{brand.name.toLowerCase().replace(/\b\w/g, c => c.toUpperCase())}</span>
             </div>
-            <div className={styles.formRow}>
-              <label className={styles.formLabel}>
-                Año desde
-                <input className={styles.formInput} type="number" value={modal.form.yearFrom} onChange={e => setModal(prev => prev ? { ...prev, form: { ...prev.form, yearFrom: e.target.value } } : prev)} placeholder="2013" />
-              </label>
-              {(isAdmin || modal.mode === 'edit') && (
-                <label className={styles.formLabel}>
-                  País
-                  <Select
-                    value={modal.form.country}
-                    onChange={v => setModal(prev => prev ? { ...prev, form: { ...prev.form, country: v as CompatibilityCountry } } : prev)}
-                    options={COMPATIBILITY_COUNTRIES.map(c => ({ value: c, label: COUNTRY_LABELS[c] }))}
-                    placeholder="Seleccionar país"
-                  />
-                </label>
-              )}
-            </div>
-            {modalError && <p className={styles.error}>{modalError}</p>}
-          </div>
+          ))}
+        </div>
+      )}
+
+      {/* Brand modal */}
+      <Modal
+        isOpen={activeBrand !== null}
+        onClose={closeModal}
+        onBack={view === 'versions' ? backToModels : undefined}
+        title={view === 'versions' ? (activeModel?.name ?? '') : (activeBrand?.name ?? '')}
+        size="md"
+      >
+        {activeBrand && (
+          <>
+            <Search
+              value={search}
+              onChange={setSearch}
+              placeholder={view === 'models' ? 'Buscar modelo...' : 'Buscar versión...'}
+            />
+
+            {/* Models view */}
+            {view === 'models' && (
+              <>
+                <div className={styles.list}>
+                  {models.filter(m => m.name.toLowerCase().includes(search.toLowerCase())).length === 0 && (
+                    <p className={styles.empty}>Sin resultados.</p>
+                  )}
+                  {models.filter(m => m.name.toLowerCase().includes(search.toLowerCase())).map(model => (
+                    <div key={model.id} className={styles.listItem} onClick={() => drillIntoModel(model)}>
+                      <span className={styles.listItemName}>{model.name}</span>
+                      <span className={styles.listItemDrill}>{model.versionsCount} versiones ›</span>
+                      {isAdmin && (
+                        <div className={styles.listItemActions} onClick={e => e.stopPropagation()}>
+                          <Button
+                            label="✕"
+                            variant="ghost"
+                            color="danger"
+                            size="sm"
+                            onClick={() => handleDeleteModel(model)}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {isAdmin && (
+                  <div className={styles.addForm}>
+                    <input
+                      className={styles.addInput}
+                      placeholder="Nuevo modelo..."
+                      value={newModelName}
+                      onChange={e => setNewModelName(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && handleAddModel()}
+                    />
+                    <Button label={saving ? '...' : '+ Agregar'} color="primary" size="sm" onClick={handleAddModel} disabled={saving} />
+                  </div>
+                )}
+                {error && <p className={styles.error}>{error}</p>}
+              </>
+            )}
+
+            {/* Versions view */}
+            {view === 'versions' && activeModel && (
+              <>
+                <div className={styles.list}>
+                  {versions.filter(v => v.name.toLowerCase().includes(search.toLowerCase())).length === 0 && (
+                    <p className={styles.empty}>Sin resultados.</p>
+                  )}
+                  {versions.filter(v => v.name.toLowerCase().includes(search.toLowerCase())).map(version => (
+                    <div key={version.id} className={`${styles.listItem} ${styles.versionItem}`}>
+                      <div className={styles.listItemName}>
+                        <div>{version.name}</div>
+                        {version.availableYears.length > 0 && (
+                          <div className={styles.versionYears}>{version.availableYears.join(', ')}</div>
+                        )}
+                      </div>
+                      {isAdmin && (
+                        <div className={styles.listItemActions}>
+                          <Button
+                            label="✕"
+                            variant="ghost"
+                            color="danger"
+                            size="sm"
+                            onClick={() => handleDeleteVersion(version)}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {isAdmin && (
+                  <div className={styles.addForm}>
+                    <input
+                      className={styles.addInput}
+                      placeholder="Nueva versión..."
+                      value={newVersionName}
+                      onChange={e => setNewVersionName(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && handleAddVersion()}
+                    />
+                    <Button label={saving ? '...' : '+ Agregar'} color="primary" size="sm" onClick={handleAddVersion} disabled={saving} />
+                  </div>
+                )}
+                {error && <p className={styles.error}>{error}</p>}
+              </>
+            )}
+          </>
         )}
       </Modal>
     </main>

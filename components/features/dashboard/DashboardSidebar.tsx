@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Logo from '@/components/shared/Logo';
+import { usePermissions } from '@/hooks/usePermissions';
 import styles from './DashboardSidebar.module.css';
 
 function IconWrench() {
@@ -100,13 +101,14 @@ const NAV = [
   { href: '/dashboard/billing',     label: 'Facturación',   Icon: IconReceipt },
   { href: '/dashboard/stores',      label: 'Locales',       Icon: IconStore },
   { href: '/dashboard/users',       label: 'Usuarios',      Icon: IconUsers,     mobileHidden: true },
-  { href: '/dashboard/vehicles',    label: 'Vehículos',     Icon: IconCar,       mobileHidden: true },
+  { href: '/dashboard/vehicles',    label: 'Vehículos',     Icon: IconCar,       mobileHidden: true, godOnly: true },
   { href: '/dashboard/settings',    label: 'Configuración', Icon: IconSettings },
 ];
 
 export default function DashboardSidebar() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const { isAdmin } = usePermissions();
 
   const close = () => setOpen(false);
 
@@ -127,7 +129,7 @@ export default function DashboardSidebar() {
         </div>
 
         <ul className={styles.nav} role="list">
-          {NAV.map(({ href, label, Icon, mobileHidden }) => {
+          {NAV.filter(item => !item.godOnly || isAdmin).map(({ href, label, Icon, mobileHidden }) => {
             const isActive = pathname === href;
             return (
               <li key={href} className={mobileHidden ? styles.mobileHidden : undefined}>

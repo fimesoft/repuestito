@@ -7,6 +7,7 @@
   background: var(--bg-surface);
   outline: none;
   width: 250px;
+  margin-bottom: 1rem;
   transition: border-color 0.15s;
 }
 .input:focus { border-color: var(--color-primary); }
