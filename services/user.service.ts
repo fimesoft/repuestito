@@ -48,13 +48,14 @@ async function handleResponse<T>(res: Response): Promise<T> {
 }
 
 export function getUsers(): Promise<UserRecord[]> {
-  return fetch(`${API}/api/users`, { cache: 'no-store' }).then(r => handleResponse<UserRecord[]>(r));
+  return fetch(`${API}/api/users`, { cache: 'no-store', credentials: 'include' }).then(r => handleResponse<UserRecord[]>(r));
 }
 
 export function createUser(payload: CreateUserPayload): Promise<UserRecord> {
   return fetch(`${API}/api/users`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify(payload),
   }).then(r => handleResponse<UserRecord>(r));
 }
@@ -63,6 +64,7 @@ export function inviteUser(payload: InviteUserPayload): Promise<{ message: strin
   return fetch(`${API}/api/auth/invite`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify(payload),
   }).then(r => handleResponse<{ message: string }>(r));
 }
@@ -71,11 +73,12 @@ export function updateUser(id: string, payload: UpdateUserPayload): Promise<User
   return fetch(`${API}/api/users/${id}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify(payload),
   }).then(r => handleResponse<UserRecord>(r));
 }
 
 export async function deleteUser(id: string): Promise<void> {
-  const res = await fetch(`${API}/api/users/${id}`, { method: 'DELETE' });
+  const res = await fetch(`${API}/api/users/${id}`, { method: 'DELETE', credentials: 'include' });
   if (!res.ok) throw new Error('Error al eliminar el usuario');
 }

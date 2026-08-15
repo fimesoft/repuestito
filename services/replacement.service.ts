@@ -10,18 +10,20 @@ export interface GlobalReplacementInfo {
   isVerified: boolean;
 }
 
+export interface BranchInfo {
+  name: string;
+}
+
 export interface Replacement {
   id: string;
-  globalReplacementId: number;
   globalReplacement: GlobalReplacementInfo;
   price: number;
   stock: number;
   tenantId: string;
   branchId: string | null;
+  branch: BranchInfo | null;
   latitude: number | null;
   longitude: number | null;
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface CreateReplacementPayload {

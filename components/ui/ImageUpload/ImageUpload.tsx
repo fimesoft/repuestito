@@ -27,6 +27,7 @@ export default function ImageUpload({ onUpload, initialUrl }: ImageUploadProps) 
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/upload`, {
         method: "POST",
+        credentials: "include",
         body: formData,
       });
 

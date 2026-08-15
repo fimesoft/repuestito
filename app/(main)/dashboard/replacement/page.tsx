@@ -217,7 +217,6 @@ export default function ReplacementDashboardPage() {
           <button className={viewMode === 'grid' ? styles.viewActive : styles.viewBtn} onClick={() => setViewMode('grid')}>Tarjetas</button>
         </div>
       </div>
-
       {viewMode === 'table' ? (
         <Table<Replacement>
           rows={replacements}
@@ -237,7 +236,7 @@ export default function ReplacementDashboardPage() {
               return <span className={`${styles.stockBadge} ${levelClass}`}>{r.stock} u.</span>;
             }},
             { header: 'Estado', render: r => <span className={r.stock > 0 ? styles.badgeActive : styles.badgeOut}>{r.stock > 0 ? 'Activo' : 'Agotado'}</span> },
-            { header: 'Local', render: r => tenants.find(t => t.id === r.tenantId)?.businessName ?? '—', className: styles.tdMeta },
+            { header: 'Sucursal', render: r => r.branch?.name ?? '—', className: styles.tdMeta },
             { header: '', render: r => (
               <div onClick={e => e.stopPropagation()}>
                 <Link href={`/dashboard/replacement/${r.id}`} className={styles.btnText}>Compatibilidades</Link>
