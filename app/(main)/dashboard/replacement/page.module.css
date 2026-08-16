@@ -50,48 +50,6 @@
 .table tr:last-child td { border-bottom: none; }
 .table tr:hover td { background: var(--bg-subtle); }
 
-.badgeActive {
-  display: inline-block;
-  padding: 2px 10px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 600;
-  background: var(--badge-active-bg);
-  color: var(--badge-active-text);
-}
-
-.badgeOut {
-  display: inline-block;
-  padding: 2px 10px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 600;
-  background: var(--badge-inactive-bg);
-  color: var(--badge-inactive-text);
-}
-
-.stockBadge {
-  display: inline-block;
-  padding: 2px 10px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.stockLow {
-  background: var(--badge-inactive-bg);
-  color: var(--badge-inactive-text);
-}
-
-.stockNormal {
-  background: var(--badge-seller-bg);
-  color: var(--badge-seller-text);
-}
-
-.stockFull {
-  background: var(--badge-active-bg);
-  color: var(--badge-active-text);
-}
 
 .tdImg { width: 56px; }
 
@@ -230,6 +188,19 @@
 .pageInfo { font-size: 13px; color: var(--color-text-muted); font-weight: 500; }
 
 .error { font-size: 13px; color: var(--color-error); }
+
+.readOnly {
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--color-text-faint);
+  background: var(--color-surface-alt);
+}
+
+.confirmBody { font-size: 14px; color: var(--color-text-secondary); line-height: 1.6; }
+.confirmActions { display: flex; gap: 10px; justify-content: flex-end; }
 
 @media (max-width: 560px) {
   .row { grid-template-columns: 1fr; }

@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import { getMe } from '@/services/auth.service';
-import LogoutButton from './LogoutButton';
-import styles from './Header.module.css';
+import LogoutButton from '../LogoutButton';
+import styles from '../Header/Header.module.css';
 
 export default async function UserBadge() {
   const cookieStore = await cookies();

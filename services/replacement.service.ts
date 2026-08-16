@@ -24,6 +24,7 @@ export interface Replacement {
   branch: BranchInfo | null;
   latitude: number | null;
   longitude: number | null;
+  active: boolean;
   createdAt: string;
 }
 
@@ -65,6 +66,7 @@ export interface UpdateReplacementPayload {
   latitude?: number;
   longitude?: number;
   branchId?: string;
+  active?: boolean;
 }
 
 export async function updateReplacement(id: string, payload: UpdateReplacementPayload): Promise<Replacement> {

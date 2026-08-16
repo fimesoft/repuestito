@@ -76,17 +76,6 @@
 .orderMeta { text-align: right; display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
 .metaDate { font-size: 13px; color: var(--color-text-muted); }
 
-.badge {
-  display: inline-block;
-  padding: 3px 12px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-}
-.badgePending   { background: var(--color-warning-bg); color: var(--color-warning-text); border: 1px solid var(--color-warning-border); }
-.badgeConfirmed { background: var(--color-primary-subtle); color: var(--color-primary); }
-.badgeFulfilled { background: var(--badge-active-bg); color: var(--badge-active-text); }
-.badgeCancelled { background: var(--badge-inactive-bg); color: var(--badge-inactive-text); }
 
 .buyerSection {
   margin-bottom: 1.25rem;

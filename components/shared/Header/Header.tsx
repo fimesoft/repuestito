@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { cookies } from 'next/headers';
-import CountrySelect from './CountrySelect';
-import UserBadge from './UserBadge';
+import CountrySelect from '../CountrySelect';
+import UserBadge from '../UserBadge';
 import { getMe } from '@/services/auth.service';
 import styles from './Header.module.css';
 

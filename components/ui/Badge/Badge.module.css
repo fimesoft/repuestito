@@ -1,0 +1,17 @@
+.badge {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.active     { background: var(--badge-active-bg);     color: var(--badge-active-text); }
+.inactive   { background: var(--badge-inactive-bg);   color: var(--badge-inactive-text); }
+.neutral    { background: var(--badge-neutral-bg);    color: var(--badge-neutral-text); }
+.warning    { background: var(--color-warning-bg);    color: var(--color-warning-text); border: 1px solid var(--color-warning-border); }
+.info       { background: var(--color-primary-subtle); color: var(--color-primary); }
+.admin      { background: var(--badge-admin-bg);      color: var(--badge-admin-text); }
+.moderator  { background: var(--badge-moderator-bg);  color: var(--badge-moderator-text); }
+.seller     { background: var(--badge-seller-bg);     color: var(--badge-seller-text); }

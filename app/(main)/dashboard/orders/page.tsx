@@ -10,8 +10,9 @@ import Table, { Column } from '@/components/ui/Table';
 import Select from '@/components/ui/Select';
 import { formatDateTime } from '@/lib/date';
 import Button from '@/components/ui/Button/Button';
-import EmptyState from '@/components/shared/EmptyState/EmptyState';
+import EmptyState from '@/components/shared/EmptyState';
 import { useDebounce } from '@/hooks/useDebounce';
+import Badge, { BadgeVariant } from '@/components/ui/Badge';
 
 const PAGE_SIZE = 20;
 
@@ -22,11 +23,11 @@ const STATUS_LABELS: Record<string, string> = {
   cancelled: 'Cancelado',
 };
 
-const STATUS_BADGE: Record<string, string> = {
-  pending: styles.badgePending,
-  confirmed: styles.badgeConfirmed,
-  fulfilled: styles.badgeFulfilled,
-  cancelled: styles.badgeCancelled,
+const STATUS_VARIANT: Record<string, BadgeVariant> = {
+  pending: 'warning',
+  confirmed: 'info',
+  fulfilled: 'active',
+  cancelled: 'inactive',
 };
 
 export default function OrdersPage() {
@@ -133,7 +134,7 @@ export default function OrdersPage() {
           { header: 'Número', render: o => o.orderNumber ?? '—', className: styles.tdNumber },
           { header: 'Comprador', render: o => [o.buyerName, o.buyerLastname].filter(Boolean).join(' ') || '—', className: styles.tdMeta },
           { header: 'Total', render: o => `$${Number(o.total).toFixed(2)}`, className: styles.tdPrice },
-          { header: 'Estado', render: o => <span className={`${styles.badge} ${STATUS_BADGE[o.status] ?? ''}`}>{STATUS_LABELS[o.status] ?? o.status}</span> },
+          { header: 'Estado', render: o => <Badge label={STATUS_LABELS[o.status] ?? o.status} variant={STATUS_VARIANT[o.status] ?? 'neutral'} /> },
           { header: 'Fecha', render: o => o.createdAt ? formatDateTime(o.createdAt) : '—', className: styles.tdMeta },
           { header: '', render: o => (
             <>

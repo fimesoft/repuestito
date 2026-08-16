@@ -10,8 +10,9 @@ import Table, { Column } from '@/components/ui/Table';
 import Select from '@/components/ui/Select';
 import Button from '@/components/ui/Button/Button';
 import { formatDateTime } from '@/lib/date';
-import EmptyState from '@/components/shared/EmptyState/EmptyState';
+import EmptyState from '@/components/shared/EmptyState';
 import { useDebounce } from '@/hooks/useDebounce';
+import Badge from '@/components/ui/Badge';
 
 const PAGE_SIZE = 20;
 
@@ -119,11 +120,7 @@ export default function BillingPage() {
           { header: 'Comprador', render: inv => [inv.buyerName, inv.buyerLastname].filter(Boolean).join(' ') || '—', className: styles.tdMeta },
           { header: 'Total', render: inv => `$${Number(inv.total).toFixed(2)}`, className: styles.tdPrice },
           { header: 'Pago', render: inv => inv.paymentMethod, className: styles.tdMeta },
-          { header: 'Estado', render: inv => (
-            <span className={inv.status === 'cancelled' ? styles.badgeCancelled : styles.badgeCompleted}>
-              {inv.status === 'cancelled' ? 'Cancelada' : 'Completada'}
-            </span>
-          ) },
+          { header: 'Estado', render: inv => <Badge label={inv.status === 'cancelled' ? 'Cancelada' : 'Completada'} variant={inv.status === 'cancelled' ? 'inactive' : 'active'} /> },
           { header: 'Fecha', render: inv => inv.issuedAt ? formatDateTime(inv.issuedAt) : '—', className: styles.tdMeta },
           { header: '', render: inv => (
             <>

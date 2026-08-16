@@ -56,25 +56,6 @@
 .invoiceMeta { text-align: right; display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
 .metaDate { font-size: 13px; color: var(--color-text-muted); margin: 0; }
 
-.badgeCompleted {
-  display: inline-block;
-  padding: 2px 10px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 600;
-  background: var(--badge-active-bg);
-  color: var(--badge-active-text);
-}
-
-.badgeCancelled {
-  display: inline-block;
-  padding: 2px 10px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 600;
-  background: var(--badge-inactive-bg);
-  color: var(--badge-inactive-text);
-}
 
 .buyerSection { display: flex; flex-direction: column; gap: 4px; }
 .sectionTitle { font-size: 13px; font-weight: 700; text-transform: uppercase; color: var(--color-text-muted); letter-spacing: 0.04em; margin: 0 0 6px; }

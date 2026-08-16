@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { COUNTRIES, useCountry, type CountryCode } from '@/context/CountryContext';
-import styles from './Header.module.css';
+import styles from '../Header/Header.module.css';
 
 export default function CountrySelect() {
   const router = useRouter();

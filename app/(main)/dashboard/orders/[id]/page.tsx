@@ -8,6 +8,7 @@ import { getOrder, confirmOrder, fulfillOrder, cancelOrder, Order } from '@/serv
 import Button from '@/components/ui/Button/Button';
 import styles from './page.module.css';
 import { formatDateLong } from '@/lib/date';
+import Badge, { BadgeVariant } from '@/components/ui/Badge';
 
 const STATUS_LABELS: Record<string, string> = {
   pending: 'Pendiente',
@@ -16,11 +17,11 @@ const STATUS_LABELS: Record<string, string> = {
   cancelled: 'Cancelado',
 };
 
-const STATUS_BADGE: Record<string, string> = {
-  pending: styles.badgePending,
-  confirmed: styles.badgeConfirmed,
-  fulfilled: styles.badgeFulfilled,
-  cancelled: styles.badgeCancelled,
+const STATUS_VARIANT: Record<string, BadgeVariant> = {
+  pending: 'warning',
+  confirmed: 'info',
+  fulfilled: 'active',
+  cancelled: 'inactive',
 };
 
 export default function OrderDetailPage() {
@@ -110,9 +111,7 @@ export default function OrderDetailPage() {
           </div>
           <div className={styles.orderMeta}>
             <p className={styles.metaDate}>{formatDateLong(order.createdAt)}</p>
-            <span className={`${styles.badge} ${STATUS_BADGE[order.status] ?? ''}`}>
-              {STATUS_LABELS[order.status] ?? order.status}
-            </span>
+            <Badge label={STATUS_LABELS[order.status] ?? order.status} variant={STATUS_VARIANT[order.status] ?? 'neutral'} />
           </div>
         </div>
 

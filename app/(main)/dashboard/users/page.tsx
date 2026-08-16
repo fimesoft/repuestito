@@ -12,8 +12,9 @@ import styles from './page.module.css';
 import Search from '@/components/ui/Search';
 import Table, { Column } from '@/components/ui/Table';
 import Select from '@/components/ui/Select';
-import EmptyState from '@/components/shared/EmptyState/EmptyState';
+import EmptyState from '@/components/shared/EmptyState';
 import { useDebounce } from '@/hooks/useDebounce';
+import Badge, { BadgeVariant } from '@/components/ui/Badge';
 
 const ROLES = ['MODERATOR', 'SELLER'];
 
@@ -162,10 +163,13 @@ export default function UsersPage() {
         emptyMessage={<EmptyState variant={debouncedSearch ? 'no-results' : 'empty'} />}
         columns={[
           { header: 'Email', render: u => u.email, className: styles.tdEmail },
-          { header: 'Rol', render: u => <span className={styles[`role${u.role}`]}>{u.role}</span> },
+          { header: 'Rol', render: u => {
+              const ROLE_VARIANT: Record<string, BadgeVariant> = { GOD: 'admin', MODERATOR: 'moderator', SELLER: 'seller' };
+              return <Badge label={u.role} variant={ROLE_VARIANT[u.role] ?? 'neutral'} />;
+            } },
           { header: 'Local', render: u => tenants.find(t => t.id === u.tenantId)?.businessName ?? '—', className: styles.tdMeta },
           { header: 'Sucursal', render: u => u.branchId ? u.branchId.slice(0, 8) + '…' : '—', className: styles.tdMeta },
-          { header: 'Estado', render: u => <span className={u.active ? styles.badgeActive : styles.badgeInactive}>{u.active ? 'Activo' : 'Inactivo'}</span> },
+          { header: 'Estado', render: u => <Badge label={u.active ? 'Activo' : 'Inactivo'} variant={u.active ? 'active' : 'inactive'} /> },
           { header: '', render: u => canManage ? (
             <>
               <Button label="Editar" variant="ghost" color="neutral" size="sm" onClick={() => openEdit(u)} />

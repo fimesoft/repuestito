@@ -12,9 +12,10 @@ import {
   getBranches, createBranch, updateBranch, deleteBranch,
   Branch, CreateBranchPayload, UpdateBranchPayload,
 } from '@/services/branch.service';
-import LocationSearch from '@/components/ui/LocationSearch/LocationSearch';
+import LocationSearch from '@/components/ui/LocationSearch';
 import { useCountry } from '@/context/CountryContext';
 import { usePermissions } from '@/hooks/usePermissions';
+import Badge from '@/components/ui/Badge';
 import styles from './page.module.css';
 
 export default function StoresPage() {
@@ -181,9 +182,7 @@ export default function StoresPage() {
                 <span className={styles.meta}>{tenant.taxId} · {tenant.subdomain}</span>
               </div>
               <div className={styles.actions}>
-                <span className={tenant.active ? styles.badgeActive : styles.badgeInactive}>
-                  {tenant.active ? 'Activo' : 'Inactivo'}
-                </span>
+                <Badge label={tenant.active ? 'Activo' : 'Inactivo'} variant={tenant.active ? 'active' : 'inactive'} />
                 {canManage && <Button label="Editar" variant="ghost" color="neutral" size="sm" onClick={() => openEditTenant(tenant)} />}
                 {canManage && <Button label="Eliminar" variant="ghost" color="danger" size="sm" onClick={() => handleDeleteTenant(tenant.id)} />}
                 <button className={styles.btnExpand} onClick={() => toggleExpand(tenant.id)}>

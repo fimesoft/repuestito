@@ -8,6 +8,8 @@
 ## Componentes UI
 - Antes de escribir un `<input>`, `<button>` u otro elemento HTML crudo, revisar si existe un componente en `components/ui/` o `components/shared/` que cubra el caso.
 - Solo crear HTML crudo si ningún componente existente sirve.
+- Todo componente nuevo debe vivir en su propia carpeta (`ComponentName/ComponentName.tsx`) con un barrel (`ComponentName/index.ts` con `export { default } from './ComponentName'`).
+- Los imports siempre apuntan al barrel: `@/components/ui/ComponentName`, nunca al archivo directo.
 
 ## TypeScript
 - No usar el tipo `any`. Usar siempre tipos específicos, `unknown` con narrowing, o tipos de utilidad (`Partial`, `Pick`, `Record`, etc.).

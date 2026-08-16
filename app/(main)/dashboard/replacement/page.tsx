@@ -11,8 +11,10 @@ import ImageUpload from '@/components/ui/ImageUpload';
 import Search from '@/components/ui/Search';
 import Table, { Column } from '@/components/ui/Table';
 import Select from '@/components/ui/Select';
-import ViewToggle from '@/components/ui/ViewToggle/ViewToggle';
-import EmptyState from '@/components/shared/EmptyState/EmptyState';
+import ViewToggle from '@/components/ui/ViewToggle';
+import Toggle from '@/components/ui/Toggle';
+import Badge, { BadgeVariant } from '@/components/ui/Badge';
+import EmptyState from '@/components/shared/EmptyState';
 import PageCount from '@/components/shared/PageCount';
 import PartCard from '@/components/features/replacements/PartCard';
 
@@ -41,7 +43,7 @@ interface EditFormState extends UpdateReplacementPayload {
   branchId?: string;
 }
 
-const EMPTY_EDIT: EditFormState = { price: 0, stock: 0, tenantId: '' };
+const EMPTY_EDIT: EditFormState = { price: 0, stock: 0, active: true, tenantId: '' };
 
 const DEFAULT_LIMIT = 10;
 
@@ -75,6 +77,7 @@ export default function ReplacementDashboardPage() {
   const [editPriceInput, setEditPriceInput] = useState('');
   const [editBranches, setEditBranches] = useState<Branch[]>([]);
   const [editError, setEditError] = useState<string | null>(null);
+  const [showDeactivateConfirm, setShowDeactivateConfirm] = useState(false);
   const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
@@ -137,7 +140,7 @@ export default function ReplacementDashboardPage() {
   }
 
   async function openEdit(r: Replacement) {
-    setEditForm({ price: r.price, stock: r.stock, tenantId: r.tenantId, branchId: r.branchId ?? '' });
+    setEditForm({ price: r.price, stock: r.stock, active: r.active ?? true, tenantId: r.tenantId, branchId: r.branchId ?? '' });
     setEditPriceInput(String(r.price));
     setEditBranches([]);
     setEditError(null);
@@ -188,6 +191,14 @@ export default function ReplacementDashboardPage() {
       setFormError(err instanceof Error ? err.message : 'Error inesperado');
     } finally {
       setSaving(false);
+    }
+  }
+
+  function handleActiveToggle(value: boolean) {
+    if (!value) {
+      setShowDeactivateConfirm(true);
+    } else {
+      setEdit({ active: true });
     }
   }
 
@@ -253,12 +264,12 @@ export default function ReplacementDashboardPage() {
             { header: 'Precio', render: r => `$${Number(r.price).toFixed(2)}`, className: styles.tdPrice },
             ...(isAdmin ? [{ header: 'País', render: (r: Replacement) => r.globalReplacement?.countryCode, className: styles.tdMeta } as Column<Replacement>] : []),
             { header: 'Stock', render: r => {
-              const levelClass = { low: styles.stockLow, normal: styles.stockNormal, full: styles.stockFull }[getStockLevel(r.stock)];
-              return <span className={`${styles.stockBadge} ${levelClass}`}>{r.stock} u.</span>;
+              const STOCK_VARIANT: Record<string, BadgeVariant> = { low: 'inactive', normal: 'seller', full: 'active' };
+              return <Badge label={`${r.stock} u.`} variant={STOCK_VARIANT[getStockLevel(r.stock)]} />;
             }},
             { header: 'Sucursal', render: r => r.branch?.name ?? '—', className: styles.tdMeta },
             { header: 'Fecha', render: r => formatDateTime(r.createdAt), className: styles.tdMeta },
-            { header: 'Estado', render: r => <span className={r.stock > 0 ? styles.badgeActive : styles.badgeOut}>{r.stock > 0 ? 'Activo' : 'Agotado'}</span> },
+            { header: 'Estado', render: r => <Badge label={r.active !== false ? 'Activo' : 'Inactivo'} variant={r.active !== false ? 'active' : 'neutral'} /> },
             { header: '', render: r => (
               <div onClick={e => e.stopPropagation()}>
                 <Link href={`/dashboard/replacement/${r.id}`} className={styles.btnText}>Compatibilidades</Link>
@@ -380,10 +391,34 @@ export default function ReplacementDashboardPage() {
                 </label>
               </div>
 
+              <Toggle
+                checked={editForm.active ?? true}
+                onChange={handleActiveToggle}
+                label="Estado del repuesto"
+                description={editForm.active ? 'Activo — visible en el marketplace' : 'Inactivo — no aparece en búsquedas'}
+              />
+
               {editError && <p className={styles.error}>{editError}</p>}
             </>
           )}
         </div>
+      </Modal>
+
+      <Modal
+        isOpen={showDeactivateConfirm}
+        onClose={() => setShowDeactivateConfirm(false)}
+        size="sm"
+        title="Desactivar repuesto"
+        footer={
+          <div className={styles.confirmActions}>
+            <Button label="Cancelar" variant="outline" color="neutral" onClick={() => setShowDeactivateConfirm(false)} />
+            <Button label="Desactivar" variant="solid" color="danger" onClick={() => { setEdit({ active: false }); setShowDeactivateConfirm(false); }} />
+          </div>
+        }
+      >
+        <p className={styles.confirmBody}>
+          El repuesto <strong>{editingReplacement?.globalReplacement?.name}</strong> dejará de aparecer en el marketplace. Podés volver a activarlo en cualquier momento.
+        </p>
       </Modal>
     </main>
   );

@@ -6,6 +6,7 @@ import { getInvoice, Invoice } from '@/services/billing.service';
 import Button from '@/components/ui/Button/Button';
 import styles from './page.module.css';
 import { formatDateLong } from '@/lib/date';
+import Badge from '@/components/ui/Badge';
 
 export default function InvoiceDetailPage() {
   const params = useParams();
@@ -45,9 +46,7 @@ export default function InvoiceDetailPage() {
           </div>
           <div className={styles.invoiceMeta}>
             <p className={styles.metaDate}>{formatDateLong(invoice.issuedAt)}</p>
-            <span className={invoice.status === 'cancelled' ? styles.badgeCancelled : styles.badgeCompleted}>
-              {invoice.status === 'cancelled' ? 'Cancelada' : 'Completada'}
-            </span>
+            <Badge label={invoice.status === 'cancelled' ? 'Cancelada' : 'Completada'} variant={invoice.status === 'cancelled' ? 'inactive' : 'active'} />
           </div>
         </div>
 
