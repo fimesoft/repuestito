@@ -12,7 +12,7 @@ interface TableProps<T> {
   columns: Column<T>[];
   rows: T[];
   getKey: (row: T) => string | number;
-  emptyMessage?: string;
+  emptyMessage?: React.ReactNode;
   loading?: boolean;
   onRowClick?: (row: T) => void;
 }
@@ -21,7 +21,7 @@ export default function Table<T>({
   columns,
   rows,
   getKey,
-  emptyMessage = 'No hay resultados.',
+  emptyMessage = 'Sin resultados.',
   loading = false,
   onRowClick,
 }: TableProps<T>) {

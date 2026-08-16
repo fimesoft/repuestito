@@ -7,6 +7,7 @@ import { usePermissions } from '@/hooks/usePermissions';
 import { getOrder, confirmOrder, fulfillOrder, cancelOrder, Order } from '@/services/orders.service';
 import Button from '@/components/ui/Button/Button';
 import styles from './page.module.css';
+import { formatDateLong } from '@/lib/date';
 
 const STATUS_LABELS: Record<string, string> = {
   pending: 'Pendiente',
@@ -108,7 +109,7 @@ export default function OrderDetailPage() {
             <p className={styles.orderNumber}>{order.orderNumber}</p>
           </div>
           <div className={styles.orderMeta}>
-            <p className={styles.metaDate}>{new Date(order.createdAt).toLocaleDateString('es', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            <p className={styles.metaDate}>{formatDateLong(order.createdAt)}</p>
             <span className={`${styles.badge} ${STATUS_BADGE[order.status] ?? ''}`}>
               {STATUS_LABELS[order.status] ?? order.status}
             </span>

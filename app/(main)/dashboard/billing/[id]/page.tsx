@@ -5,6 +5,7 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { getInvoice, Invoice } from '@/services/billing.service';
 import Button from '@/components/ui/Button/Button';
 import styles from './page.module.css';
+import { formatDateLong } from '@/lib/date';
 
 export default function InvoiceDetailPage() {
   const params = useParams();
@@ -43,7 +44,7 @@ export default function InvoiceDetailPage() {
             <p className={styles.invoiceNumber}>{invoice.invoiceNumber}</p>
           </div>
           <div className={styles.invoiceMeta}>
-            <p className={styles.metaDate}>{new Date(invoice.issuedAt).toLocaleDateString('es', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            <p className={styles.metaDate}>{formatDateLong(invoice.issuedAt)}</p>
             <span className={invoice.status === 'cancelled' ? styles.badgeCancelled : styles.badgeCompleted}>
               {invoice.status === 'cancelled' ? 'Cancelada' : 'Completada'}
             </span>

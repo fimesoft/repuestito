@@ -4,9 +4,18 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+
 import Modal from '@/components/ui/Modal/Modal';
 import Button from '@/components/ui/Button/Button';
 import ImageUpload from '@/components/ui/ImageUpload';
+import Search from '@/components/ui/Search';
+import Table, { Column } from '@/components/ui/Table';
+import Select from '@/components/ui/Select';
+import ViewToggle from '@/components/ui/ViewToggle/ViewToggle';
+import EmptyState from '@/components/shared/EmptyState/EmptyState';
+import PageCount from '@/components/shared/PageCount';
+import PartCard from '@/components/features/replacements/PartCard';
+
 import {
   getReplacements, createReplacement, updateReplacement, deleteReplacement,
   Replacement, CreateReplacementPayload, UpdateReplacementPayload,
@@ -14,14 +23,14 @@ import {
 import { getTenants, Tenant } from '@/services/tenant.service';
 import { getBranches, Branch } from '@/services/branch.service';
 import { getBrands, Brand } from '@/services/brands.service';
+
 import { usePermissions } from '@/hooks/usePermissions';
+import { useDebounce } from '@/hooks/useDebounce';
 import { useCountry } from '@/context/CountryContext';
-import styles from './page.module.css';
+
 import { getStockLevel } from '@/constants/replacement';
-import Search from '@/components/ui/Search';
-import Table, { Column } from '@/components/ui/Table';
-import Select from '@/components/ui/Select';
-import PartCard from '@/components/features/replacements/PartCard';
+import { formatDateTime } from '@/lib/date';
+import styles from './page.module.css';
 
 const EMPTY: Omit<CreateReplacementPayload, 'countryCode'> = {
   name: '', brandId: 0, price: 0, tenantId: '',
@@ -34,7 +43,7 @@ interface EditFormState extends UpdateReplacementPayload {
 
 const EMPTY_EDIT: EditFormState = { price: 0, stock: 0, tenantId: '' };
 
-const LIMIT = 12;
+const DEFAULT_LIMIT = 10;
 
 export default function ReplacementDashboardPage() {
   const router = useRouter();
@@ -47,9 +56,12 @@ export default function ReplacementDashboardPage() {
   const { currentUser, isAdmin, canManage } = usePermissions();
   const visibleTenants = isAdmin ? tenants : tenants.filter(t => t.id === currentUser?.tenantId);
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 600);
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [limit, setLimit] = useState(DEFAULT_LIMIT);
 
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState<Omit<CreateReplacementPayload, 'countryCode'>>(EMPTY);
@@ -63,17 +75,22 @@ export default function ReplacementDashboardPage() {
   const [editPriceInput, setEditPriceInput] = useState('');
   const [editBranches, setEditBranches] = useState<Branch[]>([]);
   const [editError, setEditError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
-    getReplacements({ country, page, limit: LIMIT, search }).then(r => {
-      setReplacements(r.data);
-      setTotalPages(r.totalPages);
-    });
-  }, [country, page, search]);
+    setLoadError(false);
+    getReplacements({ country, page, limit, search: debouncedSearch })
+      .then(r => {
+        setReplacements(r.data);
+        setTotalPages(r.totalPages);
+        setTotal(r.total);
+      })
+      .catch(() => setLoadError(true));
+  }, [country, page, debouncedSearch, limit]);
 
   useEffect(() => {
     setPage(1);
-  }, [country, search]);
+  }, [country, debouncedSearch, limit]);
 
   useEffect(() => {
     getTenants(country).then(setTenants);
@@ -185,18 +202,16 @@ export default function ReplacementDashboardPage() {
   }
 
   const canCreate = !!form.name && form.brandId > 0 && form.price > 0 && !!form.tenantId;
+  const modalOpen = creating || !!editingReplacement;
+  const modalTitle = creating ? 'Nuevo repuesto' : 'Editar repuesto';
+  const modalClose = creating ? () => setCreating(false) : () => setEditingReplacement(null);
+  const modalSave = creating ? handleCreate : handleUpdate;
+  const modalCanDisable = creating ? (saving || !canCreate) : saving;
 
-  const footer = (
+  const modalFooter = (
     <>
-      <Button label="Cancelar" variant="outline" color="neutral" onClick={() => setCreating(false)} disabled={saving} />
-      <Button label={saving ? 'Guardando...' : 'Guardar'} color="primary" onClick={handleCreate} disabled={saving || !canCreate} />
-    </>
-  );
-
-  const editFooter = (
-    <>
-      <Button label="Cancelar" variant="outline" color="neutral" onClick={() => setEditingReplacement(null)} disabled={saving} />
-      <Button label={saving ? 'Guardando...' : 'Guardar'} color="primary" onClick={handleUpdate} disabled={saving} />
+      <Button label="Cancelar" variant="outline" color="neutral" onClick={modalClose} disabled={saving} />
+      <Button label={saving ? 'Guardando...' : 'Guardar'} color="primary" onClick={modalSave} disabled={modalCanDisable} />
     </>
   );
 
@@ -212,31 +227,38 @@ export default function ReplacementDashboardPage() {
 
       <div className={styles.controls}>
         <Search value={search} onChange={setSearch} placeholder="Buscar por nombre de repuesto..." />
-        <div className={styles.viewToggle}>
-          <button className={viewMode === 'table' ? styles.viewActive : styles.viewBtn} onClick={() => setViewMode('table')}>Tabla</button>
-          <button className={viewMode === 'grid' ? styles.viewActive : styles.viewBtn} onClick={() => setViewMode('grid')}>Tarjetas</button>
-        </div>
+        <ViewToggle value={viewMode} onChange={setViewMode} />
       </div>
-      {viewMode === 'table' ? (
+      <div className={styles.subControls}>
+        <PageCount total={total} limit={limit} onLimitChange={setLimit} />
+      </div>
+      {loadError ? (
+        <EmptyState variant="error" action={{ label: 'Reintentar', onClick: () => setLoadError(false) }} />
+      ) : viewMode === 'table' ? (
         <Table<Replacement>
           rows={replacements}
           getKey={r => r.id}
-          emptyMessage="No hay repuestos registrados."
+          emptyMessage={<EmptyState variant={search ? 'no-results' : 'empty'} action={!search && canManage ? { label: '+ Nuevo repuesto', onClick: openCreate } : undefined} />}
           onRowClick={r => router.push(`/dashboard/replacement/${r.id}/show`)}
           columns={[
             { header: 'Producto', render: r => r.globalReplacement?.imageUrl
-              ? <Image src={r.globalReplacement.imageUrl} alt={r.globalReplacement.name ?? ''} width={40} height={40} className={styles.img} />
+              ? <Image src={r.globalReplacement.imageUrl} alt={`${r.globalReplacement.name ?? 'Repuesto'} - ${r.globalReplacement.brand?.name ?? ''}`} title={`${r.globalReplacement.name ?? 'Repuesto'} - ${r.globalReplacement.brand?.name ?? ''}`} width={40} height={40} className={styles.img} />
               : <div className={styles.imgPlaceholder} />, className: styles.tdImg },
-            { header: 'Nombre', render: r => r.globalReplacement?.name, className: styles.tdName },
-            { header: 'Marca', render: r => r.globalReplacement?.brand?.name, className: styles.tdMeta },
+            { header: 'Nombre / Marca', render: r => (
+              <div className={styles.nameCell}>
+                <span className={styles.namePrimary}>{r.globalReplacement?.name}</span>
+                <span className={styles.nameSecondary}>{r.globalReplacement?.brand?.name}</span>
+              </div>
+            ), className: styles.tdName },
             { header: 'Precio', render: r => `$${Number(r.price).toFixed(2)}`, className: styles.tdPrice },
             ...(isAdmin ? [{ header: 'País', render: (r: Replacement) => r.globalReplacement?.countryCode, className: styles.tdMeta } as Column<Replacement>] : []),
             { header: 'Stock', render: r => {
               const levelClass = { low: styles.stockLow, normal: styles.stockNormal, full: styles.stockFull }[getStockLevel(r.stock)];
               return <span className={`${styles.stockBadge} ${levelClass}`}>{r.stock} u.</span>;
             }},
-            { header: 'Estado', render: r => <span className={r.stock > 0 ? styles.badgeActive : styles.badgeOut}>{r.stock > 0 ? 'Activo' : 'Agotado'}</span> },
             { header: 'Sucursal', render: r => r.branch?.name ?? '—', className: styles.tdMeta },
+            { header: 'Fecha', render: r => formatDateTime(r.createdAt), className: styles.tdMeta },
+            { header: 'Estado', render: r => <span className={r.stock > 0 ? styles.badgeActive : styles.badgeOut}>{r.stock > 0 ? 'Activo' : 'Agotado'}</span> },
             { header: '', render: r => (
               <div onClick={e => e.stopPropagation()}>
                 <Link href={`/dashboard/replacement/${r.id}`} className={styles.btnText}>Compatibilidades</Link>
@@ -258,7 +280,9 @@ export default function ReplacementDashboardPage() {
               price={r.price}
             />
           ))}
-          {replacements.length === 0 && <p className={styles.empty}>No hay repuestos registrados.</p>}
+          {replacements.length === 0 && (
+            <EmptyState variant={search ? 'no-results' : 'empty'} action={!search && canManage ? { label: '+ Nuevo repuesto', onClick: openCreate } : undefined} />
+          )}
         </div>
       )}
 
@@ -270,139 +294,95 @@ export default function ReplacementDashboardPage() {
         </div>
       )}
 
-      <Modal isOpen={!!editingReplacement} onClose={() => setEditingReplacement(null)} title="Editar repuesto" size="lg" footer={editFooter}>
+      <Modal isOpen={modalOpen} onClose={modalClose} title={modalTitle} size="lg" footer={modalFooter}>
         <div className={styles.form}>
-          {editingReplacement && (
-            <div className={styles.row}>
+          {creating ? (
+            <>
               <div className={styles.label}>
-                Nombre
-                <p className={styles.readOnly}>{editingReplacement.globalReplacement?.name}</p>
+                Imagen <span className={styles.optional}>(opcional)</span>
+                <ImageUpload onUpload={setImageUrl} />
               </div>
-              <div className={styles.label}>
-                Marca
-                <p className={styles.readOnly}>{editingReplacement.globalReplacement?.brand?.name}</p>
+
+              <div className={styles.row}>
+                <label className={styles.label}>
+                  Nombre
+                  <input className={styles.input} value={form.name} onChange={e => set({ name: e.target.value })} required />
+                </label>
+                <label className={styles.label}>
+                  Marca
+                  <Select value={form.brandId || ''} onChange={v => set({ brandId: Number(v) || 0 })} options={brands.map(b => ({ value: b.id, label: b.name }))} placeholder="Seleccionar marca" required />
+                </label>
               </div>
-            </div>
+
+              <div className={styles.row}>
+                <label className={styles.label}>
+                  Precio
+                  <input className={styles.input} type="text" inputMode="decimal" value={priceInput} onChange={e => { const v = e.target.value; if (/^\d*\.?\d*$/.test(v)) { setPriceInput(v); set({ price: parseFloat(v) || 0 }); } }} placeholder="0.00" required />
+                </label>
+                <label className={styles.label}>
+                  Stock
+                  <input className={styles.input} type="text" inputMode="numeric" value={form.stock ?? ''} onChange={e => { if (/^\d*$/.test(e.target.value)) set({ stock: Number(e.target.value) }); }} placeholder="0" />
+                </label>
+              </div>
+
+              <div className={styles.row}>
+                <label className={styles.label}>
+                  Código OEM <span className={styles.optional}>(opcional)</span>
+                  <input className={styles.input} value={form.codeOem ?? ''} onChange={e => set({ codeOem: e.target.value })} placeholder="ej. 15400-PLM-A02" />
+                </label>
+                <label className={styles.label}>
+                  Local
+                  <Select value={form.tenantId} onChange={onTenantChange} options={visibleTenants.map(t => ({ value: t.id, label: t.businessName }))} placeholder="Seleccionar local" disabled={!isAdmin} required />
+                </label>
+              </div>
+
+              <label className={styles.label}>
+                Sucursal <span className={styles.optional}>(opcional)</span>
+                <Select value={form.branchId ?? ''} onChange={v => { const branch = formBranches.find(b => b.id === v); set({ branchId: v, ...(branch?.latitude != null && branch?.longitude != null && { latitude: branch.latitude, longitude: branch.longitude }) }); }} options={formBranches.map(b => ({ value: b.id, label: b.name }))} placeholder="Sin asignar" disabled={!form.tenantId} />
+              </label>
+
+              {formError && <p className={styles.error}>{formError}</p>}
+            </>
+          ) : (
+            <>
+              {editingReplacement && (
+                <div className={styles.row}>
+                  <div className={styles.label}>
+                    Nombre
+                    <p className={styles.readOnly}>{editingReplacement.globalReplacement?.name}</p>
+                  </div>
+                  <div className={styles.label}>
+                    Marca
+                    <p className={styles.readOnly}>{editingReplacement.globalReplacement?.brand?.name}</p>
+                  </div>
+                </div>
+              )}
+
+              <div className={styles.row}>
+                <label className={styles.label}>
+                  Precio
+                  <input className={styles.input} type="text" inputMode="decimal" value={editPriceInput} onChange={e => { const v = e.target.value; if (/^\d*\.?\d*$/.test(v)) { setEditPriceInput(v); setEdit({ price: parseFloat(v) || 0 }); } }} placeholder="0.00" required />
+                </label>
+                <label className={styles.label}>
+                  Stock
+                  <input className={styles.input} type="text" inputMode="numeric" value={editForm.stock ?? ''} onChange={e => { if (/^\d*$/.test(e.target.value)) setEdit({ stock: Number(e.target.value) }); }} placeholder="0" />
+                </label>
+              </div>
+
+              <div className={styles.row}>
+                <label className={styles.label}>
+                  Local
+                  <Select value={editForm.tenantId} onChange={onEditTenantChange} options={tenants.map(t => ({ value: t.id, label: t.businessName }))} placeholder="Seleccionar local" required />
+                </label>
+                <label className={styles.label}>
+                  Sucursal <span className={styles.optional}>(opcional)</span>
+                  <Select value={editForm.branchId ?? ''} onChange={v => { const branch = editBranches.find(b => b.id === v); setEdit({ branchId: v, ...(branch?.latitude != null && branch?.longitude != null && { latitude: branch.latitude, longitude: branch.longitude }) }); }} options={editBranches.map(b => ({ value: b.id, label: b.name }))} placeholder="Sin asignar" disabled={!editForm.tenantId} />
+                </label>
+              </div>
+
+              {editError && <p className={styles.error}>{editError}</p>}
+            </>
           )}
-
-          <div className={styles.row}>
-            <label className={styles.label}>
-              Precio
-              <input
-                className={styles.input}
-                type="text"
-                inputMode="decimal"
-                value={editPriceInput}
-                onChange={e => {
-                  const v = e.target.value;
-                  if (/^\d*\.?\d*$/.test(v)) {
-                    setEditPriceInput(v);
-                    setEdit({ price: parseFloat(v) || 0 });
-                  }
-                }}
-                placeholder="0.00"
-                required
-              />
-            </label>
-            <label className={styles.label}>
-              Stock
-              <input className={styles.input} type="text" inputMode="numeric" value={editForm.stock ?? ''} onChange={e => { if (/^\d*$/.test(e.target.value)) setEdit({ stock: Number(e.target.value) }); }} placeholder="0" />
-            </label>
-          </div>
-
-          <div className={styles.row}>
-            <label className={styles.label}>
-              Local
-              <Select value={editForm.tenantId} onChange={onEditTenantChange} options={tenants.map(t => ({ value: t.id, label: t.businessName }))} placeholder="Seleccionar local" required />
-            </label>
-            <label className={styles.label}>
-              Sucursal <span className={styles.optional}>(opcional)</span>
-              <Select
-                value={editForm.branchId ?? ''}
-                onChange={v => {
-                  const branch = editBranches.find(b => b.id === v);
-                  setEdit({ branchId: v, ...(branch?.latitude != null && branch?.longitude != null && { latitude: branch.latitude, longitude: branch.longitude }) });
-                }}
-                options={editBranches.map(b => ({ value: b.id, label: b.name }))}
-                placeholder="Sin asignar"
-                disabled={!editForm.tenantId}
-              />
-            </label>
-          </div>
-
-          {editError && <p className={styles.error}>{editError}</p>}
-        </div>
-      </Modal>
-
-      <Modal isOpen={creating} onClose={() => setCreating(false)} title="Nuevo repuesto" size="lg" footer={footer}>
-        <div className={styles.form}>
-          <div className={styles.label}>
-            Imagen <span className={styles.optional}>(opcional)</span>
-            <ImageUpload onUpload={setImageUrl} />
-          </div>
-
-          <div className={styles.row}>
-            <label className={styles.label}>
-              Nombre
-              <input className={styles.input} value={form.name} onChange={e => set({ name: e.target.value })} required />
-            </label>
-            <label className={styles.label}>
-              Marca
-              <Select value={form.brandId || ''} onChange={v => set({ brandId: Number(v) || 0 })} options={brands.map(b => ({ value: b.id, label: b.name }))} placeholder="Seleccionar marca" required />
-            </label>
-          </div>
-
-          <div className={styles.row}>
-            <label className={styles.label}>
-              Precio
-              <input
-                className={styles.input}
-                type="text"
-                inputMode="decimal"
-                value={priceInput}
-                onChange={e => {
-                  const v = e.target.value;
-                  if (/^\d*\.?\d*$/.test(v)) {
-                    setPriceInput(v);
-                    set({ price: parseFloat(v) || 0 });
-                  }
-                }}
-                placeholder="0.00"
-                required
-              />
-            </label>
-            <label className={styles.label}>
-              Stock
-              <input className={styles.input} type="text" inputMode="numeric" value={form.stock ?? ''} onChange={e => { if (/^\d*$/.test(e.target.value)) set({ stock: Number(e.target.value) }); }} placeholder="0" />
-            </label>
-          </div>
-
-          <div className={styles.row}>
-            <label className={styles.label}>
-              Código OEM <span className={styles.optional}>(opcional)</span>
-              <input className={styles.input} value={form.codeOem ?? ''} onChange={e => set({ codeOem: e.target.value })} placeholder="ej. 15400-PLM-A02" />
-            </label>
-            <label className={styles.label}>
-              Local
-              <Select value={form.tenantId} onChange={onTenantChange} options={visibleTenants.map(t => ({ value: t.id, label: t.businessName }))} placeholder="Seleccionar local" disabled={!isAdmin} required />
-            </label>
-          </div>
-
-          <label className={styles.label}>
-            Sucursal <span className={styles.optional}>(opcional)</span>
-            <Select
-              value={form.branchId ?? ''}
-              onChange={v => {
-                const branch = formBranches.find(b => b.id === v);
-                set({ branchId: v, ...(branch?.latitude != null && branch?.longitude != null && { latitude: branch.latitude, longitude: branch.longitude }) });
-              }}
-              options={formBranches.map(b => ({ value: b.id, label: b.name }))}
-              placeholder="Sin asignar"
-              disabled={!form.tenantId}
-            />
-          </label>
-
-          {formError && <p className={styles.error}>{formError}</p>}
         </div>
       </Modal>
     </main>

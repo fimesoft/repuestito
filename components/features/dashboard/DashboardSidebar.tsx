@@ -107,10 +107,17 @@ const NAV = [
 
 export default function DashboardSidebar() {
   const [open, setOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
   const { isAdmin } = usePermissions();
 
   const close = () => setOpen(false);
+
+  function toggleCollapse() {
+    const next = !collapsed;
+    setCollapsed(next);
+    document.documentElement.style.setProperty('--sidebar-width', next ? '64px' : '240px');
+  }
 
   return (
     <>
@@ -120,9 +127,9 @@ export default function DashboardSidebar() {
 
       {open && <div className={styles.overlay} onClick={close} aria-hidden="true" />}
 
-      <nav className={`${styles.sidebar} ${open ? styles.open : ''}`} aria-label="Menú del dashboard">
+      <nav className={`${styles.sidebar} ${open ? styles.open : ''} ${collapsed ? styles.collapsed : ''}`} aria-label="Menú del dashboard">
         <div className={styles.sidebarHeader}>
-          <Logo href="/dashboard" className={styles.logoSidebar} />
+          {!collapsed && <Logo href="/dashboard" className={styles.logoSidebar} />}
           <button className={styles.closeBtn} onClick={close} aria-label="Cerrar menú">
             <IconClose />
           </button>
@@ -137,16 +144,23 @@ export default function DashboardSidebar() {
                   href={href}
                   className={`${styles.navItem} ${isActive ? styles.active : ''}`}
                   onClick={close}
+                  title={collapsed ? label : undefined}
                 >
-                  <span className={styles.navIcon}>
-                    <Icon />
-                  </span>
-                  <span>{label}</span>
+                  <span className={styles.navIcon}><Icon /></span>
+                  {!collapsed && <span>{label}</span>}
                 </Link>
               </li>
             );
           })}
         </ul>
+
+        <button className={styles.collapseBtn} onClick={toggleCollapse} aria-label={collapsed ? 'Expandir menú' : 'Contraer menú'}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+            style={{ transform: collapsed ? 'rotate(180deg)' : 'none', transition: 'transform 0.25s ease' }}>
+            <path d="M19 12H5M12 5l-7 7 7 7" />
+          </svg>
+          {!collapsed && <span>Contraer</span>}
+        </button>
       </nav>
     </>
   );

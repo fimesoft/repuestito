@@ -9,6 +9,9 @@ import Search from '@/components/ui/Search';
 import Table, { Column } from '@/components/ui/Table';
 import Select from '@/components/ui/Select';
 import Button from '@/components/ui/Button/Button';
+import { formatDateTime } from '@/lib/date';
+import EmptyState from '@/components/shared/EmptyState/EmptyState';
+import { useDebounce } from '@/hooks/useDebounce';
 
 const PAGE_SIZE = 20;
 
@@ -64,11 +67,12 @@ export default function BillingPage() {
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 600);
 
   const visibleInvoices = invoices.filter(inv => {
     const matchesStatus = !statusFilter || inv.status === statusFilter;
     const fullName = [inv.buyerName, inv.buyerLastname].filter(Boolean).join(' ').toLowerCase();
-    const matchesSearch = !search || fullName.includes(search.toLowerCase());
+    const matchesSearch = !debouncedSearch || fullName.includes(debouncedSearch.toLowerCase());
     return matchesStatus && matchesSearch;
   });
 
@@ -108,7 +112,7 @@ export default function BillingPage() {
       <Table<Invoice>
         rows={visibleInvoices}
         getKey={inv => inv.id}
-        emptyMessage="No hay facturas."
+        emptyMessage={<EmptyState variant={debouncedSearch || statusFilter ? 'no-results' : 'empty'} />}
         loading={loading}
         columns={[
           { header: 'Número', render: inv => inv.invoiceNumber ?? '—', className: styles.tdNumber },
@@ -120,7 +124,7 @@ export default function BillingPage() {
               {inv.status === 'cancelled' ? 'Cancelada' : 'Completada'}
             </span>
           ) },
-          { header: 'Fecha', render: inv => inv.issuedAt ? new Date(inv.issuedAt).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short', hour12: true }) : '—', className: styles.tdMeta },
+          { header: 'Fecha', render: inv => inv.issuedAt ? formatDateTime(inv.issuedAt) : '—', className: styles.tdMeta },
           { header: '', render: inv => (
             <>
               <Link href={`/dashboard/billing/${inv.id}?tenantId=${currentUser?.tenantId ?? ''}`} className={styles.btnText}>Ver</Link>

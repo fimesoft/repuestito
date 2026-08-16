@@ -18,6 +18,16 @@
 
 .table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
 
+.controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
+
+.subControls { display: flex; justify-content: flex-end; margin-bottom: 1rem; }
+
+.searchGroup { display: flex; flex-direction: column; gap: 0.25rem; }
+
+.nameCell { display: flex; flex-direction: column; gap: 2px; }
+.namePrimary { font-weight: 700; color: var(--color-text); }
+.nameSecondary { font-size: 0.75rem; color: var(--color-text-muted); font-weight: 100; }
+
 .table th {
   text-align: left;
   padding: 20px 16px;

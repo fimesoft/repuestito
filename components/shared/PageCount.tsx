@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import Select from '@/components/ui/Select';
 import styles from './PageCount.module.css';
 
 interface PageCountProps {
@@ -8,18 +9,23 @@ interface PageCountProps {
   limit: number;
   search?: string;
   country?: string;
+  onLimitChange?: (limit: number) => void;
 }
 
 const LIMIT_OPTIONS = [10, 20, 50];
 
-export default function PageCount({ total, limit, search, country }: PageCountProps) {
+export default function PageCount({ total, limit, search, country, onLimitChange }: PageCountProps) {
   const router = useRouter();
 
-  function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
+  function handleChange(next: number) {
+    if (onLimitChange) {
+      onLimitChange(next);
+      return;
+    }
     const params = new URLSearchParams();
     if (search) params.set('search', search);
     if (country) params.set('country', country);
-    params.set('limit', e.target.value);
+    params.set('limit', String(next));
     params.set('page', '1');
     router.push(`/?${params.toString()}`);
   }
@@ -27,13 +33,12 @@ export default function PageCount({ total, limit, search, country }: PageCountPr
   return (
     <div className={styles.wrapper}>
       <span className={styles.total}>{total} registros totales</span>
-      <select className={styles.select} value={limit} onChange={handleChange}>
-        {LIMIT_OPTIONS.map((n) => (
-          <option key={n} value={n}>
-            {n} por página
-          </option>
-        ))}
-      </select>
+      <Select
+        value={limit}
+        onChange={v => handleChange(Number(v))}
+        options={LIMIT_OPTIONS.map(n => ({ value: n, label: `${n} por página` }))}
+        width={140}
+      />
     </div>
   );
 }

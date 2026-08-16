@@ -12,6 +12,8 @@ import styles from './page.module.css';
 import Search from '@/components/ui/Search';
 import Table, { Column } from '@/components/ui/Table';
 import Select from '@/components/ui/Select';
+import EmptyState from '@/components/shared/EmptyState/EmptyState';
+import { useDebounce } from '@/hooks/useDebounce';
 
 const ROLES = ['MODERATOR', 'SELLER'];
 
@@ -121,9 +123,10 @@ export default function UsersPage() {
   }
 
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 600);
 
   const visibleUsers = (isAdmin ? users : users.filter(u => u.tenantId === currentUser?.tenantId))
-    .filter(u => !search || u.email.toLowerCase().includes(search.toLowerCase()));
+    .filter(u => !debouncedSearch || u.email.toLowerCase().includes(debouncedSearch.toLowerCase()));
 
   // ── Footers ─────────────────────────────────────
   const createFooter = inviteResult ? (
@@ -156,7 +159,7 @@ export default function UsersPage() {
       <Table<UserRecord>
         rows={visibleUsers}
         getKey={u => u.id}
-        emptyMessage="No hay usuarios registrados."
+        emptyMessage={<EmptyState variant={debouncedSearch ? 'no-results' : 'empty'} />}
         columns={[
           { header: 'Email', render: u => u.email, className: styles.tdEmail },
           { header: 'Rol', render: u => <span className={styles[`role${u.role}`]}>{u.role}</span> },

@@ -8,7 +8,10 @@ import styles from './page.module.css';
 import Search from '@/components/ui/Search';
 import Table, { Column } from '@/components/ui/Table';
 import Select from '@/components/ui/Select';
+import { formatDateTime } from '@/lib/date';
 import Button from '@/components/ui/Button/Button';
+import EmptyState from '@/components/shared/EmptyState/EmptyState';
+import { useDebounce } from '@/hooks/useDebounce';
 
 const PAGE_SIZE = 20;
 
@@ -36,10 +39,11 @@ export default function OrdersPage() {
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('');
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 600);
 
   const visibleOrders = orders.filter(o => {
     const fullName = [o.buyerName, o.buyerLastname].filter(Boolean).join(' ').toLowerCase();
-    return !search || fullName.includes(search.toLowerCase());
+    return !debouncedSearch || fullName.includes(debouncedSearch.toLowerCase());
   });
 
   const load = useCallback(async (p: number) => {
@@ -123,14 +127,14 @@ export default function OrdersPage() {
       <Table<Order>
         rows={visibleOrders}
         getKey={o => o.id}
-        emptyMessage="No hay pedidos."
+        emptyMessage={<EmptyState variant={debouncedSearch ? 'no-results' : 'empty'} />}
         loading={loading}
         columns={[
           { header: 'Número', render: o => o.orderNumber ?? '—', className: styles.tdNumber },
           { header: 'Comprador', render: o => [o.buyerName, o.buyerLastname].filter(Boolean).join(' ') || '—', className: styles.tdMeta },
           { header: 'Total', render: o => `$${Number(o.total).toFixed(2)}`, className: styles.tdPrice },
           { header: 'Estado', render: o => <span className={`${styles.badge} ${STATUS_BADGE[o.status] ?? ''}`}>{STATUS_LABELS[o.status] ?? o.status}</span> },
-          { header: 'Fecha', render: o => o.createdAt ? new Date(o.createdAt).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short', hour12: true }) : '—', className: styles.tdMeta },
+          { header: 'Fecha', render: o => o.createdAt ? formatDateTime(o.createdAt) : '—', className: styles.tdMeta },
           { header: '', render: o => (
             <>
               <Link href={`/dashboard/orders/${o.id}?tenantId=${currentUser?.tenantId ?? ''}`} className={styles.btnText}>Ver</Link>

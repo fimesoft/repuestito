@@ -24,6 +24,7 @@ export interface Replacement {
   branch: BranchInfo | null;
   latitude: number | null;
   longitude: number | null;
+  createdAt: string;
 }
 
 export interface CreateReplacementPayload {
