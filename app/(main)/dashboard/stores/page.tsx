@@ -16,6 +16,8 @@ import LocationSearch from '@/components/ui/LocationSearch';
 import { useCountry } from '@/context/CountryContext';
 import { usePermissions } from '@/hooks/usePermissions';
 import Badge from '@/components/ui/Badge';
+import Loading from '@/components/ui/Loading';
+import Card from '@/components/ui/Card';
 import styles from './page.module.css';
 
 export default function StoresPage() {
@@ -37,10 +39,16 @@ export default function StoresPage() {
   const { canManage } = usePermissions();
   const [saving, setSaving] = useState(false);
   const [modalError, setModalError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   async function loadTenants() {
-    const data = await getTenants(country);
-    setTenants(data);
+    setLoading(true);
+    try {
+      const data = await getTenants(country);
+      setTenants(data);
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => { loadTenants(); }, [country]);
@@ -173,7 +181,18 @@ export default function StoresPage() {
         {canManage && <Button label="+ Nuevo local" onClick={() => setWizardOpen(true)} shadow />}
       </div>
 
-      <ul className={styles.list}>
+      <div className={styles.stats}>
+        <Card className={styles.statCard}>
+          <span className={styles.statLabel}>Locales totales</span>
+          <span className={styles.statValue}>{tenants.length}</span>
+        </Card>
+        <Card className={styles.statCard}>
+          <span className={styles.statLabel}>Activos</span>
+          <span className={styles.statValue}>{tenants.filter(t => t.active).length}</span>
+        </Card>
+      </div>
+
+      {loading ? <Loading /> : <ul className={styles.list}>
         {tenants.map(tenant => (
           <li key={tenant.id} className={styles.card}>
             <div className={styles.cardHeader}>
@@ -225,7 +244,7 @@ export default function StoresPage() {
         {tenants.length === 0 && (
           <p className={styles.empty}>No hay locales registrados.</p>
         )}
-      </ul>
+      </ul>}
 
       <TenantBranchWizard
         isOpen={wizardOpen}

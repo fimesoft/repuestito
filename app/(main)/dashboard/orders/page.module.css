@@ -128,24 +128,5 @@
 }
 .btnDanger:hover { background: var(--color-error-bg); }
 
-.pagination {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  margin-top: 1.25rem;
-}
+.subControls { display: flex; justify-content: flex-end; margin-bottom: 1rem; }
 
-.pageBtn {
-  padding: 6px 14px;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  background: var(--bg-surface);
-  font-size: 13px;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-}
-.pageBtn:hover { background: var(--bg-muted); }
-.pageBtn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-.pageInfo { font-size: 13px; color: var(--color-text-muted); }

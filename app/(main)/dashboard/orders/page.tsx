@@ -13,8 +13,11 @@ import Button from '@/components/ui/Button/Button';
 import EmptyState from '@/components/shared/EmptyState';
 import { useDebounce } from '@/hooks/useDebounce';
 import Badge, { BadgeVariant } from '@/components/ui/Badge';
+import PageCount from '@/components/shared/PageCount';
+import Paginator from '@/components/ui/Paginator';
+import Loading from '@/components/ui/Loading';
 
-const PAGE_SIZE = 20;
+const DEFAULT_LIMIT = 20;
 
 const STATUS_LABELS: Record<string, string> = {
   pending: 'Pendiente',
@@ -36,7 +39,8 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
+  const [limit, setLimit] = useState(DEFAULT_LIMIT);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('');
   const [search, setSearch] = useState('');
@@ -56,7 +60,7 @@ export default function OrdersPage() {
         tenantId: currentUser.tenantId,
         status: statusFilter || undefined,
         page: p,
-        limit: PAGE_SIZE,
+        limit,
       });
       setOrders(res.data);
       setTotal(res.total);
@@ -65,7 +69,7 @@ export default function OrdersPage() {
     } finally {
       setLoading(false);
     }
-  }, [currentUser?.tenantId, statusFilter]);
+  }, [currentUser?.tenantId, statusFilter, limit]);
 
   useEffect(() => {
     void load(1);
@@ -93,7 +97,7 @@ export default function OrdersPage() {
     }
   }
 
-  const totalPages = Math.ceil(total / PAGE_SIZE);
+  const totalPages = Math.ceil(total / limit);
 
   return (
     <main className={styles.page}>
@@ -123,13 +127,16 @@ export default function OrdersPage() {
         </label>
       </div>
 
+      <div className={styles.subControls}>
+        <PageCount total={total} limit={limit} onLimitChange={next => { setLimit(next); setPage(1); void load(1); }} />
+      </div>
+
       {error && <p className={styles.error}>{error}</p>}
 
-      <Table<Order>
+      {loading ? <Loading /> : <Table<Order>
         rows={visibleOrders}
         getKey={o => o.id}
         emptyMessage={<EmptyState variant={debouncedSearch ? 'no-results' : 'empty'} />}
-        loading={loading}
         columns={[
           { header: 'Número', render: o => o.orderNumber ?? '—', className: styles.tdNumber },
           { header: 'Comprador', render: o => [o.buyerName, o.buyerLastname].filter(Boolean).join(' ') || '—', className: styles.tdMeta },
@@ -144,14 +151,10 @@ export default function OrdersPage() {
             </>
           ), className: styles.tdActions },
         ] as Column<Order>[]}
-      />
+      />}
 
       {totalPages > 1 && (
-        <div className={styles.pagination}>
-          <Button label="← Anterior" variant="outline" color="neutral" disabled={page <= 1} onClick={() => { const p = page - 1; setPage(p); void load(p); }} />
-          <span className={styles.pageInfo}>Página {page} de {totalPages}</span>
-          <Button label="Siguiente →" variant="outline" color="neutral" disabled={page >= totalPages} onClick={() => { const p = page + 1; setPage(p); void load(p); }} />
-        </div>
+        <Paginator currentPage={page} totalPages={totalPages} onPageChange={p => { setPage(p); void load(p); }} />
       )}
     </main>
   );

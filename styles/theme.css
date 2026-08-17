@@ -36,6 +36,9 @@
   --color-warning-bg:       #fffbeb;
   --color-warning-border:   #f6e05e;
   --color-warning-text:     #744210;
+  --color-info:             #2b6cb0;
+  --color-info-bg:          #ebf8ff;
+  --color-info-border:      #90cdf4;
 
   /* ── Neutral (button variant) ───────────── */
   --color-neutral:          #898d94;

@@ -13,8 +13,11 @@ import { formatDateTime } from '@/lib/date';
 import EmptyState from '@/components/shared/EmptyState';
 import { useDebounce } from '@/hooks/useDebounce';
 import Badge from '@/components/ui/Badge';
+import PageCount from '@/components/shared/PageCount';
+import Paginator from '@/components/ui/Paginator';
+import Loading from '@/components/ui/Loading';
 
-const PAGE_SIZE = 20;
+const DEFAULT_LIMIT = 20;
 
 export default function BillingPage() {
   const { currentUser } = usePermissions();
@@ -22,7 +25,8 @@ export default function BillingPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
+  const [limit, setLimit] = useState(DEFAULT_LIMIT);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
@@ -38,7 +42,7 @@ export default function BillingPage() {
         from: from || undefined,
         to: to || undefined,
         page: p,
-        limit: PAGE_SIZE,
+        limit,
       });
       setInvoices(res.data);
       setTotal(res.total);
@@ -47,7 +51,7 @@ export default function BillingPage() {
     } finally {
       setLoading(false);
     }
-  }, [currentUser?.tenantId, from, to]);
+  }, [currentUser?.tenantId, from, to, limit]);
 
   useEffect(() => {
     void load(1);
@@ -65,7 +69,7 @@ export default function BillingPage() {
     }
   }
 
-  const totalPages = Math.ceil(total / PAGE_SIZE);
+  const totalPages = Math.ceil(total / limit);
 
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 600);
@@ -108,13 +112,16 @@ export default function BillingPage() {
         </label>
       </div>
 
+      <div className={styles.subControls}>
+        <PageCount total={total} limit={limit} onLimitChange={next => { setLimit(next); setPage(1); void load(1); }} />
+      </div>
+
       {error && <p className={styles.error}>{error}</p>}
 
-      <Table<Invoice>
+      {loading ? <Loading /> : <Table<Invoice>
         rows={visibleInvoices}
         getKey={inv => inv.id}
         emptyMessage={<EmptyState variant={debouncedSearch || statusFilter ? 'no-results' : 'empty'} />}
-        loading={loading}
         columns={[
           { header: 'Número', render: inv => inv.invoiceNumber ?? '—', className: styles.tdNumber },
           { header: 'Comprador', render: inv => [inv.buyerName, inv.buyerLastname].filter(Boolean).join(' ') || '—', className: styles.tdMeta },
@@ -129,14 +136,10 @@ export default function BillingPage() {
             </>
           ), className: styles.tdActions },
         ] as Column<Invoice>[]}
-      />
+      />}
 
       {totalPages > 1 && (
-        <div className={styles.pagination}>
-          <Button label="← Anterior" variant="outline" color="neutral" disabled={page <= 1} onClick={() => { const p = page - 1; setPage(p); void load(p); }} />
-          <span className={styles.pageInfo}>Página {page} de {totalPages}</span>
-          <Button label="Siguiente →" variant="outline" color="neutral" disabled={page >= totalPages} onClick={() => { const p = page + 1; setPage(p); void load(p); }} />
-        </div>
+        <Paginator currentPage={page} totalPages={totalPages} onPageChange={p => { setPage(p); void load(p); }} />
       )}
     </main>
   );

@@ -15,6 +15,9 @@ import Select from '@/components/ui/Select';
 import EmptyState from '@/components/shared/EmptyState';
 import { useDebounce } from '@/hooks/useDebounce';
 import Badge, { BadgeVariant } from '@/components/ui/Badge';
+import PageCount from '@/components/shared/PageCount';
+import Paginator from '@/components/ui/Paginator';
+import Loading from '@/components/ui/Loading';
 
 const ROLES = ['MODERATOR', 'SELLER'];
 
@@ -36,9 +39,11 @@ export default function UsersPage() {
   const [saving, setSaving] = useState(false);
   const [modalError, setModalError] = useState<string | null>(null);
   const [inviteResult, setInviteResult] = useState<{ email: string; devCode?: string } | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getUsers().then(setUsers);
+    setLoading(true);
+    getUsers().then(setUsers).finally(() => setLoading(false));
   }, []);
 
   useEffect(() => {
@@ -125,9 +130,16 @@ export default function UsersPage() {
 
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 600);
+  const [limit, setLimit] = useState(20);
+  const [page, setPage] = useState(1);
 
-  const visibleUsers = (isAdmin ? users : users.filter(u => u.tenantId === currentUser?.tenantId))
+  const filteredUsers = (isAdmin ? users : users.filter(u => u.tenantId === currentUser?.tenantId))
     .filter(u => !debouncedSearch || u.email.toLowerCase().includes(debouncedSearch.toLowerCase()));
+
+  const visibleUsers = filteredUsers.slice((page - 1) * limit, page * limit);
+  const totalPages = Math.ceil(filteredUsers.length / limit);
+
+  useEffect(() => { setPage(1); }, [debouncedSearch, limit]);
 
   // ── Footers ─────────────────────────────────────
   const createFooter = inviteResult ? (
@@ -156,8 +168,11 @@ export default function UsersPage() {
       <div className={styles.controls}>
         <Search value={search} onChange={setSearch} placeholder="Buscar por email..." />
       </div>
+      <div className={styles.subControls}>
+        <PageCount total={filteredUsers.length} limit={limit} onLimitChange={setLimit} />
+      </div>
 
-      <Table<UserRecord>
+      {loading ? <Loading /> : <Table<UserRecord>
         rows={visibleUsers}
         getKey={u => u.id}
         emptyMessage={<EmptyState variant={debouncedSearch ? 'no-results' : 'empty'} />}
@@ -177,7 +192,7 @@ export default function UsersPage() {
             </>
           ) : null, className: styles.tdActions },
         ] as Column<UserRecord>[]}
-      />
+      />}
 
       {/* Create modal */}
       <Modal isOpen={creating} onClose={closeCreate} title="Invitar usuario" size="md" footer={createFooter}>
@@ -257,6 +272,10 @@ export default function UsersPage() {
           {modalError && <p className={styles.error}>{modalError}</p>}
         </div>
       </Modal>
+
+      {totalPages > 1 && (
+        <Paginator currentPage={page} totalPages={totalPages} onPageChange={setPage} />
+      )}
     </main>
   );
 }

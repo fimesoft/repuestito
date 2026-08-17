@@ -14,14 +14,17 @@
   font-weight: 600;
   color: var(--color-primary);
   text-decoration: none;
+  background: none;
+  cursor: pointer;
   transition: background 0.15s ease;
 }
 
-.btn:hover:not(.disabled) {
+.btn:hover:not(.disabled):not(:disabled) {
   background: var(--color-primary-subtle);
 }
 
-.disabled {
+.disabled,
+.btn:disabled {
   color: var(--color-text-faint);
   cursor: not-allowed;
 }

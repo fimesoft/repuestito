@@ -16,6 +16,7 @@ import Toggle from '@/components/ui/Toggle';
 import Badge, { BadgeVariant } from '@/components/ui/Badge';
 import EmptyState from '@/components/shared/EmptyState';
 import PageCount from '@/components/shared/PageCount';
+import Loading from '@/components/ui/Loading';
 import PartCard from '@/components/features/replacements/PartCard';
 
 import {
@@ -79,16 +80,19 @@ export default function ReplacementDashboardPage() {
   const [editError, setEditError] = useState<string | null>(null);
   const [showDeactivateConfirm, setShowDeactivateConfirm] = useState(false);
   const [loadError, setLoadError] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoadError(false);
+    setLoading(true);
     getReplacements({ country, page, limit, search: debouncedSearch })
       .then(r => {
         setReplacements(r.data);
         setTotalPages(r.totalPages);
         setTotal(r.total);
       })
-      .catch(() => setLoadError(true));
+      .catch(() => setLoadError(true))
+      .finally(() => setLoading(false));
   }, [country, page, debouncedSearch, limit]);
 
   useEffect(() => {
@@ -243,7 +247,9 @@ export default function ReplacementDashboardPage() {
       <div className={styles.subControls}>
         <PageCount total={total} limit={limit} onLimitChange={setLimit} />
       </div>
-      {loadError ? (
+      {loading ? (
+        <Loading />
+      ) : loadError ? (
         <EmptyState variant="error" action={{ label: 'Reintentar', onClick: () => setLoadError(false) }} />
       ) : viewMode === 'table' ? (
         <Table<Replacement>
