@@ -1,5 +1,20 @@
 const BASE = `${process.env.NEXT_PUBLIC_API_URL}/api/brand-replacements`;
 
+export interface PaginatedBrands {
+  data: Brand[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface BrandQuery {
+  search?: string;
+  countryCode?: string;
+  page?: number;
+  limit?: number;
+}
+
 export interface Brand {
   id: number;
   name: string;
@@ -31,10 +46,13 @@ async function req<T>(url: string, init?: RequestInit): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-export const getBrands = (countryCode?: string): Promise<Brand[]> => {
-  const url = new URL(BASE);
-  if (countryCode) url.searchParams.set('countryCode', countryCode);
-  return req<Brand[]>(url.toString());
+export const getBrands = (query: BrandQuery = {}): Promise<PaginatedBrands> => {
+  const params = new URLSearchParams();
+  if (query.search) params.set('search', query.search);
+  if (query.countryCode) params.set('countryCode', query.countryCode);
+  if (query.page) params.set('page', String(query.page));
+  if (query.limit) params.set('limit', String(query.limit));
+  return req<PaginatedBrands>(`${BASE}?${params.toString()}`);
 };
 export const createBrand = (dto: CreateBrandPayload) =>
   req<Brand>(BASE, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dto) });

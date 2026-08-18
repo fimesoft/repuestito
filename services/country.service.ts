@@ -22,6 +22,20 @@ export interface CreateCountryPayload {
 
 export type UpdateCountryPayload = Partial<CreateCountryPayload>;
 
+export interface PaginatedCountries {
+  data: Country[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface CountryQuery {
+  search?: string;
+  page?: number;
+  limit?: number;
+}
+
 async function req<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, { credentials: 'include', cache: 'no-store', ...init });
   if (!res.ok) {
@@ -32,7 +46,13 @@ async function req<T>(url: string, init?: RequestInit): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-export const getCountries = () => req<Country[]>(BASE);
+export const getCountries = (query: CountryQuery = {}): Promise<PaginatedCountries> => {
+  const params = new URLSearchParams();
+  if (query.search) params.set('search', query.search);
+  if (query.page) params.set('page', String(query.page));
+  if (query.limit) params.set('limit', String(query.limit));
+  return req<PaginatedCountries>(`${BASE}?${params.toString()}`);
+};
 export const createCountry = (dto: CreateCountryPayload) =>
   req<Country>(BASE, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dto) });
 export const updateCountry = (id: number, dto: UpdateCountryPayload) =>

@@ -1,31 +1,48 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { usePermissions } from '@/hooks/usePermissions';
 import {
   getBrands, createBrand, updateBrand, deleteBrand,
-  Brand, CreateBrandPayload, UpdateBrandPayload,
+  Brand, CreateBrandPayload, UpdateBrandPayload, PaginatedBrands,
 } from '@/services/brands.service';
 import Loading from '@/components/ui/Loading';
 import Button from '@/components/ui/Button/Button';
 import Modal from '@/components/ui/Modal/Modal';
 import Badge from '@/components/ui/Badge';
 import Dropdown from '@/components/ui/Dropdown';
+import Search from '@/components/ui/Search';
+import PageCount from '@/components/shared/PageCount';
+import Paginator from '@/components/ui/Paginator';
 import styles from './page.module.css';
+
+const DEFAULT_LIMIT = 20;
 
 export default function BrandsPage() {
   const { isAdmin } = usePermissions();
-  const [brands, setBrands] = useState<Brand[]>([]);
+  const [result, setResult] = useState<PaginatedBrands>({ data: [], total: 0, page: 1, limit: DEFAULT_LIMIT, totalPages: 0 });
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(DEFAULT_LIMIT);
+
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Brand | null>(null);
   const [form, setForm] = useState<CreateBrandPayload>({ name: '' });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    getBrands().then(setBrands).finally(() => setLoading(false));
+  const load = useCallback((p: number, l: number, s: string) => {
+    setLoading(true);
+    getBrands({ page: p, limit: l, search: s || undefined })
+      .then(setResult)
+      .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => { load(page, limit, search); }, [page, limit, search, load]);
+
+  function handleSearch(value: string) { setSearch(value); setPage(1); }
+  function handleLimit(value: number) { setLimit(value); setPage(1); }
 
   function openCreate() {
     setEditing(null);
@@ -46,13 +63,12 @@ export default function BrandsPage() {
     setError(null);
     try {
       if (editing) {
-        const updated = await updateBrand(editing.id, form as UpdateBrandPayload);
-        setBrands(prev => prev.map(b => b.id === updated.id ? updated : b));
+        await updateBrand(editing.id, form as UpdateBrandPayload);
       } else {
-        const created = await createBrand(form);
-        setBrands(prev => [...prev, created]);
+        await createBrand(form);
       }
       setModalOpen(false);
+      load(page, limit, search);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al guardar');
     } finally {
@@ -64,7 +80,7 @@ export default function BrandsPage() {
     if (!confirm('¿Eliminar esta marca?')) return;
     try {
       await deleteBrand(id);
-      setBrands(prev => prev.filter(b => b.id !== id));
+      load(page, limit, search);
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Error al eliminar');
     }
@@ -84,41 +100,52 @@ export default function BrandsPage() {
         {isAdmin && <Button label="+ Nueva marca" onClick={openCreate} shadow />}
       </div>
 
+      <div className={styles.toolbar}>
+        <Search value={search} onChange={handleSearch} placeholder="Buscar por nombre..." />
+        <PageCount total={result.total} limit={limit} onLimitChange={handleLimit} />
+      </div>
+
       {loading ? <Loading /> : (
-        <div className={styles.tableWrap}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Normalizado</th>
-                <th>País</th>
-                <th>Verificada</th>
-                <th>Estado</th>
-                {isAdmin && <th />}
-              </tr>
-            </thead>
-            <tbody>
-              {brands.map(b => (
-                <tr key={b.id}>
-                  <td>{b.name}</td>
-                  <td><code>{b.normalizedName}</code></td>
-                  <td>{b.countryCode ?? '—'}</td>
-                  <td><Badge label={b.isVerified ? 'Sí' : 'No'} variant={b.isVerified ? 'active' : 'inactive'} /></td>
-                  <td><Badge label={b.isActive ? 'Activo' : 'Inactivo'} variant={b.isActive ? 'active' : 'inactive'} /></td>
-                  {isAdmin && (
-                    <td>
-                      <Dropdown items={[
-                        { label: 'Editar', onClick: () => openEdit(b), icon: '/icons/edit.svg' },
-                        { label: 'Eliminar', onClick: () => handleDelete(b.id), variant: 'danger', icon: '/icons/trash.svg' },
-                      ]} />
-                    </td>
-                  )}
+        <>
+          <div className={styles.tableWrap}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Normalizado</th>
+                  <th>País</th>
+                  <th>Verificada</th>
+                  <th>Estado</th>
+                  {isAdmin && <th />}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          {brands.length === 0 && <p className={styles.empty}>No hay marcas registradas.</p>}
-        </div>
+              </thead>
+              <tbody>
+                {result.data.map(b => (
+                  <tr key={b.id}>
+                    <td>{b.name}</td>
+                    <td><code>{b.normalizedName}</code></td>
+                    <td>{b.countryCode ?? '—'}</td>
+                    <td><Badge label={b.isVerified ? 'Sí' : 'No'} variant={b.isVerified ? 'active' : 'inactive'} /></td>
+                    <td><Badge label={b.isActive ? 'Activo' : 'Inactivo'} variant={b.isActive ? 'active' : 'inactive'} /></td>
+                    {isAdmin && (
+                      <td>
+                        <Dropdown items={[
+                          { label: 'Editar', onClick: () => openEdit(b), icon: '/icons/edit.svg' },
+                          { label: 'Eliminar', onClick: () => handleDelete(b.id), variant: 'danger', icon: '/icons/trash.svg' },
+                        ]} />
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {result.data.length === 0 && <p className={styles.empty}>No hay marcas registradas.</p>}
+          </div>
+
+          {result.totalPages > 1 && (
+            <Paginator currentPage={page} totalPages={result.totalPages} onPageChange={setPage} />
+          )}
+        </>
       )}
 
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editing ? 'Editar marca' : 'Nueva marca'} size="md" footer={footer}>

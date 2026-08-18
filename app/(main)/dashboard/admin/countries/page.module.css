@@ -7,6 +7,15 @@
   margin-bottom: 1.5rem;
 }
 
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
 .title {
   font-size: 1.5rem;
   font-weight: 700;

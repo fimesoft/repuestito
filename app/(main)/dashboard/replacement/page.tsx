@@ -105,7 +105,7 @@ export default function ReplacementDashboardPage() {
   }, [country]);
 
   useEffect(() => {
-    getBrands(country ?? undefined).then(setBrands);
+    getBrands({ countryCode: country ?? undefined, limit: 100 }).then(r => setBrands(r.data));
   }, [country]);
 
   function set(field: Partial<CreateReplacementPayload>) {
