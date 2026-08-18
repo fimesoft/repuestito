@@ -1,11 +1,6 @@
 .page { padding: 2rem; }
 
-.title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--color-text);
-  margin-bottom: 2rem;
-}
+.pageTitle { margin-bottom: 2rem; }
 
 .section { margin-bottom: 2rem; }
 
@@ -24,11 +19,14 @@
   gap: 1rem;
 }
 
+.grid > * { min-width: 0; }
+
 .statCard {
   display: flex;
   flex-direction: column;
   gap: 6px;
   padding: 1.25rem 1.5rem;
+  min-width: 0;
 }
 
 .statLabel {
@@ -39,15 +37,34 @@
 }
 
 .statValue {
-  font-size: 2rem;
+  font-size: clamp(1.1rem, 2.5vw, 2rem);
   font-weight: 700;
   color: var(--color-text);
-  line-height: 1;
+  line-height: 1.2;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  min-width: 0;
 }
 
 .statSub {
   font-size: 12px;
   color: var(--color-text-muted);
+}
+
+/* ── Comercial ── */
+
+.comercialLayout {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.comercialStats {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 160px;
 }
 
 /* ── Compatibilidades ── */

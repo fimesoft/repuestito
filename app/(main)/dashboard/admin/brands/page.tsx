@@ -15,6 +15,7 @@ import Table, { Column } from '@/components/ui/Table';
 import Search from '@/components/ui/Search';
 import PageCount from '@/components/shared/PageCount';
 import Paginator from '@/components/ui/Paginator';
+import MainTitle from '@/components/shared/MainTitle';
 import styles from './page.module.css';
 
 const DEFAULT_LIMIT = 20;
@@ -114,7 +115,7 @@ export default function BrandsPage() {
   return (
     <main className={styles.page}>
       <div className={styles.header}>
-        <h1 className={styles.title}>Marcas</h1>
+        <MainTitle title="Marcas" subtitle="Catálogo de marcas de repuestos verificadas" />
         {isAdmin && <Button label="+ Nueva marca" onClick={openCreate} shadow />}
       </div>
 

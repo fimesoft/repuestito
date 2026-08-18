@@ -1,5 +1,7 @@
 .page { padding: 2rem; max-width: 640px; }
 
+.pageTitle { margin-bottom: 1.5rem; }
+
 .title {
   font-size: 1.5rem;
   font-weight: 700;

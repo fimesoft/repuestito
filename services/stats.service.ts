@@ -3,7 +3,7 @@ const BASE = `${process.env.NEXT_PUBLIC_API_URL}/api/stats`;
 export interface DashboardStats {
   users: { total: number; active: number };
   brands: { total: number; active: number };
-  replacements: { total: number; active: number; inactive: number };
+  replacements: { total: number; active: number; inactive: number; inventoryValue?: number };
   orders: { total: number; pending: number; confirmed: number; fulfilled: number; cancelled: number };
   invoices: { total: number };
   compatibilities: { total: number; topModels: { model: string; brand: string; count: number }[] };

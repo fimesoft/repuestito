@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Modal from '@/components/ui/Modal/Modal';
+import MainTitle from '@/components/shared/MainTitle';
 import Button from '@/components/ui/Button/Button';
 import {
   getBrands, createBrand, deleteBrand,
@@ -175,7 +176,7 @@ export default function VehiclesPage() {
   return (
     <main className={styles.page}>
       <div className={styles.header}>
-        <h1 className={styles.title}>Parque automotor</h1>
+        <MainTitle title="Parque automotor" subtitle="Catálogo de marcas, modelos y versiones de vehículos" />
         {isAdmin && (
           <Button label="+ Marca" onClick={() => setAddingBrand(true)} shadow />
         )}

@@ -3,10 +3,12 @@
 import { useEffect, useState } from 'react';
 import { getDashboardStats, DashboardStats } from '@/services/stats.service';
 import Card from '@/components/ui/Card';
+import MainTitle from '@/components/shared/MainTitle';
 import Loading from '@/components/ui/Loading';
+import OrdersChart from '@/components/features/dashboard/OrdersChart';
 import styles from './page.module.css';
 
-function StatCard({ label, value, sub }: { label: string; value: number; sub?: string }) {
+function StatCard({ label, value, sub }: { label: string; value: number | string; sub?: string }) {
   return (
     <Card className={styles.statCard}>
       <span className={styles.statLabel}>{label}</span>
@@ -14,6 +16,10 @@ function StatCard({ label, value, sub }: { label: string; value: number; sub?: s
       {sub && <span className={styles.statSub}>{sub}</span>}
     </Card>
   );
+}
+
+function formatCurrency(value: number): string {
+  return value.toLocaleString('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 });
 }
 
 export default function DashboardPage() {
@@ -33,10 +39,13 @@ export default function DashboardPage() {
 
   return (
     <main className={styles.page}>
-      <h1 className={styles.title}>Dashboard</h1>
+      <MainTitle
+        title="Dashboard"
+        subtitle="Métricas generales del marketplace y control de ventas."
+        className={styles.pageTitle}
+      />
 
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Usuarios</h2>
         <div className={styles.grid}>
           <StatCard label="Total usuarios" value={stats.users.total} />
           <StatCard label="Activos" value={stats.users.active} sub={`${stats.users.total - stats.users.active} inactivos`} />
@@ -44,29 +53,25 @@ export default function DashboardPage() {
       </section>
 
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Catálogo</h2>
         <div className={styles.grid}>
           <StatCard label="Marcas totales" value={stats.brands.total} sub={`${stats.brands.active} activas`} />
           <StatCard label="Repuestos activos" value={stats.replacements.active} />
           <StatCard label="Repuestos inactivos" value={stats.replacements.inactive} />
           <StatCard label="Total repuestos" value={stats.replacements.total} />
+          <StatCard label="Valor del inventario" value={formatCurrency(stats.replacements.inventoryValue ?? 0)} />
         </div>
       </section>
 
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Comercial</h2>
-        <div className={styles.grid}>
-          <StatCard label="Pedidos totales" value={stats.orders.total} />
-          <StatCard label="Pendientes" value={stats.orders.pending} />
-          <StatCard label="Confirmados" value={stats.orders.confirmed} />
-          <StatCard label="Facturados" value={stats.orders.fulfilled} />
-          <StatCard label="Cancelados" value={stats.orders.cancelled} />
-          <StatCard label="Facturas" value={stats.invoices.total} />
+        <div className={styles.comercialLayout}>
+          <div className={styles.comercialStats}>
+            <StatCard label="Pedidos totales" value={stats.orders.total} />
+          </div>
+          <OrdersChart orders={stats.orders} />
         </div>
       </section>
 
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Compatibilidades</h2>
         <div className={styles.compatRow}>
           <Card className={styles.compatTotal}>
             <span className={styles.statLabel}>Total registradas</span>

@@ -1,11 +1,6 @@
 .page { padding: 2rem; height: calc(100vh - 4rem); display: flex; flex-direction: column; }
 
-.title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--color-text);
-  margin-bottom: 1.5rem;
-}
+.pageTitle { margin-bottom: 1.5rem; }
 
 .layout {
   display: grid;

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import MainTitle from '@/components/shared/MainTitle';
 import Link from 'next/link';
 
 import Modal from '@/components/ui/Modal/Modal';
@@ -235,8 +236,7 @@ export default function ReplacementDashboardPage() {
     <main className={styles.page}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Repuestos</h1>
-          <p className={styles.subtitle}>Catálogo de piezas disponibles en tu red de locales</p>
+          <MainTitle title="Repuestos" subtitle="Catálogo de piezas disponibles en tu red de locales" />
         </div>
         {canManage && <Button label="+ Nuevo repuesto" onClick={openCreate} shadow />}
       </div>

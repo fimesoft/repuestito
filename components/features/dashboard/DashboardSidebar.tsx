@@ -144,26 +144,52 @@ function IconClipboard() {
   );
 }
 
+function IconShield() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    </svg>
+  );
+}
+
+function IconChevronRight({ open }: { open: boolean }) {
+  return (
+    <svg
+      width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+      style={{ transform: open ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s ease' }}
+    >
+      <path d="M9 18l6-6-6-6" />
+    </svg>
+  );
+}
+
 const NAV = [
-  { href: '/dashboard',             label: 'Dashboard',     Icon: IconDashboard },
-  { href: '/dashboard/replacement', label: 'Repuestos',     Icon: IconWrench,    mobileHidden: true },
-  { href: '/dashboard/orders',      label: 'Pedidos',       Icon: IconClipboard, mobileHidden: true },
-  { href: '/dashboard/billing',     label: 'Facturación',   Icon: IconReceipt },
-  { href: '/dashboard/stores',      label: 'Locales',       Icon: IconStore },
-  { href: '/dashboard/users',       label: 'Usuarios',      Icon: IconUsers,     mobileHidden: true },
-  { href: '/dashboard/vehicles',    label: 'Vehículos',     Icon: IconCar,       mobileHidden: true, godOnly: true },
-  { href: '/dashboard/compatibility',        label: 'Compatibilidades', Icon: IconLink,   mobileHidden: true },
-  { href: '/dashboard/replacement/bulk-upload', label: 'Carga masiva', Icon: IconUpload, mobileHidden: true },
-  { href: '/dashboard/admin/countries', label: 'Países',    Icon: IconGlobe,     mobileHidden: true, godOnly: true },
-  { href: '/dashboard/admin/brands',    label: 'Marcas',    Icon: IconTag,       mobileHidden: true, godOnly: true },
-  { href: '/dashboard/settings',    label: 'Configuración', Icon: IconSettings },
+  { href: '/dashboard',                        label: 'Dashboard',        Icon: IconDashboard },
+  { href: '/dashboard/replacement',            label: 'Repuestos',        Icon: IconWrench,    mobileHidden: true },
+  { href: '/dashboard/orders',                 label: 'Pedidos',          Icon: IconClipboard, mobileHidden: true },
+  { href: '/dashboard/billing',                label: 'Facturación',      Icon: IconReceipt },
+  { href: '/dashboard/stores',                 label: 'Locales',          Icon: IconStore },
+  { href: '/dashboard/users',                  label: 'Usuarios',         Icon: IconUsers,     mobileHidden: true },
+  { href: '/dashboard/compatibility',          label: 'Compatibilidades', Icon: IconLink,      mobileHidden: true },
+  { href: '/dashboard/replacement/bulk-upload', label: 'Carga masiva',   Icon: IconUpload,    mobileHidden: true },
 ];
+
+const ADMIN_ITEMS = [
+  { href: '/dashboard/vehicles',        label: 'Vehículos', Icon: IconCar,   mobileHidden: true },
+  { href: '/dashboard/admin/countries', label: 'Países',    Icon: IconGlobe, mobileHidden: true },
+  { href: '/dashboard/admin/brands',    label: 'Marcas',    Icon: IconTag,   mobileHidden: true },
+];
+
+const SETTINGS_ITEM = { href: '/dashboard/settings', label: 'Configuración', Icon: IconSettings };
 
 export default function DashboardSidebar() {
   const [open, setOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
   const { isAdmin } = usePermissions();
+  const isAdminPath = pathname.startsWith('/dashboard/vehicles') || pathname.startsWith('/dashboard/admin');
+  const [adminOpen, setAdminOpen] = useState(isAdminPath);
 
   const close = () => setOpen(false);
 
@@ -190,7 +216,7 @@ export default function DashboardSidebar() {
         </div>
 
         <ul className={styles.nav} role="list">
-          {NAV.filter(item => !item.godOnly || isAdmin).map(({ href, label, Icon, mobileHidden }) => {
+          {NAV.map(({ href, label, Icon, mobileHidden }) => {
             const isActive = pathname === href;
             return (
               <li key={href} className={mobileHidden ? styles.mobileHidden : undefined}>
@@ -206,6 +232,55 @@ export default function DashboardSidebar() {
               </li>
             );
           })}
+
+          {isAdmin && (
+            <li>
+              <button
+                className={`${styles.submenuHeader} ${isAdminPath ? styles.submenuHeaderActive : ''}`}
+                onClick={() => setAdminOpen(prev => !prev)}
+                title={collapsed ? 'Administración' : undefined}
+              >
+                <span className={styles.navIcon}><IconShield /></span>
+                {!collapsed && (
+                  <>
+                    <span className={styles.submenuLabel}>Administración</span>
+                    <span className={styles.chevron}><IconChevronRight open={adminOpen} /></span>
+                  </>
+                )}
+              </button>
+              {adminOpen && !collapsed && (
+                <ul className={styles.submenu} role="list">
+                  {ADMIN_ITEMS.map(({ href, label, Icon, mobileHidden }) => {
+                    const isActive = pathname === href;
+                    return (
+                      <li key={href} className={mobileHidden ? styles.mobileHidden : undefined}>
+                        <Link
+                          href={href}
+                          className={`${styles.navItem} ${styles.submenuItem} ${isActive ? styles.active : ''}`}
+                          onClick={close}
+                        >
+                          <span className={styles.navIcon}><Icon /></span>
+                          <span>{label}</span>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </li>
+          )}
+
+          <li>
+            <Link
+              href={SETTINGS_ITEM.href}
+              className={`${styles.navItem} ${pathname === SETTINGS_ITEM.href ? styles.active : ''}`}
+              onClick={close}
+              title={collapsed ? SETTINGS_ITEM.label : undefined}
+            >
+              <span className={styles.navIcon}><SETTINGS_ITEM.Icon /></span>
+              {!collapsed && <span>{SETTINGS_ITEM.label}</span>}
+            </Link>
+          </li>
         </ul>
 
         <button className={styles.collapseBtn} onClick={toggleCollapse} aria-label={collapsed ? 'Expandir menú' : 'Contraer menú'}>

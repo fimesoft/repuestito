@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
+import MainTitle from '@/components/shared/MainTitle';
 import { usePermissions } from '@/hooks/usePermissions';
 import { getInvoices, cancelInvoice, Invoice } from '@/services/billing.service';
 import styles from './page.module.css';
@@ -87,8 +88,7 @@ export default function BillingPage() {
     <main className={styles.page}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Facturación</h1>
-          <p className={styles.subtitle}>{total} facturas registradas</p>
+          <MainTitle title="Facturación" subtitle="Registro de ventas y emisión de facturas" />
         </div>
         <Link href="/dashboard/billing/new" className={styles.btnNew}>+ Nueva venta</Link>
       </div>

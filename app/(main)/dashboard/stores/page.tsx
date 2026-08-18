@@ -20,6 +20,7 @@ import Loading from '@/components/ui/Loading';
 import Card from '@/components/ui/Card';
 import Dropdown from '@/components/ui/Dropdown';
 import Accordion from '@/components/ui/Accordion';
+import MainTitle from '@/components/shared/MainTitle';
 import styles from './page.module.css';
 
 export default function StoresPage() {
@@ -168,7 +169,7 @@ export default function StoresPage() {
   return (
     <main className={styles.page}>
       <div className={styles.header}>
-        <h1 className={styles.title}>Locales</h1>
+        <MainTitle title="Locales" subtitle="Administración de sucursales y puntos de venta" />
         {canManage && <Button label="+ Nuevo local" onClick={() => setWizardOpen(true)} shadow />}
       </div>
 

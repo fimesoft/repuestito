@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Modal from '@/components/ui/Modal/Modal';
+import MainTitle from '@/components/shared/MainTitle';
 import Button from '@/components/ui/Button/Button';
 import { getUsers, inviteUser, updateUser, deleteUser, UserRecord, InviteUserPayload, UpdateUserPayload } from '@/services/user.service';
 import { getTenants, Tenant } from '@/services/tenant.service';
@@ -162,7 +163,7 @@ export default function UsersPage() {
   return (
     <main className={styles.page}>
       <div className={styles.header}>
-        <h1 className={styles.title}>Usuarios</h1>
+        <MainTitle title="Usuarios" subtitle="Gestión de cuentas y roles de acceso" />
         {canManage && <Button label="+ Nuevo usuario" onClick={openCreate} shadow />}
       </div>
 

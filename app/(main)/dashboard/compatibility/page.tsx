@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useCountry } from '@/context/CountryContext';
 import { getReplacements, Replacement } from '@/services/replacement.service';
+import MainTitle from '@/components/shared/MainTitle';
 import CompatibilitySection from '@/components/features/replacements/CompatibilitySection';
 import Loading from '@/components/ui/Loading';
 import styles from './page.module.css';
@@ -30,7 +31,7 @@ export default function CompatibilityPage() {
 
   return (
     <main className={styles.page}>
-      <h1 className={styles.title}>Compatibilidades</h1>
+      <MainTitle title="Compatibilidades" subtitle="Asociá repuestos a los modelos de vehículo compatibles" className={styles.pageTitle} />
 
       <div className={styles.layout}>
         <aside className={styles.sidebar}>

@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react';
 import Button from '@/components/ui/Button/Button';
+import MainTitle from '@/components/shared/MainTitle';
 import styles from './page.module.css';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
@@ -83,9 +84,9 @@ export default function BulkUploadPage() {
 
   return (
     <main className={styles.page}>
-      <h1 className={styles.title}>Carga masiva de repuestos</h1>
+      <MainTitle title="Carga masiva de repuestos" subtitle="Importá múltiples repuestos desde un archivo CSV" className={styles.pageTitle} />
       <p className={styles.desc}>
-        Subí un archivo CSV con los repuestos a importar. Máximo 5 MB.{' '}
+        Máximo 5 MB.{' '}
         <a href="/templates/repuestos-ejemplo.csv" download className={styles.downloadLink}>
           Descargar CSV de ejemplo
         </a>
