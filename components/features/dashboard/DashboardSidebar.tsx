@@ -7,6 +7,17 @@ import Logo from '@/components/shared/Logo';
 import { usePermissions } from '@/hooks/usePermissions';
 import styles from './DashboardSidebar.module.css';
 
+function IconDashboard() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="7" height="7" rx="1" />
+      <rect x="14" y="3" width="7" height="7" rx="1" />
+      <rect x="3" y="14" width="7" height="7" rx="1" />
+      <rect x="14" y="14" width="7" height="7" rx="1" />
+    </svg>
+  );
+}
+
 function IconWrench() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
@@ -134,6 +145,7 @@ function IconClipboard() {
 }
 
 const NAV = [
+  { href: '/dashboard',             label: 'Dashboard',     Icon: IconDashboard },
   { href: '/dashboard/replacement', label: 'Repuestos',     Icon: IconWrench,    mobileHidden: true },
   { href: '/dashboard/orders',      label: 'Pedidos',       Icon: IconClipboard, mobileHidden: true },
   { href: '/dashboard/billing',     label: 'Facturación',   Icon: IconReceipt },
