@@ -1,13 +1,31 @@
+.wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 250px;
+}
+
+.icon {
+  position: absolute;
+  left: 10px;
+  width: 15px;
+  height: 15px;
+  color: var(--color-text-muted);
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
 .input {
-  padding: 8px 12px;
+  width: 100%;
+  padding: 8px 12px 8px 32px;
   border: 1px solid var(--color-border);
   border-radius: 8px;
   font-size: 14px;
   color: var(--color-text);
   background: var(--bg-surface);
   outline: none;
-  width: 250px;
-  margin-bottom: 1rem;
   transition: border-color 0.15s;
 }
+
 .input:focus { border-color: var(--color-primary); }
+.wrapper:focus-within .icon { color: var(--color-primary); }
