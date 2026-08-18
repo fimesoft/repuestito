@@ -73,6 +73,25 @@ function IconTag() {
   );
 }
 
+function IconLink() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+    </svg>
+  );
+}
+
+function IconUpload() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="17 8 12 3 7 8" />
+      <line x1="12" y1="3" x2="12" y2="15" />
+    </svg>
+  );
+}
+
 function IconReceipt() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
@@ -121,6 +140,8 @@ const NAV = [
   { href: '/dashboard/stores',      label: 'Locales',       Icon: IconStore },
   { href: '/dashboard/users',       label: 'Usuarios',      Icon: IconUsers,     mobileHidden: true },
   { href: '/dashboard/vehicles',    label: 'Vehículos',     Icon: IconCar,       mobileHidden: true, godOnly: true },
+  { href: '/dashboard/compatibility',        label: 'Compatibilidades', Icon: IconLink,   mobileHidden: true },
+  { href: '/dashboard/replacement/bulk-upload', label: 'Carga masiva', Icon: IconUpload, mobileHidden: true },
   { href: '/dashboard/admin/countries', label: 'Países',    Icon: IconGlobe,     mobileHidden: true, godOnly: true },
   { href: '/dashboard/admin/brands',    label: 'Marcas',    Icon: IconTag,       mobileHidden: true, godOnly: true },
   { href: '/dashboard/settings',    label: 'Configuración', Icon: IconSettings },
