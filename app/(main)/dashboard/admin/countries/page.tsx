@@ -11,6 +11,7 @@ import Button from '@/components/ui/Button/Button';
 import Modal from '@/components/ui/Modal/Modal';
 import Badge from '@/components/ui/Badge';
 import Dropdown from '@/components/ui/Dropdown';
+import Table, { Column } from '@/components/ui/Table';
 import Search from '@/components/ui/Search';
 import PageCount from '@/components/shared/PageCount';
 import Paginator from '@/components/ui/Paginator';
@@ -86,6 +87,24 @@ export default function CountriesPage() {
     }
   }
 
+  const columns: Column<Country>[] = [
+    { header: 'Nombre', render: c => c.name },
+    { header: 'Código', render: c => <code>{c.code}</code> },
+    { header: 'Alpha3', render: c => c.codeAlpha3 ?? '—' },
+    { header: 'Moneda', render: c => c.currencyCode ?? '—' },
+    { header: 'Tel.', render: c => c.phoneCode ?? '—' },
+    { header: 'Estado', render: c => <Badge label={c.active ? 'Activo' : 'Inactivo'} variant={c.active ? 'active' : 'inactive'} /> },
+    ...(isAdmin ? [{
+      header: '',
+      render: (c: Country) => (
+        <Dropdown items={[
+          { label: 'Editar', onClick: () => openEdit(c), icon: '/icons/edit.svg' },
+          { label: 'Eliminar', onClick: () => handleDelete(c.id), variant: 'danger' as const, icon: '/icons/trash.svg' },
+        ]} />
+      ),
+    }] : []),
+  ];
+
   const footer = (
     <>
       <Button label="Cancelar" variant="outline" color="neutral" onClick={() => setModalOpen(false)} disabled={saving} />
@@ -107,43 +126,12 @@ export default function CountriesPage() {
 
       {loading ? <Loading /> : (
         <>
-          <div className={styles.tableWrap}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Código</th>
-                  <th>Alpha3</th>
-                  <th>Moneda</th>
-                  <th>Tel.</th>
-                  <th>Estado</th>
-                  {isAdmin && <th />}
-                </tr>
-              </thead>
-              <tbody>
-                {result.data.map(c => (
-                  <tr key={c.id}>
-                    <td>{c.name}</td>
-                    <td><code>{c.code}</code></td>
-                    <td>{c.codeAlpha3 ?? '—'}</td>
-                    <td>{c.currencyCode ?? '—'}</td>
-                    <td>{c.phoneCode ?? '—'}</td>
-                    <td><Badge label={c.active ? 'Activo' : 'Inactivo'} variant={c.active ? 'active' : 'inactive'} /></td>
-                    {isAdmin && (
-                      <td>
-                        <Dropdown items={[
-                          { label: 'Editar', onClick: () => openEdit(c), icon: '/icons/edit.svg' },
-                          { label: 'Eliminar', onClick: () => handleDelete(c.id), variant: 'danger', icon: '/icons/trash.svg' },
-                        ]} />
-                      </td>
-                    )}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {result.data.length === 0 && <p className={styles.empty}>No hay países registrados.</p>}
-          </div>
-
+          <Table
+            columns={columns}
+            rows={result.data}
+            getKey={c => c.id}
+            emptyMessage="No hay países registrados."
+          />
           {result.totalPages > 1 && (
             <Paginator currentPage={page} totalPages={result.totalPages} onPageChange={setPage} />
           )}

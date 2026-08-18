@@ -11,6 +11,7 @@ import Button from '@/components/ui/Button/Button';
 import Modal from '@/components/ui/Modal/Modal';
 import Badge from '@/components/ui/Badge';
 import Dropdown from '@/components/ui/Dropdown';
+import Table, { Column } from '@/components/ui/Table';
 import Search from '@/components/ui/Search';
 import PageCount from '@/components/shared/PageCount';
 import Paginator from '@/components/ui/Paginator';
@@ -86,6 +87,23 @@ export default function BrandsPage() {
     }
   }
 
+  const columns: Column<Brand>[] = [
+    { header: 'Nombre', render: b => b.name },
+    { header: 'Normalizado', render: b => <code>{b.normalizedName}</code> },
+    { header: 'País', render: b => b.countryCode ?? '—' },
+    { header: 'Verificada', render: b => <Badge label={b.isVerified ? 'Sí' : 'No'} variant={b.isVerified ? 'active' : 'inactive'} /> },
+    { header: 'Estado', render: b => <Badge label={b.isActive ? 'Activo' : 'Inactivo'} variant={b.isActive ? 'active' : 'inactive'} /> },
+    ...(isAdmin ? [{
+      header: '',
+      render: (b: Brand) => (
+        <Dropdown items={[
+          { label: 'Editar', onClick: () => openEdit(b), icon: '/icons/edit.svg' },
+          { label: 'Eliminar', onClick: () => handleDelete(b.id), variant: 'danger' as const, icon: '/icons/trash.svg' },
+        ]} />
+      ),
+    }] : []),
+  ];
+
   const footer = (
     <>
       <Button label="Cancelar" variant="outline" color="neutral" onClick={() => setModalOpen(false)} disabled={saving} />
@@ -107,41 +125,12 @@ export default function BrandsPage() {
 
       {loading ? <Loading /> : (
         <>
-          <div className={styles.tableWrap}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Normalizado</th>
-                  <th>País</th>
-                  <th>Verificada</th>
-                  <th>Estado</th>
-                  {isAdmin && <th />}
-                </tr>
-              </thead>
-              <tbody>
-                {result.data.map(b => (
-                  <tr key={b.id}>
-                    <td>{b.name}</td>
-                    <td><code>{b.normalizedName}</code></td>
-                    <td>{b.countryCode ?? '—'}</td>
-                    <td><Badge label={b.isVerified ? 'Sí' : 'No'} variant={b.isVerified ? 'active' : 'inactive'} /></td>
-                    <td><Badge label={b.isActive ? 'Activo' : 'Inactivo'} variant={b.isActive ? 'active' : 'inactive'} /></td>
-                    {isAdmin && (
-                      <td>
-                        <Dropdown items={[
-                          { label: 'Editar', onClick: () => openEdit(b), icon: '/icons/edit.svg' },
-                          { label: 'Eliminar', onClick: () => handleDelete(b.id), variant: 'danger', icon: '/icons/trash.svg' },
-                        ]} />
-                      </td>
-                    )}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {result.data.length === 0 && <p className={styles.empty}>No hay marcas registradas.</p>}
-          </div>
-
+          <Table
+            columns={columns}
+            rows={result.data}
+            getKey={b => b.id}
+            emptyMessage="No hay marcas registradas."
+          />
           {result.totalPages > 1 && (
             <Paginator currentPage={page} totalPages={result.totalPages} onPageChange={setPage} />
           )}
