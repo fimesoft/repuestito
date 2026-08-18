@@ -21,7 +21,7 @@ import Dropdown from '@/components/ui/Dropdown';
 const DEFAULT_LIMIT = 20;
 
 export default function BillingPage() {
-  const { currentUser } = usePermissions();
+  const { currentUser, loading: permissionsLoading } = usePermissions();
 
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [total, setTotal] = useState(0);
@@ -34,7 +34,7 @@ export default function BillingPage() {
   const [statusFilter, setStatusFilter] = useState('');
 
   const load = useCallback(async (p: number) => {
-    if (!currentUser?.tenantId) return;
+    if (!currentUser?.tenantId) { setLoading(false); return; }
     setLoading(true);
     setError(null);
     try {
@@ -55,9 +55,10 @@ export default function BillingPage() {
   }, [currentUser?.tenantId, from, to, limit]);
 
   useEffect(() => {
+    if (permissionsLoading) return;
     void load(1);
     setPage(1);
-  }, [load]);
+  }, [load, permissionsLoading]);
 
   async function handleCancel(id: string) {
     if (!currentUser?.tenantId) return;

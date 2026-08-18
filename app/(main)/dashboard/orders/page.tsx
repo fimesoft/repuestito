@@ -35,7 +35,7 @@ const STATUS_VARIANT: Record<string, BadgeVariant> = {
 };
 
 export default function OrdersPage() {
-  const { currentUser } = usePermissions();
+  const { currentUser, loading: permissionsLoading } = usePermissions();
 
   const [orders, setOrders] = useState<Order[]>([]);
   const [total, setTotal] = useState(0);
@@ -53,7 +53,7 @@ export default function OrdersPage() {
   });
 
   const load = useCallback(async (p: number) => {
-    if (!currentUser?.tenantId) return;
+    if (!currentUser?.tenantId) { setLoading(false); return; }
     setLoading(true);
     setError(null);
     try {
@@ -73,9 +73,10 @@ export default function OrdersPage() {
   }, [currentUser?.tenantId, statusFilter, limit]);
 
   useEffect(() => {
+    if (permissionsLoading) return;
     void load(1);
     setPage(1);
-  }, [load]);
+  }, [load, permissionsLoading]);
 
   async function handleConfirm(id: string) {
     if (!currentUser?.tenantId) return;
