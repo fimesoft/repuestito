@@ -54,6 +54,25 @@ function IconSettings() {
   );
 }
 
+function IconGlobe() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="2" y1="12" x2="22" y2="12" />
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+    </svg>
+  );
+}
+
+function IconTag() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+      <line x1="7" y1="7" x2="7.01" y2="7" />
+    </svg>
+  );
+}
+
 function IconReceipt() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
@@ -102,6 +121,8 @@ const NAV = [
   { href: '/dashboard/stores',      label: 'Locales',       Icon: IconStore },
   { href: '/dashboard/users',       label: 'Usuarios',      Icon: IconUsers,     mobileHidden: true },
   { href: '/dashboard/vehicles',    label: 'Vehículos',     Icon: IconCar,       mobileHidden: true, godOnly: true },
+  { href: '/dashboard/admin/countries', label: 'Países',    Icon: IconGlobe,     mobileHidden: true, godOnly: true },
+  { href: '/dashboard/admin/brands',    label: 'Marcas',    Icon: IconTag,       mobileHidden: true, godOnly: true },
   { href: '/dashboard/settings',    label: 'Configuración', Icon: IconSettings },
 ];
 
