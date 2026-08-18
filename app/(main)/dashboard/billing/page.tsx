@@ -16,6 +16,7 @@ import Badge from '@/components/ui/Badge';
 import PageCount from '@/components/shared/PageCount';
 import Paginator from '@/components/ui/Paginator';
 import Loading from '@/components/ui/Loading';
+import Dropdown from '@/components/ui/Dropdown';
 
 const DEFAULT_LIMIT = 20;
 
@@ -130,10 +131,10 @@ export default function BillingPage() {
           { header: 'Estado', render: inv => <Badge label={inv.status === 'cancelled' ? 'Cancelada' : 'Completada'} variant={inv.status === 'cancelled' ? 'inactive' : 'active'} /> },
           { header: 'Fecha', render: inv => inv.issuedAt ? formatDateTime(inv.issuedAt) : '—', className: styles.tdMeta },
           { header: '', render: inv => (
-            <>
-              <Link href={`/dashboard/billing/${inv.id}?tenantId=${currentUser?.tenantId ?? ''}`} className={styles.btnText}>Ver</Link>
-              {inv.status !== 'cancelled' && <Button label="Cancelar" variant="ghost" color="danger" size="sm" onClick={() => handleCancel(inv.id)} />}
-            </>
+            <Dropdown items={[
+              { label: 'Ver', onClick: () => window.location.href = `/dashboard/billing/${inv.id}?tenantId=${currentUser?.tenantId ?? ''}`, icon: '/icons/eye.svg' },
+              ...(inv.status !== 'cancelled' ? [{ label: 'Cancelar', onClick: () => handleCancel(inv.id), variant: 'danger' as const, icon: '/icons/cancel.svg' }] : []),
+            ]} />
           ), className: styles.tdActions },
         ] as Column<Invoice>[]}
       />}

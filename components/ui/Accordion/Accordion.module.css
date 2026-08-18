@@ -1,0 +1,51 @@
+.wrapper {
+  background: var(--bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  gap: 12px;
+  background: var(--bg-subtle);
+  border-radius: 12px;
+}
+
+.open .header {
+  border-radius: 12px 12px 0 0;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+.trigger:hover .chevron { opacity: 1; }
+
+.chevron {
+  opacity: 0.4;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.body {
+  border-top: 1px solid var(--color-border-subtle);
+  padding: 12px 1.25rem;
+  background: var(--bg-surface);
+  border-radius: 0 0 12px 12px;
+}

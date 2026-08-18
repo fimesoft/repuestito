@@ -18,12 +18,13 @@ import { usePermissions } from '@/hooks/usePermissions';
 import Badge from '@/components/ui/Badge';
 import Loading from '@/components/ui/Loading';
 import Card from '@/components/ui/Card';
+import Dropdown from '@/components/ui/Dropdown';
+import Accordion from '@/components/ui/Accordion';
 import styles from './page.module.css';
 
 export default function StoresPage() {
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [branches, setBranches] = useState<Record<string, Branch[]>>({});
-  const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [wizardOpen, setWizardOpen] = useState(false);
 
   const [editingTenant, setEditingTenant] = useState<Tenant | null>(null);
@@ -36,7 +37,7 @@ export default function StoresPage() {
   const [newBranchForm, setNewBranchForm] = useState<CreateBranchPayload>({ name: '' });
 
   const { country } = useCountry();
-  const { canManage } = usePermissions();
+  const { canManage, isAdmin } = usePermissions();
   const [saving, setSaving] = useState(false);
   const [modalError, setModalError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -46,6 +47,11 @@ export default function StoresPage() {
     try {
       const data = await getTenants(country);
       setTenants(data);
+      const branchMap: Record<string, Branch[]> = {};
+      await Promise.all(data.map(async t => {
+        branchMap[t.id] = await getBranches(t.id);
+      }));
+      setBranches(branchMap);
     } finally {
       setLoading(false);
     }
@@ -53,27 +59,12 @@ export default function StoresPage() {
 
   useEffect(() => { loadTenants(); }, [country]);
 
-  async function toggleExpand(tenantId: string) {
-    const next = new Set(expanded);
-    if (next.has(tenantId)) {
-      next.delete(tenantId);
-    } else {
-      next.add(tenantId);
-      if (!branches[tenantId]) {
-        const data = await getBranches(tenantId);
-        setBranches(prev => ({ ...prev, [tenantId]: data }));
-      }
-    }
-    setExpanded(next);
-  }
-
   async function handleDeleteTenant(id: string) {
     if (!confirm('¿Eliminar este local y todas sus sucursales?')) return;
     try {
       await deleteTenant(id);
       setTenants(prev => prev.filter(t => t.id !== id));
       setBranches(prev => { const next = { ...prev }; delete next[id]; return next; });
-      setExpanded(prev => { const next = new Set(prev); next.delete(id); return next; });
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Error al eliminar el local');
     }
@@ -194,50 +185,61 @@ export default function StoresPage() {
 
       {loading ? <Loading /> : <ul className={styles.list}>
         {tenants.map(tenant => (
-          <li key={tenant.id} className={styles.card}>
-            <div className={styles.cardHeader}>
-              <div className={styles.info}>
-                <span className={styles.name}>{tenant.businessName}</span>
-                <span className={styles.meta}>{tenant.taxId} · {tenant.subdomain}</span>
-              </div>
-              <div className={styles.actions}>
-                <Badge label={tenant.active ? 'Activo' : 'Inactivo'} variant={tenant.active ? 'active' : 'inactive'} />
-                {canManage && <Button label="Editar" variant="ghost" color="neutral" size="sm" onClick={() => openEditTenant(tenant)} />}
-                {canManage && <Button label="Eliminar" variant="ghost" color="danger" size="sm" onClick={() => handleDeleteTenant(tenant.id)} />}
-                <button className={styles.btnExpand} onClick={() => toggleExpand(tenant.id)}>
-                  {expanded.has(tenant.id) ? '▲' : '▼'} Sucursales
-                </button>
-              </div>
-            </div>
-
-            {expanded.has(tenant.id) && (
-              <div className={styles.branches}>
-                {(branches[tenant.id] ?? []).length === 0 ? (
-                  <p className={styles.empty}>Sin sucursales</p>
-                ) : (
-                  <ul className={styles.branchList}>
-                    {(branches[tenant.id] ?? []).map(branch => (
-                      <li key={branch.id} className={styles.branchItem}>
-                        <div className={styles.branchInfo}>
-                          <span className={styles.branchName}>{branch.name}</span>
-                          {branch.address && <span className={styles.branchMeta}>{branch.address}</span>}
-                          {branch.phone && <span className={styles.branchMeta}>{branch.phone}</span>}
+          <li key={tenant.id}>
+            <Accordion
+              title={
+                <div className={styles.info}>
+                  <span className={styles.name}>{tenant.businessName}</span>
+                  <div className={styles.metaRow}>
+                    <span className={styles.metaItem}>RUT: {tenant.taxId}</span>
+                    <span className={styles.metaItem}>Subdominio: {tenant.subdomain}</span>
+                    {tenant.country && <span className={styles.metaItem}>País: {tenant.country}</span>}
+                    <span className={styles.metaItem}>Creado: {new Date(tenant.createdAt).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              }
+              actions={
+                <>
+                  <Badge label={tenant.active ? 'Activo' : 'Inactivo'} variant={tenant.active ? 'active' : 'inactive'} />
+                  {canManage && (
+                    <Dropdown items={[
+                      { label: 'Editar', onClick: () => openEditTenant(tenant), icon: '/icons/edit.svg' },
+                      { label: 'Eliminar', onClick: () => handleDeleteTenant(tenant.id), variant: 'danger', icon: '/icons/trash.svg' },
+                    ]} />
+                  )}
+                </>
+              }
+              defaultOpen
+            >
+              {(branches[tenant.id] ?? []).length === 0 ? (
+                <p className={styles.empty}>Sin sucursales</p>
+              ) : (
+                <div className={styles.branchList}>
+                  {(branches[tenant.id] ?? []).map(branch => (
+                    <div key={branch.id} className={styles.branchItem}>
+                      <div className={styles.branchInfo}>
+                        <span className={styles.branchName}>{branch.name}</span>
+                        <div className={styles.metaRow}>
+                          {branch.address && <span className={styles.metaItem}>📍 {branch.address}</span>}
+                          {branch.phone && <span className={styles.metaItem}>📞 {branch.phone}</span>}
+                          {branch.latitude && branch.longitude && <span className={styles.metaItem}>{branch.latitude.toFixed(4)}, {branch.longitude.toFixed(4)}</span>}
+                          <Badge label={branch.active ? 'Activo' : 'Inactivo'} variant={branch.active ? 'active' : 'inactive'} />
                         </div>
-                        {canManage && (
-                          <div className={styles.branchActions}>
-                            <Button label="Editar" variant="ghost" color="neutral" size="sm" onClick={() => openEditBranch(branch)} />
-                            <Button label="Eliminar" variant="ghost" color="danger" size="sm" onClick={() => handleDeleteBranch(tenant.id, branch.id)} />
-                          </div>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                {canManage && (
-                  <Button label="+ Añadir sucursal" variant="ghost" color="primary" size="sm" onClick={() => openAddBranch(tenant.id)} />
-                )}
-              </div>
-            )}
+                      </div>
+                      {canManage && (
+                        <Dropdown items={[
+                          { label: 'Editar', onClick: () => openEditBranch(branch), icon: '/icons/edit.svg' },
+                          { label: 'Eliminar', onClick: () => handleDeleteBranch(tenant.id, branch.id), variant: 'danger', icon: '/icons/trash.svg' },
+                        ]} />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {canManage && (
+                <Button label="+ Añadir sucursal" variant="ghost" color="primary" size="sm" onClick={() => openAddBranch(tenant.id)} />
+              )}
+            </Accordion>
           </li>
         ))}
 
@@ -264,7 +266,7 @@ export default function StoresPage() {
             </label>
             <label className={styles.formLabel}>
               Subdominio
-              <input className={styles.formInput} value={tenantForm.subdomain ?? ''} onChange={e => setTenantForm(p => ({ ...p, subdomain: e.target.value }))} />
+              <input className={styles.formInput} value={tenantForm.subdomain ?? ''} onChange={e => setTenantForm(p => ({ ...p, subdomain: e.target.value }))} disabled={!isAdmin} />
             </label>
           </div>
           <label className={styles.formCheckbox}>

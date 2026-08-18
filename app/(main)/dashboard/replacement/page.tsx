@@ -17,6 +17,7 @@ import Badge, { BadgeVariant } from '@/components/ui/Badge';
 import EmptyState from '@/components/shared/EmptyState';
 import PageCount from '@/components/shared/PageCount';
 import Loading from '@/components/ui/Loading';
+import Dropdown from '@/components/ui/Dropdown';
 import PartCard from '@/components/features/replacements/PartCard';
 
 import {
@@ -278,9 +279,14 @@ export default function ReplacementDashboardPage() {
             { header: 'Estado', render: r => <Badge label={r.active !== false ? 'Activo' : 'Inactivo'} variant={r.active !== false ? 'active' : 'neutral'} /> },
             { header: '', render: r => (
               <div onClick={e => e.stopPropagation()}>
-                <Link href={`/dashboard/replacement/${r.id}`} className={styles.btnText}>Compatibilidades</Link>
-                {canManage && <Button label="Editar" variant="ghost" color="neutral" size="sm" onClick={() => openEdit(r)} />}
-                {canManage && <Button label="Eliminar" variant="ghost" color="danger" size="sm" onClick={() => handleDelete(r.id)} />}
+                <Dropdown items={[
+                  { label: 'Ver', onClick: () => router.push(`/dashboard/replacement/${r.id}/show`), icon: '/icons/eye.svg' },
+                  { label: 'Compatibilidades', onClick: () => router.push(`/dashboard/replacement/${r.id}`), icon: '/icons/link.svg' },
+                  ...(canManage ? [
+                    { label: 'Editar', onClick: () => openEdit(r), icon: '/icons/edit.svg' },
+                    { label: 'Eliminar', onClick: () => handleDelete(r.id), variant: 'danger' as const, icon: '/icons/trash.svg' },
+                  ] : []),
+                ]} />
               </div>
             ), className: styles.tdActions },
           ]}

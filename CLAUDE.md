@@ -70,9 +70,9 @@
 - Si ya editaste un archivo, no copies el resultado en tu respuesta. El usuario lo ve en el diff.
 - Si creaste un archivo, no lo muestres entero en texto tambien.
 
-## 13. No usar Agent cuando Grep/Read basta
-- Agent duplica todo el contexto en un subproceso. Solo usalo para busquedas amplias o tareas complejas.
-- Para buscar una funcion o archivo especifico, usa Grep o Glob directo.
+//## 13. No usar Agent cuando Grep/Read basta
+//- Agent duplica todo el contexto en un subproceso. Solo usalo para busquedas amplias o tareas complejas.
+//- Para buscar una funcion o archivo especifico, usa Grep o Glob directo.
 
 ---
 

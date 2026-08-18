@@ -16,6 +16,7 @@ import Badge, { BadgeVariant } from '@/components/ui/Badge';
 import PageCount from '@/components/shared/PageCount';
 import Paginator from '@/components/ui/Paginator';
 import Loading from '@/components/ui/Loading';
+import Dropdown from '@/components/ui/Dropdown';
 
 const DEFAULT_LIMIT = 20;
 
@@ -144,11 +145,11 @@ export default function OrdersPage() {
           { header: 'Estado', render: o => <Badge label={STATUS_LABELS[o.status] ?? o.status} variant={STATUS_VARIANT[o.status] ?? 'neutral'} /> },
           { header: 'Fecha', render: o => o.createdAt ? formatDateTime(o.createdAt) : '—', className: styles.tdMeta },
           { header: '', render: o => (
-            <>
-              <Link href={`/dashboard/orders/${o.id}?tenantId=${currentUser?.tenantId ?? ''}`} className={styles.btnText}>Ver</Link>
-              {o.status === 'pending' && <Button label="Confirmar" variant="ghost" color="success" size="sm" onClick={() => handleConfirm(o.id)} />}
-              {(o.status === 'pending' || o.status === 'confirmed') && <Button label="Cancelar" variant="ghost" color="danger" size="sm" onClick={() => handleCancel(o.id)} />}
-            </>
+            <Dropdown items={[
+              { label: 'Ver', onClick: () => window.location.href = `/dashboard/orders/${o.id}?tenantId=${currentUser?.tenantId ?? ''}`, icon: '/icons/eye.svg' },
+              ...(o.status === 'pending' ? [{ label: 'Confirmar', onClick: () => handleConfirm(o.id), icon: '/icons/check.svg' }] : []),
+              ...(o.status === 'pending' || o.status === 'confirmed' ? [{ label: 'Cancelar', onClick: () => handleCancel(o.id), variant: 'danger' as const, icon: '/icons/cancel.svg' }] : []),
+            ]} />
           ), className: styles.tdActions },
         ] as Column<Order>[]}
       />}

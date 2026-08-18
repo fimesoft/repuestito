@@ -18,6 +18,7 @@ import Badge, { BadgeVariant } from '@/components/ui/Badge';
 import PageCount from '@/components/shared/PageCount';
 import Paginator from '@/components/ui/Paginator';
 import Loading from '@/components/ui/Loading';
+import Dropdown from '@/components/ui/Dropdown';
 
 const ROLES = ['MODERATOR', 'SELLER'];
 
@@ -186,10 +187,10 @@ export default function UsersPage() {
           { header: 'Sucursal', render: u => u.branchId ? u.branchId.slice(0, 8) + '…' : '—', className: styles.tdMeta },
           { header: 'Estado', render: u => <Badge label={u.active ? 'Activo' : 'Inactivo'} variant={u.active ? 'active' : 'inactive'} /> },
           { header: '', render: u => canManage ? (
-            <>
-              <Button label="Editar" variant="ghost" color="neutral" size="sm" onClick={() => openEdit(u)} />
-              <Button label="Eliminar" variant="ghost" color="danger" size="sm" onClick={() => handleDelete(u.id)} />
-            </>
+            <Dropdown items={[
+              { label: 'Editar', onClick: () => openEdit(u), icon: '/icons/edit.svg' },
+              { label: 'Eliminar', onClick: () => handleDelete(u.id), variant: 'danger', icon: '/icons/trash.svg' },
+            ]} />
           ) : null, className: styles.tdActions },
         ] as Column<UserRecord>[]}
       />}

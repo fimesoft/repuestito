@@ -6,6 +6,7 @@ import Image from 'next/image';
 import Button from '@/components/ui/Button/Button';
 import { getReplacement, Replacement } from '@/services/replacement.service';
 import PartMapWrapper from '@/components/features/replacements/PartMapWrapper';
+import CompatibilitySection from '@/components/features/replacements/CompatibilitySection';
 import styles from './page.module.css';
 
 interface PageProps {
@@ -83,6 +84,8 @@ export default function ReplacementShowPage({ params }: PageProps) {
           />
         </div>
       )}
+
+      <CompatibilitySection replacementId={replacement.id} />
     </main>
   );
 }
