@@ -61,6 +61,14 @@
 
 .fileName span { font-weight: 400; color: var(--color-text-muted); }
 
+.downloadLink {
+  color: var(--color-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.downloadLink:hover { text-decoration: underline; }
+
 .error { font-size: 13px; color: var(--color-error); }
 
 /* ── Job status card ── */

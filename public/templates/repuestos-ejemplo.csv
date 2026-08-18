@@ -1,0 +1,4 @@
+name,brandId,countryCode,codeOem,imageUrl,price,tenantId,branchId,stock,latitude,longitude
+Filtro de aceite,1,AR,F-4781,,12500,550e8400-e29b-41d4-a716-446655440000,,50,-34.6037,-58.3816
+Pastillas de freno delantera,2,AR,PF-1190,https://example.com/img.jpg,18900,550e8400-e29b-41d4-a716-446655440000,660e8400-e29b-41d4-a716-446655440001,20,,
+Correa de distribución,1,CL,CD-3320,,45000,770e8400-e29b-41d4-a716-446655440002,,,

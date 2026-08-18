@@ -84,7 +84,12 @@ export default function BulkUploadPage() {
   return (
     <main className={styles.page}>
       <h1 className={styles.title}>Carga masiva de repuestos</h1>
-      <p className={styles.desc}>Subí un archivo CSV con los repuestos a importar. Máximo 5 MB.</p>
+      <p className={styles.desc}>
+        Subí un archivo CSV con los repuestos a importar. Máximo 5 MB.{' '}
+        <a href="/templates/repuestos-ejemplo.csv" download className={styles.downloadLink}>
+          Descargar CSV de ejemplo
+        </a>
+      </p>
 
       <div className={styles.card}>
         <div
