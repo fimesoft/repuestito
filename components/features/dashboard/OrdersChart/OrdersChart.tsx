@@ -1,6 +1,6 @@
 'use client';
 
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Label } from 'recharts';
 import Card from '@/components/ui/Card';
 import styles from './OrdersChart.module.css';
 
@@ -13,19 +13,20 @@ interface OrderStats {
 }
 
 const SLICES = [
-  { name: 'Pendientes',  key: 'pending',   color: '#f59e0b' },
-  { name: 'Confirmados', key: 'confirmed',  color: '#3b82f6' },
-  { name: 'Facturados',  key: 'fulfilled',  color: '#10b981' },
-  { name: 'Cancelados',  key: 'cancelled',  color: '#ef4444' },
+  { name: 'Pendientes',  key: 'pending',   color: '#d48e00'  },
+  { name: 'Confirmados', key: 'confirmed',  color: '#009294' },
+  { name: 'Facturados',  key: 'fulfilled',  color: 'var(--color-primary)' },
+  { name: 'Cancelados',  key: 'cancelled',  color: '#a95cbb' },
 ] as const;
 
-export default function OrdersChart({ orders }: { orders: OrderStats }) {
+export default function OrdersChart({ orders, className }: { orders: OrderStats; className?: string }) {
+
   const data = SLICES
     .map(s => ({ name: s.name, value: orders[s.key], color: s.color }))
     .filter(d => d.value > 0);
 
   return (
-    <Card className={styles.card}>
+    <Card className={`${styles.card}${className ? ` ${className}` : ''}`}>
       <span className={styles.title}>Distribución de pedidos por estado</span>
       {orders.total === 0 ? (
         <p className={styles.empty}>Sin pedidos registrados aún</p>
@@ -33,8 +34,21 @@ export default function OrdersChart({ orders }: { orders: OrderStats }) {
         <div className={styles.chartWrapper}>
           <ResponsiveContainer width="100%" height={220}>
             <PieChart>
-              <Pie data={data} cx="50%" cy="50%" innerRadius={60} outerRadius={90} paddingAngle={3} dataKey="value" label={false} labelLine={false}>
-                {data.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+              <Pie data={data} cx="40%" cy="40%" innerRadius={40} outerRadius={70} paddingAngle={3} dataKey="value" label={false} labelLine={false}>
+                <Label content={({ viewBox }) => {
+                  const { cx, cy } = viewBox as { cx: number; cy: number };
+                  return (
+                    <g>
+                      <text x={cx} y={cy - 6} textAnchor="middle" dominantBaseline="middle" style={{ fontSize: '1.2rem', fontWeight: 700, fill: 'var(--color-text)' }}>
+                        {orders.total}
+                      </text>
+                      <text x={cx} y={cy + 14} textAnchor="middle" dominantBaseline="middle" style={{ fontSize: '11px', fill: 'var(--color-text-muted)' }}>
+                        totales
+                      </text>
+                    </g>
+                  );
+                }} />
+                {data.map((entry, i) => <Cell key={i} style={{ fill: entry.color }} />)}
               </Pie>
               <Tooltip formatter={(value, name) => [value, `Pedidos ${String(name).toLowerCase()}`]} />
             </PieChart>

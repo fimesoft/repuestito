@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import { cookies } from 'next/headers';
 import CountrySelect from '../CountrySelect';
 import UserBadge from '../UserBadge';
+import Avatar from '@/components/ui/Avatar';
 import { getMe } from '@/services/auth.service';
 import styles from './Header.module.css';
 
@@ -17,6 +18,7 @@ export default async function Header() {
         <div className={styles.rightSlot}>
           <UserBadge />
           {isAdmin && <CountrySelect />}
+          {user && <Avatar name={user.email} />}
         </div>
       </Suspense>
     </header>

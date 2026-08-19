@@ -6,9 +6,10 @@
 }
 
 .title {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--color-text-muted);
+  text-align: center;
 }
 
 .chartWrapper {
