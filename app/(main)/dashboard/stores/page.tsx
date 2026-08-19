@@ -13,13 +13,15 @@ import {
   Branch, CreateBranchPayload, UpdateBranchPayload,
 } from '@/services/branch.service';
 import LocationSearch from '@/components/ui/LocationSearch';
-import { useCountry } from '@/context/CountryContext';
+import { useCountry, getCountryName } from '@/context/CountryContext';
 import { usePermissions } from '@/hooks/usePermissions';
 import Badge from '@/components/ui/Badge';
 import Loading from '@/components/ui/Loading';
 import Card from '@/components/ui/Card';
 import Dropdown from '@/components/ui/Dropdown';
 import Accordion from '@/components/ui/Accordion';
+import Avatar from '@/components/ui/Avatar';
+import Search from '@/components/ui/Search';
 import MainTitle from '@/components/shared/MainTitle';
 import styles from './page.module.css';
 
@@ -27,6 +29,7 @@ export default function StoresPage() {
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [branches, setBranches] = useState<Record<string, Branch[]>>({});
   const [wizardOpen, setWizardOpen] = useState(false);
+  const [query, setQuery] = useState('');
 
   const [editingTenant, setEditingTenant] = useState<Tenant | null>(null);
   const [tenantForm, setTenantForm] = useState<UpdateTenantPayload>({});
@@ -145,6 +148,11 @@ export default function StoresPage() {
     }
   }
 
+  const filteredTenants = tenants.filter(t =>
+    t.businessName.toLowerCase().includes(query.toLowerCase())
+  );
+  const totalSucursales = Object.values(branches).reduce((n, list) => n + list.length, 0);
+
   const editTenantFooter = (
     <>
       <Button label="Cancelar" variant="outline" color="neutral" onClick={() => setEditingTenant(null)} disabled={saving} />
@@ -179,38 +187,59 @@ export default function StoresPage() {
           <span className={styles.statValue}>{tenants.length}</span>
         </Card>
         <Card className={styles.statCard}>
+          <span className={styles.statLabel}>Sucursales totales</span>
+          <span className={styles.statValue}>{totalSucursales}</span>
+        </Card>
+        <Card className={styles.statCard}>
           <span className={styles.statLabel}>Activos</span>
           <span className={styles.statValue}>{tenants.filter(t => t.active).length}</span>
         </Card>
       </div>
 
+      <div className={styles.searchRow}>
+        <Search value={query} onChange={setQuery} placeholder="Buscar local por nombre..." width="100%" />
+      </div>
+
+      {!loading && query && filteredTenants.length === 0 && (
+        <p className={styles.empty}>No se encontraron locales para &quot;{query}&quot;.</p>
+      )}
+
       {loading ? <Loading /> : <ul className={styles.list}>
-        {tenants.map(tenant => (
+        {filteredTenants.map((tenant, i) => (
           <li key={tenant.id}>
             <Accordion
               title={
                 <div className={styles.info}>
-                  <span className={styles.name}>{tenant.businessName}</span>
-                  <div className={styles.metaRow}>
-                    <span className={styles.metaItem}>RUT: {tenant.taxId}</span>
-                    <span className={styles.metaItem}>Subdominio: {tenant.subdomain}</span>
-                    {tenant.country && <span className={styles.metaItem}>País: {tenant.country}</span>}
-                    <span className={styles.metaItem}>Creado: {new Date(tenant.createdAt).toLocaleDateString()}</span>
+                  <Avatar name={tenant.businessName} className={styles.storeAvatar} />
+                  <div className={styles.infoText}>
+                    <div className={styles.nameRow}>
+                      <span className={styles.name}>{tenant.businessName}</span>
+                      <Badge label={tenant.active ? 'Activo' : 'Inactivo'} variant={tenant.active ? 'active' : 'inactive'} />
+                    </div>
+                    <div className={styles.metaRow}>
+                      <span className={styles.metaItem}>CUIT {tenant.taxId}</span>
+                      <span className={styles.metaItem}>
+                        <img src="/icons/link.svg" width={13} height={13} alt="" className={styles.metaIcon} />
+                        {tenant.subdomain}.repuestito.com
+                      </span>
+                      {tenant.country && <span className={styles.metaItem}>{getCountryName(tenant.country)}</span>}
+                      <span className={styles.metaItem}>
+                        <img src="/icons/layers.svg" width={13} height={13} alt="" className={styles.metaIcon} />
+                        {(branches[tenant.id] ?? []).length} sucursales
+                      </span>
+                    </div>
                   </div>
                 </div>
               }
               actions={
-                <>
-                  <Badge label={tenant.active ? 'Activo' : 'Inactivo'} variant={tenant.active ? 'active' : 'inactive'} />
-                  {canManage && (
-                    <Dropdown items={[
-                      { label: 'Editar', onClick: () => openEditTenant(tenant), icon: '/icons/edit.svg' },
-                      { label: 'Eliminar', onClick: () => handleDeleteTenant(tenant.id), variant: 'danger', icon: '/icons/trash.svg' },
-                    ]} />
-                  )}
-                </>
+                canManage ? (
+                  <Dropdown items={[
+                    { label: 'Editar', onClick: () => openEditTenant(tenant), icon: '/icons/edit.svg' },
+                    { label: 'Eliminar', onClick: () => handleDeleteTenant(tenant.id), variant: 'danger', icon: '/icons/trash.svg' },
+                  ]} />
+                ) : undefined
               }
-              defaultOpen
+              defaultOpen={i === 0}
             >
               {(branches[tenant.id] ?? []).length === 0 ? (
                 <p className={styles.empty}>Sin sucursales</p>
@@ -219,12 +248,27 @@ export default function StoresPage() {
                   {(branches[tenant.id] ?? []).map(branch => (
                     <div key={branch.id} className={styles.branchItem}>
                       <div className={styles.branchInfo}>
-                        <span className={styles.branchName}>{branch.name}</span>
+                        <div className={styles.nameRow}>
+                          <span
+                            className={`${styles.statusDot} ${branch.active ? styles.statusDotActive : styles.statusDotInactive}`}
+                            title={branch.active ? 'Activo' : 'Inactivo'}
+                          />
+                          <span className={styles.branchName}>{branch.name}</span>
+                        </div>
                         <div className={styles.metaRow}>
-                          {branch.address && <span className={styles.metaItem}>📍 {branch.address}</span>}
-                          {branch.phone && <span className={styles.metaItem}>📞 {branch.phone}</span>}
+                          {branch.address && (
+                            <span className={styles.metaItem}>
+                              <img src="/icons/map-pin.svg" width={13} height={13} alt="" className={styles.metaIcon} />
+                              {branch.address}
+                            </span>
+                          )}
+                          {branch.phone && (
+                            <span className={styles.metaItem}>
+                              <img src="/icons/phone.svg" width={13} height={13} alt="" className={styles.metaIcon} />
+                              {branch.phone}
+                            </span>
+                          )}
                           {branch.latitude && branch.longitude && <span className={styles.metaItem}>{branch.latitude.toFixed(4)}, {branch.longitude.toFixed(4)}</span>}
-                          <Badge label={branch.active ? 'Activo' : 'Inactivo'} variant={branch.active ? 'active' : 'inactive'} />
                         </div>
                       </div>
                       {canManage && (
@@ -238,7 +282,9 @@ export default function StoresPage() {
                 </div>
               )}
               {canManage && (
-                <Button label="+ Añadir sucursal" variant="ghost" color="primary" size="sm" onClick={() => openAddBranch(tenant.id)} />
+                <div className={styles.addBranchRow}>
+                  <Button label="Añadir sucursal" variant="secondary" size="sm" icon="/icons/plus.svg" onClick={() => openAddBranch(tenant.id)} />
+                </div>
               )}
             </Accordion>
           </li>

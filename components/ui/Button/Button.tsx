@@ -6,9 +6,10 @@ interface ButtonProps {
   label: string;
   onClick?: () => void;
   type?: "button" | "submit" | "reset";
-  variant?: "solid" | "outline" | "ghost";
+  variant?: "solid" | "outline" | "ghost" | "secondary";
   color?: "primary" | "success" | "danger" | "neutral";
   size?: "sm" | "md" | "lg" | "xl";
+  icon?: string;
   shadow?: boolean;
   disabled?: boolean;
   fullWidth?: boolean;
@@ -21,6 +22,7 @@ export default function Button({
   variant = "solid",
   color = "primary",
   size = "md",
+  icon,
   shadow = false,
   disabled = false,
   fullWidth = false,
@@ -28,7 +30,7 @@ export default function Button({
   const classNames = [
     styles.btn,
     styles[variant],
-    styles[color],
+    variant === "secondary" ? "" : styles[color],
     styles[size],
     shadow ? styles.shadow : "",
     fullWidth ? styles.fullWidth : "",
@@ -38,6 +40,7 @@ export default function Button({
 
   return (
     <button className={classNames} type={type} onClick={onClick} disabled={disabled}>
+      {icon && <img src={icon} width={12} height={12} alt="" />}
       {label}
     </button>
   );

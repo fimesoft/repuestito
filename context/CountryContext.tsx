@@ -7,13 +7,18 @@ export type CountryCode = 'VE' | 'AR';
 interface CountryOption {
   code: CountryCode;
   label: string;
+  name: string;
   flag: string;
 }
 
 export const COUNTRIES: CountryOption[] = [
-  { code: 'VE', label: 'VE', flag: '🇻🇪' },
-  { code: 'AR', label: 'AR', flag: '🇦🇷' },
+  { code: 'VE', label: 'VE', name: 'Venezuela', flag: '🇻🇪' },
+  { code: 'AR', label: 'AR', name: 'Argentina', flag: '🇦🇷' },
 ];
+
+export function getCountryName(code: string): string {
+  return COUNTRIES.find(c => c.code === code)?.name ?? code;
+}
 
 interface CountryContextValue {
   country: CountryCode;
