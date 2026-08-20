@@ -4,7 +4,7 @@
 
 .layout {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 300px 1fr;
   gap: 1.5rem;
   flex: 1;
   min-height: 0;
@@ -16,20 +16,6 @@
   gap: 8px;
   overflow: hidden;
 }
-
-.search {
-  padding: 8px 12px;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  font-size: 14px;
-  color: var(--color-text);
-  background: var(--bg-surface);
-  outline: none;
-  transition: border-color 0.15s;
-  flex-shrink: 0;
-}
-
-.search:focus { border-color: var(--color-primary); }
 
 .list {
   list-style: none;
@@ -44,16 +30,18 @@
 
 .item {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   width: 100%;
   text-align: left;
-  padding: 10px 14px;
+  padding: 12px 14px;
   background: none;
   border: none;
   border-bottom: 1px solid var(--color-border-subtle);
   cursor: pointer;
   transition: background 0.12s;
+  position: relative;
 }
 
 .item:last-child { border-bottom: none; }
@@ -62,16 +50,56 @@
 
 .item.active { background: var(--color-primary-subtle); }
 
+.item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--color-primary);
+  border-radius: 0 2px 2px 0;
+}
+
+.itemText {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
 .itemName {
   font-size: 13px;
   font-weight: 600;
   color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .itemCode {
   font-size: 11px;
   color: var(--color-text-muted);
 }
+
+.countPill {
+  flex-shrink: 0;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--bg-muted);
+  color: var(--color-text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.item.active .countPill { background: var(--color-primary); color: var(--color-text-inverse); }
+
+.countPill.zero { background: transparent; color: var(--color-text-faint); }
 
 .detail {
   background: var(--bg-surface);

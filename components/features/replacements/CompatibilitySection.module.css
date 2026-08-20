@@ -10,62 +10,225 @@
 
 .header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
+  gap: 1rem;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .title {
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--color-text);
   margin: 0;
 }
 
-.list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.625rem 0.75rem;
+.oemChip {
+  font-size: 11.5px;
+  font-family: ui-monospace, monospace;
+  color: var(--color-text-secondary);
   background: var(--bg-subtle);
   border: 1px solid var(--color-border-subtle);
-  border-radius: 8px;
-  font-size: 14px;
-  color: var(--color-text);
+  border-radius: 6px;
+  padding: 3px 8px;
 }
 
-.modelLabel {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.modelName {
-  font-weight: 500;
-}
-
-.brandName {
-  font-size: 12px;
+.meta {
+  margin: 4px 0 0;
+  font-size: 13px;
   color: var(--color-text-muted);
 }
 
-.removeBtn {
+.addRow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  border: 1px dashed var(--color-primary);
+  border-radius: 10px;
+  background: var(--color-primary-subtle);
+}
+
+.addRowLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.addRowHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.backLink {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-primary);
   background: none;
   border: none;
   cursor: pointer;
+  padding: 0;
+}
+
+.addSearchInput {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-family: inherit;
+  color: var(--color-text);
+  background: var(--bg-surface);
+  outline: none;
+}
+
+.addSearchInput:focus { border-color: var(--color-primary); }
+
+.brandGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 8px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.brandCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 8px;
+  background: var(--bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.brandCard:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-ring);
+}
+
+.brandLogo {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  opacity: 0.8;
+}
+
+.brandName {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--color-text);
+  text-transform: capitalize;
+  word-break: break-word;
+}
+
+.modelList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.modelListItem {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--color-text);
+  background: var(--bg-subtle);
+  border: none;
+  cursor: pointer;
+  transition: background 0.12s;
+  text-transform: capitalize;
+}
+
+.modelListItem:hover { background: var(--bg-muted); }
+.modelListItem:disabled { opacity: 0.6; cursor: default; }
+
+.modelListItemMeta {
+  flex-shrink: 0;
+  font-size: 11px;
   color: var(--color-text-muted);
-  padding: 4px;
-  border-radius: 4px;
+  text-transform: none;
+}
+
+.chipGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.chip {
+  width: 208px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 11px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--bg-subtle);
+}
+
+.chipText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.chipModel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.chipBrand {
+  font-size: 11.5px;
+  color: var(--color-text-muted);
+}
+
+.chipYears {
+  font-size: 10px;
+  color: var(--color-text-faint);
+}
+
+.chipRemove {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-faint);
+  padding: 0;
   line-height: 1;
   transition: color 0.15s, background 0.15s;
 }
 
-.removeBtn:hover {
+.chipRemove:hover {
   color: var(--color-error);
   background: var(--color-error-bg);
 }
@@ -80,13 +243,6 @@
 .error {
   font-size: 13px;
   color: var(--color-error);
-}
-
-.modalBody {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 0.25rem 0;
 }
 
 .modalError {

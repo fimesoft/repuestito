@@ -6,11 +6,19 @@ export interface CompatibilityModel {
   brand: { id: number; name: string };
 }
 
+export interface CompatibilityVersion {
+  id: number;
+  name: string;
+  availableYears: number[];
+}
+
 export interface Compatibility {
   id: number;
   replacementId: string;
   modelId: number;
   model: CompatibilityModel;
+  versionId: number | null;
+  version: CompatibilityVersion | null;
 }
 
 export async function getCompatibilitiesByReplacement(replacementId: string): Promise<Compatibility[]> {
@@ -21,12 +29,12 @@ export async function getCompatibilitiesByReplacement(replacementId: string): Pr
   return res.json() as Promise<Compatibility[]>;
 }
 
-export async function addCompatibility(replacementId: string, modelId: number): Promise<Compatibility> {
+export async function addCompatibility(replacementId: string, modelId: number, versionId?: number): Promise<Compatibility> {
   const res = await fetch(`${API}/api/compatibility`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
-    body: JSON.stringify({ replacementId, modelId }),
+    body: JSON.stringify({ replacementId, modelId, versionId }),
   });
   if (!res.ok) {
     const data: unknown = await res.json().catch(() => null);
