@@ -2,11 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import { getMeClient, AuthUser } from '@/services/auth.service';
+import { hasRole as checkRole, type Role } from '@/lib/roles';
+
+export type { Role };
 
 export interface Permissions {
   currentUser: AuthUser | null;
   isAdmin: boolean;
   canManage: boolean; // GOD or MODERATOR — can create/edit/delete
+  hasRole: (minRole: Role) => boolean; // true si el rol del usuario es >= minRole
   loading: boolean;
 }
 
@@ -21,10 +25,15 @@ export function usePermissions(): Permissions {
     });
   }, []);
 
+  function hasRole(minRole: Role): boolean {
+    return checkRole(currentUser?.role, minRole);
+  }
+
   return {
     currentUser,
-    isAdmin: currentUser?.role === 'GOD',
-    canManage: currentUser?.role === 'GOD' || currentUser?.role === 'MODERATOR',
+    isAdmin: hasRole('ADMIN'),
+    canManage: hasRole('MODERATOR'),
+    hasRole,
     loading,
   };
 }

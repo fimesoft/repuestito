@@ -45,6 +45,9 @@
   --color-neutral:          #898d94;
   --color-neutral-hover:    #2d3748;
 
+  /* ── Layout ─────────────────────────────── */
+  --header-height:          60px;
+
   /* ── Sidebar ────────────────────────────── */
   --sidebar-bg:             #0f172a;
   --sidebar-border:         #1e293b;

@@ -8,6 +8,7 @@ import { getUsers, inviteUser, updateUser, deleteUser, UserRecord, InviteUserPay
 import { getTenants, Tenant } from '@/services/tenant.service';
 import { getBranches, Branch } from '@/services/branch.service';
 import { usePermissions } from '@/hooks/usePermissions';
+import { toRole } from '@/lib/roles';
 import { useCountry } from '@/context/CountryContext';
 import styles from './page.module.css';
 import Search from '@/components/ui/Search';
@@ -182,7 +183,7 @@ export default function UsersPage() {
           { header: 'Email', render: u => u.email, className: styles.tdEmail },
           { header: 'Rol', render: u => {
               const ROLE_VARIANT: Record<string, BadgeVariant> = { GOD: 'admin', MODERATOR: 'moderator', SELLER: 'seller' };
-              return <Badge label={u.role} variant={ROLE_VARIANT[u.role] ?? 'neutral'} />;
+              return <Badge label={toRole(u.role) ?? u.role} variant={ROLE_VARIANT[u.role] ?? 'neutral'} />;
             } },
           { header: 'Local', render: u => tenants.find(t => t.id === u.tenantId)?.businessName ?? '—', className: styles.tdMeta },
           { header: 'Sucursal', render: u => u.branchId ? u.branchId.slice(0, 8) + '…' : '—', className: styles.tdMeta },
@@ -251,7 +252,7 @@ export default function UsersPage() {
               value={editForm.role ?? ''}
               onChange={v => setEditForm(p => ({ ...p, role: v }))}
               options={[
-                ...(editingUser?.role === 'GOD' ? [{ value: 'GOD', label: 'GOD' }] : []),
+                ...(editingUser?.role === 'GOD' ? [{ value: 'GOD', label: 'ADMIN' }] : []),
                 ...ROLES.map(r => ({ value: r, label: r })),
               ]}
               disabled={editingUser?.role === 'GOD'}
