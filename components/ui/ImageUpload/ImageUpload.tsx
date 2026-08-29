@@ -1,7 +1,8 @@
 "use client";
 
-import { useRef, useState, DragEvent, ChangeEvent } from "react";
+import { useState } from "react";
 import Image from "next/image";
+import FileDropzone from "@/components/shared/FileDropzone";
 import styles from "./ImageUpload.module.css";
 
 interface ImageUploadProps {
@@ -10,11 +11,9 @@ interface ImageUploadProps {
 }
 
 export default function ImageUpload({ onUpload, initialUrl }: ImageUploadProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(initialUrl ?? null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [dragging, setDragging] = useState(false);
 
   async function handleFile(file: File) {
     setError(null);
@@ -43,35 +42,8 @@ export default function ImageUpload({ onUpload, initialUrl }: ImageUploadProps) 
     }
   }
 
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (file) handleFile(file);
-    e.target.value = '';
-  }
-
-  function handleDrop(e: DragEvent<HTMLDivElement>) {
-    e.preventDefault();
-    setDragging(false);
-    const file = e.dataTransfer.files[0];
-    if (file) handleFile(file);
-  }
-
   return (
-    <div
-      className={`${styles.dropzone} ${dragging ? styles.dragging : ""}`}
-      onClick={() => inputRef.current?.click()}
-      onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
-      onDragLeave={() => setDragging(false)}
-      onDrop={handleDrop}
-    >
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        className={styles.hidden}
-        onChange={handleChange}
-      />
-
+    <FileDropzone onFileSelect={handleFile} accept="image/*">
       {preview ? (
         <div className={styles.preview}>
           <Image src={preview} alt="preview" fill sizes="100%" className={styles.previewImg} />
@@ -86,6 +58,6 @@ export default function ImageUpload({ onUpload, initialUrl }: ImageUploadProps) 
       )}
 
       {error && <p className={styles.error}>{error}</p>}
-    </div>
+    </FileDropzone>
   );
 }

@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react';
 import Button from '@/components/ui/Button/Button';
 import MainTitle from '@/components/shared/MainTitle';
+import FileDropzone from '@/components/shared/FileDropzone';
 import styles from './page.module.css';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
@@ -19,7 +20,6 @@ interface JobState {
 }
 
 export default function BulkUploadPage() {
-  const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [job, setJob] = useState<JobState | null>(null);
@@ -93,19 +93,7 @@ export default function BulkUploadPage() {
       </p>
 
       <div className={styles.card}>
-        <div
-          className={styles.dropzone}
-          onClick={() => inputRef.current?.click()}
-          onDragOver={e => e.preventDefault()}
-          onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) setFile(f); }}
-        >
-          <input
-            ref={inputRef}
-            type="file"
-            accept=".csv"
-            className={styles.fileInput}
-            onChange={e => setFile(e.target.files?.[0] ?? null)}
-          />
+        <FileDropzone onFileSelect={setFile} accept=".csv" className={styles.dropzone}>
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={styles.uploadIcon}>
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
             <polyline points="17 8 12 3 7 8" />
@@ -116,12 +104,12 @@ export default function BulkUploadPage() {
           ) : (
             <p className={styles.dropText}>Arrastrá un CSV aquí o <span className={styles.link}>hacé clic para elegir</span></p>
           )}
-        </div>
+        </FileDropzone>
 
         {uploadError && <p className={styles.error}>{uploadError}</p>}
 
         <Button
-          label={uploading ? 'Subiendo...' : 'Iniciar importación'}
+          label={uploading ? 'Subiendo...' : 'Iniciar carga'}
           onClick={handleUpload}
           disabled={!file || uploading || (job?.status === 'processing' || job?.status === 'queued')}
           shadow
