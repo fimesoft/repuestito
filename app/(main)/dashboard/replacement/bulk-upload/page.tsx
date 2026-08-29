@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react';
 import Button from '@/components/ui/Button/Button';
 import MainTitle from '@/components/shared/MainTitle';
+import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import FileDropzone from '@/components/shared/FileDropzone';
 import styles from './page.module.css';
 
@@ -16,6 +17,9 @@ interface JobState {
   total: number;
   succeeded: number;
   failed: number;
+  catalogCreated: number;
+  catalogReused: number;
+  brandsCreated: number;
   errors: { line: number; reason: string }[];
 }
 
@@ -66,7 +70,7 @@ export default function BulkUploadPage() {
         throw new Error(body.code ?? `Error ${res.status}`);
       }
       const { jobId } = await res.json() as { jobId: string };
-      setJob({ jobId, status: 'queued', total: 0, succeeded: 0, failed: 0, errors: [] });
+      setJob({ jobId, status: 'queued', total: 0, succeeded: 0, failed: 0, catalogCreated: 0, catalogReused: 0, brandsCreated: 0, errors: [] });
       pollerRef.current = setInterval(() => pollStatus(jobId), 2000);
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : 'Error al subir el archivo');
@@ -84,6 +88,7 @@ export default function BulkUploadPage() {
 
   return (
     <main className={styles.page}>
+      <Breadcrumbs items={[{ label: 'Repuestos', href: '/dashboard/replacement' }, { label: 'Carga masiva' }]} />
       <MainTitle title="Carga masiva de repuestos" subtitle="Importá múltiples repuestos desde un archivo CSV" className={styles.pageTitle} />
       <p className={styles.desc}>
         Máximo 5 MB.{' '}
@@ -138,6 +143,12 @@ export default function BulkUploadPage() {
                 <span className={`${styles.statValue} ${job.failed > 0 ? styles.danger : ''}`}>{job.failed}</span>
               </div>
             </div>
+          )}
+
+          {job.succeeded > 0 && (
+            <p className={styles.detail}>
+              {job.catalogCreated} nuevo{job.catalogCreated === 1 ? '' : 's'} en el catálogo · {job.catalogReused} reutilizado{job.catalogReused === 1 ? '' : 's'} de repuestos ya cargados · {job.brandsCreated} marca{job.brandsCreated === 1 ? '' : 's'} nueva{job.brandsCreated === 1 ? '' : 's'}
+            </p>
           )}
 
           {job.errors.length > 0 && (

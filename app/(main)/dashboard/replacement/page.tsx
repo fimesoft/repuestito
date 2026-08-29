@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import MainTitle from '@/components/shared/MainTitle';
+import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import Link from 'next/link';
 
 import Modal from '@/components/ui/Modal/Modal';
@@ -236,6 +237,7 @@ export default function ReplacementDashboardPage() {
     <main className={styles.page}>
       <div className={styles.header}>
         <div>
+          <Breadcrumbs items={[{ label: 'Repuestos' }]} />
           <MainTitle title="Repuestos" subtitle="Catálogo de piezas disponibles en tu red de locales" />
         </div>
         {canManage && <Button label="+ Nuevo repuesto" onClick={openCreate} shadow />}

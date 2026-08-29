@@ -115,17 +115,20 @@ Cualquier fila que falle en estos pasos se agrega a `errors[]` con `{ line, reas
 
 ### Inserción — `global_replacement` es catálogo compartido, `replacement` es tu listado
 
-`global_replacement` identifica una pieza por `(codeOem, countryCode)` y **no pertenece a ningún tenant** — cualquier tenant/sucursal del mismo país puede vender la misma pieza. `replacement` es tu listado individual (precio, stock, sucursal) apuntando a ese catálogo. El bulk-upload sigue el mismo patrón que el alta individual (`ReplacementService.create()`):
+`global_replacement` identifica una pieza por `(codeOem, countryCode)` y **no pertenece a ningún tenant** — cualquier tenant/sucursal del mismo país puede vender la misma pieza. `replacement` es tu listado individual (precio, stock, sucursal) apuntando a ese catálogo.
 
-- Las filas válidas se procesan en **batches de 500** (`BATCH_SIZE`), cada batch en su propia transacción (`QueryRunner`).
-- Por fila válida, si tiene `codeOem`:
-  1. **Upsert** en `global_replacement` por `(code_oem, country_code)` (`.orUpdate(['name', 'image_url'], [...])`): si ya existe —la haya catalogado tu tenant, otro tenant, o vos en otra sucursal— se reutiliza su `id` y se le actualizan `name`/`image_url`; si no existe, se crea.
-  2. **Chequeo propio**: ¿ya existe un `replacement` con ese `globalReplacementId` para **tu** `(tenantId, branchId)`? Si sí, la fila se rechaza (`Ya tenés un listado para el código OEM '...' en esta sucursal`) — evita que resubir el mismo archivo te duplique el listado a vos. Si no, sigue.
-- Si no tiene `codeOem`: `INSERT` directo en `global_replacement` sin upsert (los `NULL` no colisionan en Postgres, así que siempre crea uno nuevo — no hay forma de reusar catálogo para piezas sin código OEM).
-- En ambos casos: `INSERT` en `replacement` con `globalReplacementId` apuntando al registro (reusado o nuevo), más `price`/`stock` de la fila y `tenantId`/`branchId`/`latitude`/`longitude` resueltos del usuario (mismos valores para todas las filas del job).
-- Si una fila del batch falla por otro motivo (ej. error de Postgres), se hace `rollbackTransaction()` de **todo el batch** y todas sus filas se marcan como `failed` con el mensaje del error.
+Las filas válidas se procesan en **batches de 500** (`BATCH_SIZE`), cada batch en su propia transacción (`QueryRunner`). Dentro de un batch, todo se resuelve **en bloque** (arrays, no fila por fila) para evitar hasta ~1.500 round-trips secuenciales a la DB por batch:
+
+1. **Filas con `codeOem`**: un solo `INSERT ... ON CONFLICT (code_oem, country_code) DO NOTHING` con los `VALUES` de las hasta 500 filas — si la pieza ya existe (la haya catalogado tu tenant, otro tenant, o vos en otra sucursal), no se toca (no pisa `name`/`imageUrl` de nadie); si no existe, se crea. Como `DO NOTHING` no devuelve las filas que ya existían, un `SELECT` aparte (`code_oem IN (...)`) trae el `id` de todas — nuevas y preexistentes — en una sola consulta.
+2. **Filas sin `codeOem`**: un `INSERT` bulk simple, sin `ON CONFLICT` (los `NULL` no colisionan en Postgres, así que siempre crean un `global_replacement` nuevo — no hay forma de reusar catálogo para piezas sin código OEM). Se correlaciona cada fila insertada con su línea del CSV por orden de `RETURNING`.
+3. **Chequeo de listado propio**, en bloque: un solo `SELECT ... WHERE global_replacement_id IN (...) AND tenant_id = ... AND branch_id = ...` sobre todos los `globalId` resueltos en los pasos 1-2. Las filas cuyo `globalId` ya aparece ahí se marcan `failed` (`Ya tenés un listado para el código OEM '...' en esta sucursal`) — evita que resubir el mismo archivo te duplique el listado a vos; no bloquea a otro tenant ni a otra sucursal tuya.
+4. **Insert final**: un solo `INSERT` bulk en `replacement` para todas las filas que pasaron el paso 3, con `globalReplacementId` apuntando al registro correspondiente, más `price`/`stock` de cada fila y `tenantId`/`branchId`/`latitude`/`longitude` resueltos del usuario (mismos valores para todas las filas del job).
+
+Si algo falla en el medio (ej. error de Postgres), se hace `rollbackTransaction()` de **todo el batch** — como nada quedó commiteado, todas sus filas se marcan `failed` de forma uniforme con el mensaje del error, sin mezclar errores parciales ya calculados (a diferencia de la versión anterior fila-por-fila, donde el rollback podía dejar `state.errors`/`state.succeeded` con conteos parcialmente inconsistentes).
 
 ### Respuesta del status endpoint
+
+`catalogCreated`/`catalogReused`/`brandsCreated` son un detalle pensado para mostrarle al usuario final qué pasó con su carga (no solo cuántas filas fallaron): cuántas de las filas exitosas agregaron una pieza nueva al catálogo compartido vs. reusaron una ya cargada por este u otro tenant, y cuántas marcas se auto-crearon. Se calculan solo sobre filas que terminaron insertándose (mismo criterio que `succeeded`), no sobre todo lo que se intentó resolver.
 
 ```json
 {
@@ -134,6 +137,9 @@ Cualquier fila que falle en estos pasos se agrega a `errors[]` con `{ line, reas
   "total": 100,
   "succeeded": 97,
   "failed": 3,
+  "catalogCreated": 80,
+  "catalogReused": 17,
+  "brandsCreated": 4,
   "errors": [{ "line": 42, "reason": "Código OEM 'F-4781' duplicado en el archivo" }]
 }
 ```
@@ -148,7 +154,7 @@ Componente genérico de drag & drop + click-to-select, reutilizado también por 
 ### `app/(main)/dashboard/replacement/bulk-upload/page.tsx`
 - Estado local: `file`, `uploading`, `job`, `uploadError`.
 - Al confirmar, hace `POST` con `FormData` (solo el archivo — no manda tenant/país/marca, eso lo resuelve el backend), guarda el `jobId` devuelto y arranca un `setInterval` de 2s que pollea el status hasta `done`/`failed`.
-- Muestra contador de `total`/`succeeded`/`failed` y el detalle de `errors` por línea.
+- Muestra contador de `total`/`succeeded`/`failed`, una línea de detalle con `catalogCreated`/`catalogReused`/`brandsCreated` (mientras haya al menos un `succeeded`), y el detalle de `errors` por línea.
 - Template descargable en `public/templates/repuestos-ejemplo.csv`.
 
 ### Template `public/templates/repuestos-ejemplo.csv`

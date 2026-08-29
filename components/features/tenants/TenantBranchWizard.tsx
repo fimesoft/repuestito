@@ -4,7 +4,6 @@ import { useState, useRef, FormEvent } from 'react';
 import Modal from '../../ui/Modal/Modal';
 import Button from '../../ui/Button/Button';
 import { createTenant } from '@/services/tenant.service';
-import { createBranch } from '@/services/branch.service';
 import { useCountry } from '@/context/CountryContext';
 import styles from './TenantBranchWizard.module.css';
 
@@ -35,7 +34,6 @@ export default function TenantBranchWizard({ isOpen, onClose }: Props) {
   const [branchForm, setBranchForm] = useState<BranchForm>(BRANCH_INITIAL);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [tenantId, setTenantId] = useState<string | null>(null);
 
   const tenantFormRef = useRef<HTMLFormElement>(null);
   const branchFormRef = useRef<HTMLFormElement>(null);
@@ -46,7 +44,6 @@ export default function TenantBranchWizard({ isOpen, onClose }: Props) {
     setBranchForm(BRANCH_INITIAL);
     setError(null);
     setLoading(false);
-    setTenantId(null);
   }
 
   function handleClose() {
@@ -64,24 +61,10 @@ export default function TenantBranchWizard({ isOpen, onClose }: Props) {
     setBranchForm((prev) => ({ ...prev, [name]: value }));
   }
 
-  async function handleStep1(e: FormEvent) {
+  function handleStep1(e: FormEvent) {
     e.preventDefault();
-    setLoading(true);
     setError(null);
-    try {
-      const tenant = await createTenant({
-        businessName: tenantForm.businessName,
-        taxId: tenantForm.taxId,
-        subdomain: tenantForm.subdomain,
-        country: country,
-      });
-      setTenantId(tenant.id);
-      setStep(2);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error inesperado');
-    } finally {
-      setLoading(false);
-    }
+    setStep(2);
   }
 
   async function handleStep2(e: FormEvent) {
@@ -89,11 +72,18 @@ export default function TenantBranchWizard({ isOpen, onClose }: Props) {
     setLoading(true);
     setError(null);
     try {
-      await createBranch({
-        ...(tenantId ? { tenantId } : {}),
-        name: branchForm.name,
-        ...(branchForm.address ? { address: branchForm.address } : {}),
-        ...(branchForm.phone ? { phone: branchForm.phone } : {}),
+      // El backend crea el tenant y su primera sucursal en una sola
+      // transacción — no hay forma de que quede un tenant sin sucursal.
+      await createTenant({
+        businessName: tenantForm.businessName,
+        taxId: tenantForm.taxId,
+        subdomain: tenantForm.subdomain,
+        country: country,
+        branch: {
+          name: branchForm.name,
+          ...(branchForm.address ? { address: branchForm.address } : {}),
+          ...(branchForm.phone ? { phone: branchForm.phone } : {}),
+        },
       });
       handleClose();
     } catch (err) {

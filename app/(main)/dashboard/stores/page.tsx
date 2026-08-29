@@ -23,6 +23,7 @@ import Accordion from '@/components/ui/Accordion';
 import Avatar from '@/components/ui/Avatar';
 import Search from '@/components/ui/Search';
 import MainTitle from '@/components/shared/MainTitle';
+import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import styles from './page.module.css';
 
 export default function StoresPage() {
@@ -177,7 +178,10 @@ export default function StoresPage() {
   return (
     <main className={styles.page}>
       <div className={styles.header}>
-        <MainTitle title="Locales" subtitle="Administración de sucursales y puntos de venta" />
+        <div>
+          <Breadcrumbs items={[{ label: 'Locales' }]} />
+          <MainTitle title="Locales" subtitle="Administración de sucursales y puntos de venta" />
+        </div>
         {canManage && <Button label="+ Nuevo local" onClick={() => setWizardOpen(true)} shadow />}
       </div>
 
@@ -253,7 +257,7 @@ export default function StoresPage() {
                             className={`${styles.statusDot} ${branch.active ? styles.statusDotActive : styles.statusDotInactive}`}
                             title={branch.active ? 'Activo' : 'Inactivo'}
                           />
-                          <span className={styles.branchName}>{branch.name}</span>
+                          <span className={styles.branchName}><strong>Sucursal:</strong> {branch.name}</span>
                         </div>
                         <div className={styles.metaRow}>
                           {branch.address && (

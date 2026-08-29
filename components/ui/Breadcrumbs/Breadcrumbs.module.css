@@ -1,0 +1,38 @@
+.breadcrumbs {
+  margin-bottom: 0.5rem;
+}
+
+.list {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 0.375rem;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+}
+
+.link {
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.link:hover {
+  color: var(--color-text-secondary);
+}
+
+.current {
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.separator {
+  color: var(--color-text-faint);
+}

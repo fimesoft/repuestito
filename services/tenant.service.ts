@@ -1,3 +1,5 @@
+import type { Branch } from './branch.service';
+
 export interface Tenant {
   id: string;
   businessName: string;
@@ -13,6 +15,16 @@ export interface CreateTenantPayload {
   taxId: string;
   subdomain: string;
   country?: string;
+  branch: {
+    name: string;
+    address?: string;
+    phone?: string;
+  };
+}
+
+export interface TenantWithBranch {
+  tenant: Tenant;
+  branch: Branch;
 }
 
 export interface UpdateTenantPayload {
@@ -53,7 +65,7 @@ export async function deleteTenant(id: string): Promise<void> {
   if (!res.ok) throw new Error('Error al eliminar el local');
 }
 
-export async function createTenant(payload: CreateTenantPayload): Promise<Tenant> {
+export async function createTenant(payload: CreateTenantPayload): Promise<TenantWithBranch> {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tenants`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -68,5 +80,5 @@ export async function createTenant(payload: CreateTenantPayload): Promise<Tenant
         : 'Error al crear el local';
     throw new Error(message);
   }
-  return res.json() as Promise<Tenant>;
+  return res.json() as Promise<TenantWithBranch>;
 }

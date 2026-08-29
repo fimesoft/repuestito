@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import MainTitle from '@/components/shared/MainTitle';
+import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import { usePermissions } from '@/hooks/usePermissions';
 import { getOrders, confirmOrder, cancelOrder, Order } from '@/services/orders.service';
 import styles from './page.module.css';
@@ -106,6 +107,7 @@ export default function OrdersPage() {
     <main className={styles.page}>
       <div className={styles.header}>
         <div>
+          <Breadcrumbs items={[{ label: 'Pedidos' }]} />
           <MainTitle title="Pedidos" subtitle="Gestión de órdenes de compra" />
         </div>
         <Link href="/dashboard/orders/new" className={styles.btnNew}>+ Nuevo pedido</Link>

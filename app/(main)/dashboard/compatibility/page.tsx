@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useCountry } from '@/context/CountryContext';
 import { getReplacements, Replacement } from '@/services/replacement.service';
 import MainTitle from '@/components/shared/MainTitle';
+import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import CompatibilitySection from '@/components/features/replacements/CompatibilitySection';
 import Search from '@/components/ui/Search';
 import Loading from '@/components/ui/Loading';
@@ -35,6 +36,7 @@ export default function CompatibilityPage() {
 
   return (
     <main className={styles.page}>
+      <Breadcrumbs items={[{ label: 'Compatibilidades' }]} />
       <MainTitle title="Compatibilidades" subtitle="Asociá repuestos a los modelos de vehículo compatibles" className={styles.pageTitle} />
 
       <div className={styles.layout}>

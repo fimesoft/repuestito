@@ -16,6 +16,7 @@ import Search from '@/components/ui/Search';
 import PageCount from '@/components/shared/PageCount';
 import Paginator from '@/components/ui/Paginator';
 import MainTitle from '@/components/shared/MainTitle';
+import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import styles from './page.module.css';
 
 const DEFAULT_LIMIT = 20;
@@ -116,7 +117,10 @@ export default function CountriesPage() {
   return (
     <main className={styles.page}>
       <div className={styles.header}>
-        <MainTitle title="Países" subtitle="Catálogo de países habilitados en la plataforma" />
+        <div>
+          <Breadcrumbs items={[{ label: 'Países' }]} />
+          <MainTitle title="Países" subtitle="Catálogo de países habilitados en la plataforma" />
+        </div>
         {isAdmin && <Button label="+ Nuevo país" onClick={openCreate} shadow />}
       </div>
 

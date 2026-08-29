@@ -197,7 +197,7 @@
 .branchName {
   display: block;
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 400;
   color: var(--color-text);
 }
 

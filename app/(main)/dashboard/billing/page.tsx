@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import MainTitle from '@/components/shared/MainTitle';
+import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import { usePermissions } from '@/hooks/usePermissions';
 import { getInvoices, cancelInvoice, Invoice } from '@/services/billing.service';
 import styles from './page.module.css';
@@ -88,6 +89,7 @@ export default function BillingPage() {
     <main className={styles.page}>
       <div className={styles.header}>
         <div>
+          <Breadcrumbs items={[{ label: 'Facturación' }]} />
           <MainTitle title="Facturación" subtitle="Registro de ventas y emisión de facturas" />
         </div>
         <Link href="/dashboard/billing/new" className={styles.btnNew}>+ Nueva venta</Link>

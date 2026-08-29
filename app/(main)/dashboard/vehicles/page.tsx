@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Modal from '@/components/ui/Modal/Modal';
 import MainTitle from '@/components/shared/MainTitle';
+import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import Button from '@/components/ui/Button/Button';
 import {
   getBrands, createBrand, deleteBrand,
@@ -176,7 +177,10 @@ export default function VehiclesPage() {
   return (
     <main className={styles.page}>
       <div className={styles.header}>
-        <MainTitle title="Parque automotor" subtitle="Catálogo de marcas, modelos y versiones de vehículos" />
+        <div>
+          <Breadcrumbs items={[{ label: 'Parque automotor' }]} />
+          <MainTitle title="Parque automotor" subtitle="Catálogo de marcas, modelos y versiones de vehículos" />
+        </div>
         {isAdmin && (
           <Button label="+ Marca" onClick={() => setAddingBrand(true)} shadow />
         )}

@@ -16,6 +16,7 @@ import Search from '@/components/ui/Search';
 import PageCount from '@/components/shared/PageCount';
 import Paginator from '@/components/ui/Paginator';
 import MainTitle from '@/components/shared/MainTitle';
+import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import styles from './page.module.css';
 
 const DEFAULT_LIMIT = 20;
@@ -115,7 +116,10 @@ export default function BrandsPage() {
   return (
     <main className={styles.page}>
       <div className={styles.header}>
-        <MainTitle title="Marcas" subtitle="Catálogo de marcas de repuestos verificadas" />
+        <div>
+          <Breadcrumbs items={[{ label: 'Marcas' }]} />
+          <MainTitle title="Marcas" subtitle="Catálogo de marcas de repuestos verificadas" />
+        </div>
         {isAdmin && <Button label="+ Nueva marca" onClick={openCreate} shadow />}
       </div>
 
