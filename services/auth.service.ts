@@ -1,3 +1,5 @@
+import { translateApiError } from '@/lib/api-errors';
+
 const API = process.env.NEXT_PUBLIC_API_URL;
 
 export interface AuthUser {
@@ -20,11 +22,7 @@ async function request<T>(path: string, body: Record<string, string>): Promise<T
   });
   const data: unknown = await res.json();
   if (!res.ok) {
-    const message =
-      data && typeof data === 'object' && 'message' in data
-        ? String((data as { message: unknown }).message)
-        : 'Error inesperado';
-    throw new Error(message);
+    throw new Error(translateApiError(data));
   }
   return data as T;
 }
