@@ -32,7 +32,7 @@ export default function DashboardSidebar() {
   const [showLogoutMenu, setShowLogoutMenu] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
-  const { hasRole, currentUser } = usePermissions();
+  const { hasRole, currentUser, needsOnboarding } = usePermissions();
 
   const [openSections, setOpenSections] = useState<Set<string>>(
     () => new Set(NAV_SECTIONS.map(section => section.key))
@@ -111,7 +111,18 @@ export default function DashboardSidebar() {
         </button>
 
         <ul className={styles.nav} role="list">
-          {NAV_SECTIONS.map(section => {
+          {needsOnboarding ? (
+            <li className={styles.section}>
+              <ul className={styles.sectionList} role="list">
+                <li>
+                  <span className={styles.navItem} title={collapsed ? 'Crear mi local' : undefined}>
+                    <span className={styles.navIcon}><NavIconMask src="/icons/store.svg" /></span>
+                    {!collapsed && <span>Crear mi local</span>}
+                  </span>
+                </li>
+              </ul>
+            </li>
+          ) : NAV_SECTIONS.map(section => {
             if (section.minRole && !hasRole(section.minRole)) return null;
             const visibleItems = section.items.filter(item => !item.minRole || hasRole(item.minRole));
             if (visibleItems.length === 0) return null;

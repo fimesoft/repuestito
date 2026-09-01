@@ -22,12 +22,13 @@ interface BranchForm {
 interface Props {
   isOpen: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
 const TENANT_INITIAL: TenantForm = { businessName: '', taxId: '', subdomain: '' };
 const BRANCH_INITIAL: BranchForm = { name: '', address: '', phone: '' };
 
-export default function TenantBranchWizard({ isOpen, onClose }: Props) {
+export default function TenantBranchWizard({ isOpen, onClose, onSuccess }: Props) {
   const { country } = useCountry();
   const [step, setStep] = useState(1);
   const [tenantForm, setTenantForm] = useState<TenantForm>(TENANT_INITIAL);
@@ -85,6 +86,7 @@ export default function TenantBranchWizard({ isOpen, onClose }: Props) {
           ...(branchForm.phone ? { phone: branchForm.phone } : {}),
         },
       });
+      onSuccess?.();
       handleClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error inesperado');
