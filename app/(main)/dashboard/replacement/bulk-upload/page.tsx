@@ -49,6 +49,13 @@ export default function BulkUploadPage() {
     }
   }
 
+  function handleDownloadTemplate() {
+    const link = document.createElement('a');
+    link.href = '/templates/repuestos-ejemplo.csv';
+    link.download = '';
+    link.click();
+  }
+
   async function handleUpload() {
     if (!file) return;
     setUploading(true);
@@ -90,12 +97,9 @@ export default function BulkUploadPage() {
     <main className={styles.page}>
       <Breadcrumbs items={[{ label: 'Repuestos', href: '/dashboard/replacement' }, { label: 'Carga masiva' }]} />
       <MainTitle title="Carga masiva de repuestos" subtitle="Importá múltiples repuestos desde un archivo CSV" className={styles.pageTitle} />
-      <p className={styles.desc}>
-        Máximo 5 MB.{' '}
-        <a href="/templates/repuestos-ejemplo.csv" download className={styles.downloadLink}>
-          Descargar CSV de ejemplo
-        </a>
-      </p>
+      <div className={styles.desc}>
+        <Button label="Descargar CSV de ejemplo" onClick={handleDownloadTemplate} variant="secondary" icon="/icons/download.svg" />
+      </div>
 
       <div className={styles.card}>
         <FileDropzone onFileSelect={setFile} accept=".csv" className={styles.dropzone}>

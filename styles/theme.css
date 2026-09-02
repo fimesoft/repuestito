@@ -16,6 +16,7 @@
   --color-border:           #e2e8f0;
   --color-border-subtle:    #f0f4f8;
   --color-border-dashed:    #cbd5e0;
+  --color-border-strong:    #a7a7a7;
 
   /* ── Surfaces ───────────────────────────── */
   --bg:                     #f4f5f7;
@@ -44,6 +45,10 @@
   /* ── Neutral (button variant) ───────────── */
   --color-neutral:          #898d94;
   --color-neutral-hover:    #2d3748;
+
+  /* ── Disabled state ─────────────────────── */
+  --color-disabled-bg:      #cbd5e0;
+  --color-disabled-text:    #9ca6b4;
 
   /* ── Layout ─────────────────────────────── */
   --header-height:          60px;

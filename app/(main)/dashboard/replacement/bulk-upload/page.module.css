@@ -1,4 +1,4 @@
-.page { padding: 2rem; max-width: 640px; }
+.page { padding: 2rem; width: 100%; }
 
 .pageTitle { margin-bottom: 1.5rem; }
 
@@ -10,8 +10,8 @@
 }
 
 .desc {
-  font-size: 14px;
-  color: var(--color-text-muted);
+  display: flex;
+  justify-content: flex-end;
   margin-bottom: 1.5rem;
 }
 
@@ -22,14 +22,17 @@
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 1rem;
   margin-bottom: 1.5rem;
+  text-align: center;
 }
 
 .dropzone {
   flex-direction: column;
   gap: 10px;
   padding: 2rem;
+  width: 100%;
 }
 
 .uploadIcon { color: var(--color-text-muted); }
@@ -49,14 +52,6 @@
 }
 
 .fileName span { font-weight: 400; color: var(--color-text-muted); }
-
-.downloadLink {
-  color: var(--color-primary);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.downloadLink:hover { text-decoration: underline; }
 
 .error { font-size: 13px; color: var(--color-error); }
 

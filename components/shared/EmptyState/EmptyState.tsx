@@ -1,20 +1,13 @@
 'use client';
 
-import Button from '@/components/ui/Button/Button';
 import styles from './EmptyState.module.css';
 
 type Variant = 'empty' | 'not-found' | 'error' | 'no-results';
-
-interface Action {
-  label: string;
-  onClick: () => void;
-}
 
 interface EmptyStateProps {
   variant: Variant;
   title?: string;
   description?: string;
-  action?: Action;
 }
 
 const ICONS: Record<Variant, React.ReactNode> = {
@@ -73,7 +66,7 @@ const ICON_COLOR: Record<Variant, string> = {
   'no-results': styles.iconNeutral,
 };
 
-export default function EmptyState({ variant, title, description, action }: EmptyStateProps) {
+export default function EmptyState({ variant, title, description }: EmptyStateProps) {
   const defaults = DEFAULTS[variant];
 
   return (
@@ -83,9 +76,6 @@ export default function EmptyState({ variant, title, description, action }: Empt
       </span>
       <p className={styles.title}>{title ?? defaults.title}</p>
       <p className={styles.description}>{description ?? defaults.description}</p>
-      {action && (
-        <Button label={action.label} onClick={action.onClick} color="primary" />
-      )}
     </div>
   );
 }

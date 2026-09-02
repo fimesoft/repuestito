@@ -7,7 +7,7 @@ const publicSans = Public_Sans({ subsets: ["latin"], display: "swap", weight: ["
 const manrope = Manrope({ subsets: ["latin"], display: "swap", variable: "--font-manrope" });
 
 export const metadata: Metadata = {
-  title: "Repuestito",
+  title: "Piezify",
   description: "Marketplace de repuestos automotrices",
 };
 

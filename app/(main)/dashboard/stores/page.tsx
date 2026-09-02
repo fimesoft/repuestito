@@ -224,7 +224,7 @@ export default function StoresPage() {
                       <span className={styles.metaItem}>CUIT {tenant.taxId}</span>
                       <span className={styles.metaItem}>
                         <img src="/icons/link.svg" width={13} height={13} alt="" className={styles.metaIcon} />
-                        {tenant.subdomain}.repuestito.com
+                        {tenant.subdomain}.piezify.com
                       </span>
                       {tenant.country && <span className={styles.metaItem}>{getCountryName(tenant.country)}</span>}
                       <span className={styles.metaItem}>

@@ -253,12 +253,12 @@ export default function ReplacementDashboardPage() {
       {loading ? (
         <Loading />
       ) : loadError ? (
-        <EmptyState variant="error" action={{ label: 'Reintentar', onClick: () => setLoadError(false) }} />
+        <EmptyState variant="error" />
       ) : viewMode === 'table' ? (
         <Table<Replacement>
           rows={replacements}
           getKey={r => r.id}
-          emptyMessage={<EmptyState variant={search ? 'no-results' : 'empty'} action={!search && canManage ? { label: '+ Nuevo repuesto', onClick: openCreate } : undefined} />}
+          emptyMessage={<EmptyState variant={search ? 'no-results' : 'empty'} />}
           onRowClick={r => router.push(`/dashboard/replacement/${r.id}/show`)}
           columns={[
             { header: 'Producto', render: r => r.globalReplacement?.imageUrl
@@ -306,7 +306,7 @@ export default function ReplacementDashboardPage() {
             />
           ))}
           {replacements.length === 0 && (
-            <EmptyState variant={search ? 'no-results' : 'empty'} action={!search && canManage ? { label: '+ Nuevo repuesto', onClick: openCreate } : undefined} />
+            <EmptyState variant={search ? 'no-results' : 'empty'} />
           )}
         </div>
       )}

@@ -12,7 +12,7 @@ export default function Logo({ href = '/', className, iconOnly = false }: LogoPr
       <span className={styles.icon}>
         <span className={styles.inner} />
       </span>
-      {!iconOnly && <span className={styles.text}>Repuestito</span>}
+      {!iconOnly && <span className={styles.text}>Piezify</span>}
     </a>
   );
 }
