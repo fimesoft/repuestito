@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="150" viewBox="0 0 180 150">
+      <ellipse cx="90" cy="128" rx="62" ry="10" fill="#eef2ff"></ellipse>
+      <g transform="translate(30,50)">
+        <path d="M0 24 L60 24 L52 78 L8 78 Z" fill="#eef2ff" stroke="#3D63DD" stroke-width="2.5" stroke-linejoin="round"></path>
+        <path d="M0 24 L8 6 L52 6 L60 24" fill="none" stroke="#3D63DD" stroke-width="2.5" stroke-linejoin="round"></path>
+        <path d="M8 6 L14 24 M52 6 L46 24" stroke="#3D63DD" stroke-width="2" stroke-linecap="round"></path>
+      </g>
+      <g transform="translate(76,4) rotate(18)">
+        <path d="M0 0 L10 0 L10 26 L14 26 L5 40 L-4 26 L0 26 Z" fill="#3D63DD"></path>
+      </g>
+      <g transform="translate(122,20)">
+        <polygon points="10,0 19,5 19,15 10,20 1,15 1,5" fill="none" stroke="#3D63DD" stroke-width="2.2" stroke-linejoin="round"></polygon>
+        <circle cx="10" cy="10" r="3.4" fill="none" stroke="#3D63DD" stroke-width="2"></circle>
+      </g>
+      <path d="M118 44 q6 -8 12 -2" stroke="#a0aec0" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="1 6"></path>
+      <path d="M40 8 q6 -8 12 -2" stroke="#a0aec0" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="1 6"></path>
+    </svg>

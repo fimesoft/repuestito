@@ -120,12 +120,21 @@ export default function BillingPage() {
         <PageCount total={total} limit={limit} onLimitChange={next => { setLimit(next); setPage(1); void load(1); }} />
       </div>
 
-      {error && <p className={styles.error}>{error}</p>}
-
       {loading ? <Loading /> : <Table<Invoice>
         rows={visibleInvoices}
         getKey={inv => inv.id}
-        emptyMessage={<EmptyState variant={debouncedSearch || statusFilter ? 'no-results' : 'empty'} />}
+        emptyMessage={error ? (
+          <EmptyState variant="error" description={error} />
+        ) : (
+          <EmptyState
+            variant={debouncedSearch || statusFilter ? 'no-results' : 'empty'}
+            title={debouncedSearch || statusFilter ? 'Sin facturas para tu búsqueda' : 'No hay facturas registradas'}
+            description={debouncedSearch || statusFilter
+              ? 'No encontramos facturas que coincidan con tu búsqueda o filtros. Probá con otros términos.'
+              : 'Aún no tienes facturas generadas. Cuando se emitan, aparecerán aquí.'}
+            illustration="orders"
+          />
+        )}
         columns={[
           { header: 'Número', render: inv => inv.invoiceNumber ?? '—', className: styles.tdNumber },
           { header: 'Comprador', render: inv => [inv.buyerName, inv.buyerLastname].filter(Boolean).join(' ') || '—', className: styles.tdMeta },

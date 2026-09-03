@@ -49,8 +49,6 @@
 }
 .input:focus, .select:focus { border-color: var(--color-primary); }
 
-.error { font-size: 13px; color: var(--color-error); margin-bottom: 1rem; }
-
 .tableWrapper {
   overflow-x: auto;
   border: 1px solid var(--color-border);

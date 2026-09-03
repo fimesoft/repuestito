@@ -135,12 +135,21 @@ export default function OrdersPage() {
         <PageCount total={total} limit={limit} onLimitChange={next => { setLimit(next); setPage(1); void load(1); }} />
       </div>
 
-      {error && <p className={styles.error}>{error}</p>}
-
       {loading ? <Loading /> : <Table<Order>
         rows={visibleOrders}
         getKey={o => o.id}
-        emptyMessage={<EmptyState variant={debouncedSearch ? 'no-results' : 'empty'} />}
+        emptyMessage={error ? (
+          <EmptyState variant="error" description={error} />
+        ) : (
+          <EmptyState
+            variant={debouncedSearch ? 'no-results' : 'empty'}
+            title={debouncedSearch ? 'Sin pedidos para tu búsqueda' : 'No hay pedidos registrados'}
+            description={debouncedSearch
+              ? 'No encontramos pedidos que coincidan con tu búsqueda. Probá con otro comprador.'
+              : 'Aún no tienes ventas registradas. Cuando ingresen, aparecerán aquí.'}
+            illustration="orders"
+          />
+        )}
         columns={[
           { header: 'Número', render: o => o.orderNumber ?? '—', className: styles.tdNumber },
           { header: 'Comprador', render: o => [o.buyerName, o.buyerLastname].filter(Boolean).join(' ') || '—', className: styles.tdMeta },

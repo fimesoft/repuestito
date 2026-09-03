@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import MainTitle from '@/components/shared/MainTitle';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
-import Link from 'next/link';
 
 import Modal from '@/components/ui/Modal/Modal';
 import Button from '@/components/ui/Button/Button';
@@ -226,6 +225,18 @@ export default function ReplacementDashboardPage() {
   const modalSave = creating ? handleCreate : handleUpdate;
   const modalCanDisable = creating ? (saving || !canCreate) : saving;
 
+  const listEmptyMessage = loadError ? (
+    <EmptyState variant="error" />
+  ) : (
+    <EmptyState
+      variant={search ? 'no-results' : 'empty'}
+      title={search ? 'Sin repuestos para tu búsqueda' : 'No hay repuestos registrados'}
+      description={search
+        ? 'No encontramos repuestos que coincidan con tu búsqueda. Probá con otro nombre, marca o código.'
+        : 'Aún no tienes repuestos registrados. Cuando ingresen, aparecerán aquí.'}
+    />
+  );
+
   const modalFooter = (
     <>
       <Button label="Cancelar" variant="outline" color="neutral" onClick={modalClose} disabled={saving} />
@@ -252,13 +263,11 @@ export default function ReplacementDashboardPage() {
       </div>
       {loading ? (
         <Loading />
-      ) : loadError ? (
-        <EmptyState variant="error" />
       ) : viewMode === 'table' ? (
         <Table<Replacement>
           rows={replacements}
           getKey={r => r.id}
-          emptyMessage={<EmptyState variant={search ? 'no-results' : 'empty'} />}
+          emptyMessage={listEmptyMessage}
           onRowClick={r => router.push(`/dashboard/replacement/${r.id}/show`)}
           columns={[
             { header: 'Producto', render: r => r.globalReplacement?.imageUrl
@@ -305,9 +314,7 @@ export default function ReplacementDashboardPage() {
               price={r.price}
             />
           ))}
-          {replacements.length === 0 && (
-            <EmptyState variant={search ? 'no-results' : 'empty'} />
-          )}
+          {replacements.length === 0 && listEmptyMessage}
         </div>
       )}
 
