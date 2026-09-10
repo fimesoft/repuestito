@@ -2,12 +2,22 @@
 
 import { useReducer, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { usePermissions } from '@/hooks/usePermissions';
 import { getReplacements, Replacement } from '@/services/replacement.service';
 import { searchCustomers, Customer } from '@/services/customers.service';
 import { createInvoice } from '@/services/billing.service';
 import { createOrder } from '@/services/orders.service';
+import Card from '@/components/ui/Card';
+import Button from '@/components/ui/Button/Button';
+import { getStockLevel, StockLevel } from '@/constants/replacement';
 import styles from '@/app/(main)/dashboard/billing/page.module.css';
+
+const STOCK_COLOR_CLASS: Record<StockLevel, string> = {
+  low: 'stockLow',
+  normal: 'stockNormal',
+  full: 'stockFull',
+};
 
 type CartItem = {
   replacementId: string;
@@ -222,24 +232,41 @@ export default function SaleForm({ mode }: SaleFormProps) {
           {searchLoading && <p className={styles.hint}>Buscando...</p>}
 
           {results.length > 0 && (
-            <div className={styles.resultList}>
+            <div className={styles.resultsGrid}>
               {results.map(r => (
-                <div key={r.id} className={styles.resultItem}>
+                <Card key={r.id} className={styles.resultCard}>
+                  <div className={styles.resultImageWrapper}>
+                    {r.globalReplacement?.imageUrl ? (
+                      <Image
+                        src={r.globalReplacement.imageUrl}
+                        alt={r.globalReplacement.name}
+                        fill
+                        sizes="160px"
+                        className={styles.resultImage}
+                      />
+                    ) : (
+                      <div className={styles.resultImagePlaceholder} />
+                    )}
+                  </div>
                   <div className={styles.resultInfo}>
                     <span className={styles.resultName}>{r.globalReplacement?.name}</span>
-                    <span className={styles.resultMeta}>${Number(r.price).toFixed(2)} · Stock: {r.stock}</span>
+                    <span className={styles.resultMeta}>Precio: ${Number(r.price).toFixed(2)}</span>
+                    <span className={styles.resultMeta}>
+                      Stock: <span className={styles[STOCK_COLOR_CLASS[getStockLevel(r.stock)]]}>{r.stock}</span>
+                    </span>
                   </div>
-                  <button
-                    className={styles.btnAdd}
+                  <Button
+                    label="+ Agregar"
+                    size="sm"
+                    variant="outline"
+                    fullWidth
                     disabled={r.stock === 0}
                     onClick={() => dispatch({
                       type: 'ADD',
                       item: { replacementId: r.id, name: r.globalReplacement?.name ?? r.id, unitPrice: Number(r.price) },
                     })}
-                  >
-                    + Agregar
-                  </button>
-                </div>
+                  />
+                </Card>
               ))}
             </div>
           )}

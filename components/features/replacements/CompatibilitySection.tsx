@@ -5,20 +5,20 @@ import Button from '@/components/ui/Button';
 import {
   Compatibility,
   addCompatibility,
-  getCompatibilitiesByReplacement,
+  getCompatibilitiesByGlobalReplacement,
   removeCompatibility,
 } from '@/services/compatibility.service';
 import { VehicleBrand, VehicleModel, VehicleVersion, getBrands, getModels, getVersions } from '@/services/vehicle.service';
 import styles from './CompatibilitySection.module.css';
 
 interface Props {
-  replacementId: string;
+  globalReplacementId: number;
   title?: string;
   oemCode?: string | null;
   onCountChange?: (count: number) => void;
 }
 
-export default function CompatibilitySection({ replacementId, title = 'Compatibilidades', oemCode, onCountChange }: Props) {
+export default function CompatibilitySection({ globalReplacementId, title = 'Compatibilidades', oemCode, onCountChange }: Props) {
   const [items, setItems] = useState<Compatibility[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -33,11 +33,11 @@ export default function CompatibilitySection({ replacementId, title = 'Compatibi
   const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
-    getCompatibilitiesByReplacement(replacementId)
+    getCompatibilitiesByGlobalReplacement(globalReplacementId)
       .then(items => { setItems(items); onCountChange?.(items.length); })
       .catch(() => setLoadError('No se pudieron cargar las compatibilidades'));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [replacementId]);
+  }, [globalReplacementId]);
 
   function openAdd() {
     setAddBrand(null);
@@ -87,7 +87,7 @@ export default function CompatibilitySection({ replacementId, title = 'Compatibi
     setSaving(true);
     setSaveError(null);
     try {
-      const created = await addCompatibility(replacementId, addModel.id, version?.id);
+      const created = await addCompatibility(globalReplacementId, addModel.id, version?.id);
       const next = [...items, created];
       setItems(next);
       onCountChange?.(next.length);

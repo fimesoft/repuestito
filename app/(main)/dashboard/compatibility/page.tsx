@@ -47,7 +47,7 @@ export default function CompatibilityPage() {
           ) : (
             <ul className={styles.list}>
               {filtered.map(r => {
-                const count = counts[r.id];
+                const count = counts[r.globalReplacement.id];
                 return (
                   <li key={r.id}>
                     <button
@@ -75,10 +75,10 @@ export default function CompatibilityPage() {
         <section className={styles.detail}>
           {selected ? (
             <CompatibilitySection
-              replacementId={selected.id}
+              globalReplacementId={selected.globalReplacement.id}
               title={selected.globalReplacement.name}
               oemCode={selected.globalReplacement.codeOem}
-              onCountChange={count => setCounts(prev => ({ ...prev, [selected.id]: count }))}
+              onCountChange={count => setCounts(prev => ({ ...prev, [selected.globalReplacement.id]: count }))}
             />
           ) : (
             <p className={styles.placeholder}>Seleccioná un repuesto para gestionar sus compatibilidades.</p>

@@ -60,7 +60,6 @@ export default function UsersPage() {
     setter(data);
   }
 
-  // ── Create ──────────────────────────────────────
   function openCreate() {
     setCreateForm(EMPTY_CREATE);
     setFormBranches([]);
@@ -92,7 +91,6 @@ export default function UsersPage() {
     setInviteResult(null);
   }
 
-  // ── Edit ────────────────────────────────────────
   function openEdit(user: UserRecord) {
     setEditingUser(user);
     setEditForm({ email: user.email, role: user.role, tenantId: user.tenantId, branchId: user.branchId, active: user.active });
@@ -121,7 +119,6 @@ export default function UsersPage() {
     }
   }
 
-  // ── Delete ──────────────────────────────────────
   async function handleDelete(id: string) {
     if (!confirm('¿Eliminar este usuario?')) return;
     try {
@@ -145,7 +142,6 @@ export default function UsersPage() {
 
   useEffect(() => { setPage(1); }, [debouncedSearch, limit]);
 
-  // ── Footers ─────────────────────────────────────
   const createFooter = inviteResult ? (
     <Button label="Cerrar" color="primary" onClick={closeCreate} />
   ) : (
@@ -201,7 +197,6 @@ export default function UsersPage() {
         ] as Column<UserRecord>[]}
       />}
 
-      {/* Create modal */}
       <Modal isOpen={creating} onClose={closeCreate} title="Invitar usuario" size="md" footer={createFooter}>
         {inviteResult ? (
           <div className={styles.inviteSuccess}>
@@ -239,7 +234,6 @@ export default function UsersPage() {
         )}
       </Modal>
 
-      {/* Edit modal */}
       <Modal isOpen={!!editingUser} onClose={() => setEditingUser(null)} title="Editar usuario" size="md" footer={editFooter}>
         <div className={styles.form}>
           <label className={styles.formLabel}>

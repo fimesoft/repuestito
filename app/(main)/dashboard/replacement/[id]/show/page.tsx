@@ -85,7 +85,7 @@ export default function ReplacementShowPage({ params }: PageProps) {
         </div>
       )}
 
-      <CompatibilitySection replacementId={replacement.id} />
+      <CompatibilitySection globalReplacementId={replacement.globalReplacement.id} />
     </main>
   );
 }

@@ -169,8 +169,8 @@ export default function ReplacementDashboardPage() {
     setSaving(true);
     setEditError(null);
     try {
-      const { tenantId: _t, ...payload } = editForm;
-      const updated = await updateReplacement(editingReplacement.id, payload);
+      const { tenantId: _t, branchId, ...payload } = editForm;
+      const updated = await updateReplacement(editingReplacement.id, { ...payload, branchId: branchId || undefined });
       setReplacements(prev => prev.map(r => r.id === updated.id ? updated : r));
       setEditingReplacement(null);
     } catch (err) {
@@ -189,6 +189,7 @@ export default function ReplacementDashboardPage() {
         ...form,
         countryCode: country ?? '',
         ...(imageUrl ? { imageUrl } : {}),
+        ...(form.branchId ? { branchId: form.branchId } : { branchId: undefined }),
       };
       const created = await createReplacement(payload);
       setReplacements(prev => [created, ...prev]);

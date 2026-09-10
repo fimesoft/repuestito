@@ -113,7 +113,7 @@ AppModule
   ├─ UserModule         entidad User (roles: ADMIN | MODERATOR | SELLER)
   ├─ ReplacementModule  GET/POST/PATCH /api/replacements  (búsqueda paginada por nombre + country)
   ├─ VehicleModule      GET/POST /api/vehicles            (catálogo: brand/model/year/country/enums)
-  ├─ ReplacementCompatibilityModule  /api/compatibility   (junction Replacement ↔ Vehicle)
+  ├─ ReplacementCompatibilityModule  /api/compatibility   (junction GlobalReplacement ↔ VehicleModel/VehicleVersion)
   ├─ TenantModule       POST /api/tenants                 (negocio con subdomain único)
   ├─ BranchModule       POST /api/branches                (sucursales de un Tenant)
   ├─ CountryModule      /api/countries                    (catálogo de países con código/moneda)
@@ -128,7 +128,7 @@ Country ──< Tenant ──< Branch
                 │
                (storeId en Replacement — UUID directo, sin FK declarada aún)
 
-Replacement >──< Vehicle   (vía ReplacementCompatibility, unique [replacementId, vehicleId])
+GlobalReplacement >──< VehicleModel/VehicleVersion   (vía ReplacementCompatibility, unique [globalReplacementId, modelId, versionId])
 
 User (SELLER) → sellerId en Replacement (UUID directo, sin FK declarada aún)
 
