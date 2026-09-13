@@ -1,9 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import Button from '@/components/ui/Button/Button';
+import BackPage from '@/components/shared/BackPage';
 import { getReplacement, Replacement } from '@/services/replacement.service';
 import PartMapWrapper from '@/components/features/replacements/PartMapWrapper';
 import CompatibilitySection from '@/components/features/replacements/CompatibilitySection';
@@ -14,7 +13,6 @@ interface PageProps {
 }
 
 export default function ReplacementShowPage({ params }: PageProps) {
-  const router = useRouter();
   const [replacement, setReplacement] = useState<Replacement | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +34,7 @@ export default function ReplacementShowPage({ params }: PageProps) {
 
   return (
     <main className={styles.page}>
-      <Button label="← Volver" variant="ghost" color="neutral" onClick={() => router.back()} />
+      <BackPage href="/dashboard/replacement" />
 
       <div className={styles.card}>
         {info.imageUrl && (

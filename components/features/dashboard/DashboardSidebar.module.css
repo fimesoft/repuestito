@@ -330,6 +330,8 @@
 
   .closeBtn { display: flex; }
 
+  .collapseCircle { display: none; }
+
   .hamburger {
     display: flex;
     align-items: center;

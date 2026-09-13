@@ -9,7 +9,8 @@ import { searchCustomers, Customer } from '@/services/customers.service';
 import { createInvoice } from '@/services/billing.service';
 import { createOrder } from '@/services/orders.service';
 import Card from '@/components/ui/Card';
-import Button from '@/components/ui/Button/Button';
+import Button from '@/components/ui/Button';
+import BackPage from '@/components/shared/BackPage';
 import { getStockLevel, StockLevel } from '@/constants/replacement';
 import styles from '@/app/(main)/dashboard/billing/page.module.css';
 
@@ -113,7 +114,7 @@ export default function SaleForm({ mode }: SaleFormProps) {
     } catch {
       setCustomerSuggestions([]);
     }
-  }, [currentUser?.tenantId]);
+  }, [currentUser]);
 
   const selectCustomer = (c: Customer) => {
     setSelectedCustomer(c);
@@ -207,6 +208,7 @@ export default function SaleForm({ mode }: SaleFormProps) {
 
   return (
     <main className={styles.page}>
+      <BackPage href={mode === 'invoice' ? '/dashboard/billing' : '/dashboard/orders'} />
       <div className={styles.header}>
         <div>
           <h1 className={styles.title}>

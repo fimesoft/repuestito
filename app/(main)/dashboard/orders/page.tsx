@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import MainTitle from '@/components/shared/MainTitle';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import { usePermissions } from '@/hooks/usePermissions';
@@ -11,7 +12,6 @@ import Search from '@/components/ui/Search';
 import Table, { Column } from '@/components/ui/Table';
 import Select from '@/components/ui/Select';
 import { formatDateTime } from '@/lib/date';
-import Button from '@/components/ui/Button/Button';
 import EmptyState from '@/components/shared/EmptyState';
 import { useDebounce } from '@/hooks/useDebounce';
 import Badge, { BadgeVariant } from '@/components/ui/Badge';
@@ -37,6 +37,7 @@ const STATUS_VARIANT: Record<string, BadgeVariant> = {
 };
 
 export default function OrdersPage() {
+  const router = useRouter();
   const { currentUser, loading: permissionsLoading } = usePermissions();
 
   const [orders, setOrders] = useState<Order[]>([]);
@@ -138,6 +139,7 @@ export default function OrdersPage() {
       {loading ? <Loading /> : <Table<Order>
         rows={visibleOrders}
         getKey={o => o.id}
+        onRowClick={o => router.push(`/dashboard/orders/${o.id}?tenantId=${currentUser?.tenantId ?? ''}`)}
         emptyMessage={error ? (
           <EmptyState variant="error" description={error} />
         ) : (
@@ -157,11 +159,13 @@ export default function OrdersPage() {
           { header: 'Estado', render: o => <Badge label={STATUS_LABELS[o.status] ?? o.status} variant={STATUS_VARIANT[o.status] ?? 'neutral'} /> },
           { header: 'Fecha', render: o => o.createdAt ? formatDateTime(o.createdAt) : '—', className: styles.tdMeta },
           { header: '', render: o => (
-            <Dropdown items={[
-              { label: 'Ver', onClick: () => window.location.href = `/dashboard/orders/${o.id}?tenantId=${currentUser?.tenantId ?? ''}`, icon: '/icons/eye.svg' },
-              ...(o.status === 'pending' ? [{ label: 'Confirmar', onClick: () => handleConfirm(o.id), icon: '/icons/check.svg' }] : []),
-              ...(o.status === 'pending' || o.status === 'confirmed' ? [{ label: 'Cancelar', onClick: () => handleCancel(o.id), variant: 'danger' as const, icon: '/icons/cancel.svg' }] : []),
-            ]} />
+            <div onClick={event => event.stopPropagation()}>
+              <Dropdown items={[
+                { label: 'Ver', onClick: () => router.push(`/dashboard/orders/${o.id}?tenantId=${currentUser?.tenantId ?? ''}`), icon: '/icons/eye.svg' },
+                ...(o.status === 'pending' ? [{ label: 'Confirmar', onClick: () => handleConfirm(o.id), icon: '/icons/check.svg' }] : []),
+                ...(o.status === 'pending' || o.status === 'confirmed' ? [{ label: 'Cancelar', onClick: () => handleCancel(o.id), variant: 'danger' as const, icon: '/icons/cancel.svg' }] : []),
+              ]} />
+            </div>
           ), className: styles.tdActions },
         ] as Column<Order>[]}
       />}

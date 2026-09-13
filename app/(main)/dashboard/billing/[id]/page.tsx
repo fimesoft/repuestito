@@ -1,16 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { getInvoice, Invoice } from '@/services/billing.service';
-import Button from '@/components/ui/Button/Button';
+import Button from '@/components/ui/Button';
+import BackPage from '@/components/shared/BackPage';
 import styles from './page.module.css';
 import { formatDateLong } from '@/lib/date';
 import Badge from '@/components/ui/Badge';
 
 export default function InvoiceDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const id = typeof params.id === 'string' ? params.id : Array.isArray(params.id) ? params.id[0] : '';
   const tenantId = searchParams.get('tenantId') ?? '';
@@ -34,7 +34,7 @@ export default function InvoiceDetailPage() {
   return (
     <main className={styles.page}>
       <div className={styles.noPrint}>
-        <Button label="← Volver" variant="ghost" color="neutral" onClick={() => router.back()} />
+        <BackPage href="/dashboard/billing" />
         <Button label="Imprimir" variant="outline" color="neutral" onClick={() => window.print()} />
       </div>
 

@@ -2,63 +2,39 @@
 
 .noPrint {
   display: flex;
-  gap: 12px;
   margin-bottom: 1.5rem;
 }
 
-.btnBack {
-  padding: 7px 14px;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  background: var(--bg-surface);
-  color: var(--color-text-secondary);
-  font-size: 14px;
-  cursor: pointer;
+.orderActions {
+  justify-content: flex-end;
+  gap: 12px;
+  width: 100%;
+  max-width: 720px;
+  margin-top: 1.5rem;
+  margin-bottom: 0;
 }
-.btnBack:hover { background: var(--bg-muted); }
-
-.btnConfirm {
-  padding: 7px 14px;
-  border: none;
-  border-radius: 8px;
-  background: var(--color-primary);
-  color: var(--color-text-inverse);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-}
-.btnConfirm:hover { background: var(--color-primary-hover); }
-
-.btnFulfill {
-  padding: 7px 14px;
-  border: none;
-  border-radius: 8px;
-  background: var(--color-success);
-  color: var(--color-text-inverse);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-}
-.btnFulfill:hover { background: var(--color-success-hover); }
-
-.btnCancel {
-  padding: 7px 14px;
-  border: 1px solid var(--color-error);
-  border-radius: 8px;
-  background: var(--bg-surface);
-  color: var(--color-error);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-}
-.btnCancel:hover { background: var(--color-error-bg); }
 
 .order {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
   max-width: 720px;
   background: var(--bg-surface);
   border: 1px solid var(--color-border);
-  border-radius: 16px;
-  padding: 2rem;
+  border-radius: 3px;
+  padding: 2.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04), 0 18px 45px rgba(0, 0, 0, 0.08);
+}
+
+.order::after {
+  content: '';
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  width: 26px;
+  height: 26px;
+  background: linear-gradient(225deg, var(--bg) 48%, var(--color-border) 49%, var(--bg-muted) 52%);
+  clip-path: polygon(0 0, 100% 100%, 0 100%);
 }
 
 .orderHeader {
@@ -132,3 +108,14 @@
 
 .hint { font-size: 14px; color: var(--color-text-muted); }
 .error { font-size: 14px; color: var(--color-error); }
+
+@media (max-width: 768px) {
+  .order { padding: 1.5rem; }
+}
+
+@media print {
+  .noPrint { display: none; }
+  .page { padding: 0; }
+  .order { border: none; padding: 0; box-shadow: none; }
+  .order::after { display: none; }
+}

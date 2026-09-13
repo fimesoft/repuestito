@@ -15,6 +15,7 @@ interface SelectProps {
   disabled?: boolean;
   required?: boolean;
   width?: string | number;
+  ariaLabel?: string;
 }
 
 export default function Select({
@@ -25,6 +26,7 @@ export default function Select({
   disabled = false,
   required = false,
   width,
+  ariaLabel,
 }: SelectProps) {
   return (
     <select
@@ -34,6 +36,7 @@ export default function Select({
       onChange={e => onChange(e.target.value)}
       disabled={disabled}
       required={required}
+      aria-label={ariaLabel}
     >
       {placeholder !== undefined && <option value="">{placeholder}</option>}
       {options.map(opt => (

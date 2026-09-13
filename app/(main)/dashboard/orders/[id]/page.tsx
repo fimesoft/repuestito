@@ -1,11 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { usePermissions } from '@/hooks/usePermissions';
 import { getOrder, confirmOrder, fulfillOrder, cancelOrder, Order } from '@/services/orders.service';
-import Button from '@/components/ui/Button/Button';
+import Button from '@/components/ui/Button';
+import BackPage from '@/components/shared/BackPage';
 import styles from './page.module.css';
 import { formatDateLong } from '@/lib/date';
 import Badge, { BadgeVariant } from '@/components/ui/Badge';
@@ -26,7 +27,6 @@ const STATUS_VARIANT: Record<string, BadgeVariant> = {
 
 export default function OrderDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const { currentUser } = usePermissions();
 
@@ -89,16 +89,7 @@ export default function OrderDetailPage() {
   return (
     <main className={styles.page}>
       <div className={styles.noPrint}>
-        <Button label="← Volver" variant="ghost" color="neutral" onClick={() => router.back()} />
-        {order.status === 'pending' && (
-          <Button label="Confirmar" color="success" onClick={handleConfirm} />
-        )}
-        {order.status === 'confirmed' && (
-          <Button label="Convertir a factura" color="primary" onClick={handleFulfill} />
-        )}
-        {(order.status === 'pending' || order.status === 'confirmed') && (
-          <Button label="Cancelar" variant="outline" color="danger" onClick={handleCancel} />
-        )}
+        <BackPage href="/dashboard/orders" />
       </div>
 
       {actionError && <p className={styles.error} style={{ marginBottom: '1rem' }}>{actionError}</p>}
@@ -168,6 +159,18 @@ export default function OrderDetailPage() {
           </Link>
         )}
       </div>
+
+      {(order.status === 'pending' || order.status === 'confirmed') && (
+        <div className={`${styles.orderActions} ${styles.noPrint}`}>
+          {order.status === 'pending' && (
+            <Button label="Confirmar" color="success" onClick={handleConfirm} />
+          )}
+          {order.status === 'confirmed' && (
+            <Button label="Convertir a factura" color="primary" onClick={handleFulfill} />
+          )}
+          <Button label="Cancelar" variant="secondary" onClick={handleCancel} />
+        </div>
+      )}
     </main>
   );
 }

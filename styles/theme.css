@@ -1,9 +1,9 @@
 :root {
   /* ── Brand ──────────────────────────────── */
-  --color-primary:          #3D63DD;
-  --color-primary-hover:    #3254c5;
-  --color-primary-subtle:   #eef2ff;
-  --color-primary-ring:     rgba(61, 99, 221, 0.12);
+  --color-primary:          #f2771a;
+  --color-primary-hover:    #d86410;
+  --color-primary-subtle:   #fff3e8;
+  --color-primary-ring:     rgba(242, 119, 26, 0.18);
 
   /* ── Text ───────────────────────────────── */
   --color-text:             #1c2128;
@@ -54,14 +54,14 @@
   --header-height:          60px;
 
   /* ── Sidebar ────────────────────────────── */
-  --sidebar-bg:             #0f172a;
-  --sidebar-border:         #1e293b;
-  --sidebar-text:           #e2e8f0;
-  --sidebar-text-bright:    #f8fafc;
-  --sidebar-text-muted:     #94a3b8;
-  --sidebar-active-bg:      #1e3a5f;
-  --sidebar-active-text:    #93c5fd;
-  --sidebar-active-dot:     #3b82f6;
+  --sidebar-bg:             #fff;
+  --sidebar-border:         #e7e2de;
+  --sidebar-text:           #2f2925;
+  --sidebar-text-bright:    #1c1917;
+  --sidebar-text-muted:     #766b63;
+  --sidebar-active-bg:      #fff3e8;
+  --sidebar-active-text:    #d86410;
+  --sidebar-active-dot:     #f2771a;
 
   /* ── Badges ─────────────────────────────── */
   --badge-active-bg:        #c6f6d5;
@@ -76,4 +76,46 @@
   --badge-seller-text:      #744210;
   --badge-neutral-bg:       #e2e8f0;
   --badge-neutral-text:     #4a5568;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --color-primary-hover:    #ff9448;
+  --color-primary-subtle:   #342317;
+  --color-primary-ring:     rgba(242, 119, 26, 0.28);
+
+  --color-text:             #f7f3f0;
+  --color-text-secondary:   #d8d0cb;
+  --color-text-muted:       #a99e97;
+  --color-text-faint:       #786e69;
+  --color-text-inverse:     #fff;
+
+  --color-border:           #403936;
+  --color-border-subtle:    #312b29;
+  --color-border-dashed:    #574d49;
+  --color-border-strong:    #70645e;
+
+  --bg:                     #1c1919;
+  --bg-surface:             #1c1919;
+  --bg-subtle:              #232020;
+  --bg-muted:               #2a2626;
+  --bg-header:              #1c1919;
+  --bg-dark:                #151313;
+
+  --color-neutral:          #64748b;
+  --color-neutral-hover:    #94a3b8;
+  --color-disabled-bg:      #334155;
+  --color-disabled-text:    #64748b;
+
+  --badge-neutral-bg:       #334155;
+  --badge-neutral-text:     #cbd5e1;
+
+  --sidebar-bg:             #1c1919;
+  --sidebar-border:         #403936;
+  --sidebar-text:           #f0ebe6;
+  --sidebar-text-bright:    #fffaf5;
+  --sidebar-text-muted:     #b7aaa0;
+  --sidebar-active-bg:      #4a2c16;
+  --sidebar-active-text:    #ffc48f;
 }

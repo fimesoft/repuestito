@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import styles from './Dropdown.module.css';
 
 export interface DropdownItem {
@@ -16,22 +17,48 @@ interface DropdownProps {
 
 export default function Dropdown({ items }: DropdownProps) {
   const [open, setOpen] = useState(false);
+  const [menuPosition, setMenuPosition] = useState<React.CSSProperties>({});
   const ref = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return;
     function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      if (!ref.current?.contains(target) && !menuRef.current?.contains(target)) {
         setOpen(false);
       }
     }
+    function close() { setOpen(false); }
     document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
+    window.addEventListener('resize', close);
+    window.addEventListener('scroll', close, true);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      window.removeEventListener('resize', close);
+      window.removeEventListener('scroll', close, true);
+    };
   }, [open]);
+
+  function toggleMenu() {
+    if (open) {
+      setOpen(false);
+      return;
+    }
+
+    const rect = ref.current?.getBoundingClientRect();
+    if (rect) {
+      const estimatedHeight = items.length * 38 + 8;
+      setMenuPosition(rect.bottom + 4 + estimatedHeight > window.innerHeight
+        ? { right: window.innerWidth - rect.right, bottom: window.innerHeight - rect.top + 4 }
+        : { right: window.innerWidth - rect.right, top: rect.bottom + 4 });
+    }
+    setOpen(true);
+  }
 
   return (
     <div className={styles.wrapper} ref={ref}>
-      <button className={styles.trigger} onClick={() => setOpen(p => !p)} aria-label="Acciones">
+      <button className={styles.trigger} onClick={toggleMenu} aria-label="Acciones" aria-haspopup="menu" aria-expanded={open}>
         <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
           <circle cx="8" cy="2.5" r="1.5" />
           <circle cx="8" cy="8" r="1.5" />
@@ -39,8 +66,8 @@ export default function Dropdown({ items }: DropdownProps) {
         </svg>
       </button>
 
-      {open && (
-        <div className={styles.menu}>
+      {open && createPortal(
+        <div className={styles.menu} ref={menuRef} role="menu" style={menuPosition}>
           {items.map((item, i) => (
             <button
               key={i}
@@ -53,7 +80,8 @@ export default function Dropdown({ items }: DropdownProps) {
               {item.label}
             </button>
           ))}
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );

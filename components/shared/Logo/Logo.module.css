@@ -6,21 +6,23 @@
 }
 
 .icon {
-  width: 30px;
-  height: 30px;
-  background: var(--color-primary);
-  border-radius: 9px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 34px;
+  height: 34px;
   flex-shrink: 0;
+  overflow: visible;
 }
 
-.inner {
-  width: 12px;
-  height: 12px;
-  background: var(--color-text-inverse);
-  border-radius: 2spx;
+.gear {
+  fill: none;
+  stroke: var(--color-primary);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.bevel {
+  opacity: 0.55;
+  stroke-width: 1;
 }
 
 .text {

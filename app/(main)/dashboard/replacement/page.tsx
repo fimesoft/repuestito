@@ -313,6 +313,7 @@ export default function ReplacementDashboardPage() {
               brand={r.globalReplacement?.brand?.name ?? ''}
               name={r.globalReplacement?.name ?? ''}
               price={r.price}
+              active={r.active !== false}
             />
           ))}
           {replacements.length === 0 && listEmptyMessage}
