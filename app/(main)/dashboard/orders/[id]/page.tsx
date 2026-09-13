@@ -4,12 +4,13 @@ import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { usePermissions } from '@/hooks/usePermissions';
-import { getOrder, confirmOrder, fulfillOrder, cancelOrder, Order } from '@/services/orders.service';
+import { getOrder, confirmOrderAndGenerateInvoice, fulfillOrder, cancelOrder, Order } from '@/services/orders.service';
 import Button from '@/components/ui/Button';
 import BackPage from '@/components/shared/BackPage';
 import styles from './page.module.css';
 import { formatDateLong } from '@/lib/date';
 import Badge, { BadgeVariant } from '@/components/ui/Badge';
+import Confirm from '@/components/shared/Confirm';
 
 const STATUS_LABELS: Record<string, string> = {
   pending: 'Pendiente',
@@ -37,6 +38,10 @@ export default function OrderDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
 
   useEffect(() => {
     if (!id || !tenantId) { setError('Parámetros inválidos'); setLoading(false); return; }
@@ -49,11 +54,15 @@ export default function OrderDetailPage() {
   async function handleConfirm() {
     if (!order) return;
     setActionError(null);
+    setConfirming(true);
     try {
-      await confirmOrder(order.id, tenantId);
-      setOrder(prev => prev ? { ...prev, status: 'confirmed' as const } : prev);
+      const updated = await confirmOrderAndGenerateInvoice(order.id, tenantId);
+      setOrder(updated);
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : 'Error al confirmar');
+      setActionError(err instanceof Error ? err.message : 'Error al confirmar y generar la factura');
+      throw err;
+    } finally {
+      setConfirming(false);
     }
   }
 
@@ -72,13 +81,16 @@ export default function OrderDetailPage() {
 
   async function handleCancel() {
     if (!order) return;
-    if (!confirm('¿Cancelar este pedido? Se restaurará el stock.')) return;
     setActionError(null);
+    setCancelling(true);
     try {
       const updated = await cancelOrder(order.id, tenantId);
       setOrder(updated);
     } catch (err) {
       setActionError(err instanceof Error ? err.message : 'Error al cancelar');
+      throw err;
+    } finally {
+      setCancelling(false);
     }
   }
 
@@ -163,14 +175,38 @@ export default function OrderDetailPage() {
       {(order.status === 'pending' || order.status === 'confirmed') && (
         <div className={`${styles.orderActions} ${styles.noPrint}`}>
           {order.status === 'pending' && (
-            <Button label="Confirmar" color="success" onClick={handleConfirm} />
+            <Button label="Confirmar" color="success" onClick={() => setConfirmOpen(true)} />
           )}
           {order.status === 'confirmed' && (
             <Button label="Convertir a factura" color="primary" onClick={handleFulfill} />
           )}
-          <Button label="Cancelar" variant="secondary" onClick={handleCancel} />
+          <Button label="Cancelar" variant="secondary" onClick={() => setCancelOpen(true)} />
         </div>
       )}
+
+      <Confirm
+        isOpen={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={handleConfirm}
+        isLoading={confirming}
+        message={`¿Estás seguro de que querés confirmar el pedido ${order.orderNumber ?? ''}? La factura se generará automáticamente.`}
+        confirmLabel="Confirmar y facturar"
+        loadingLabel="Generando factura…"
+        successMessage="El pedido fue confirmado y la factura se generó correctamente."
+      />
+
+      <Confirm
+        isOpen={cancelOpen}
+        onClose={() => setCancelOpen(false)}
+        onConfirm={handleCancel}
+        isLoading={cancelling}
+        title="Cancelar pedido"
+        message={`¿Estás seguro de que querés cancelar el pedido ${order.orderNumber ?? ''}? Se restaurará el stock.`}
+        confirmLabel="Cancelar pedido"
+        loadingLabel="Cancelando…"
+        confirmColor="danger"
+        successMessage="El pedido fue cancelado y el stock fue restaurado."
+      />
     </main>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import MainTitle from '@/components/shared/MainTitle';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import { usePermissions } from '@/hooks/usePermissions';
@@ -23,6 +24,7 @@ import Dropdown from '@/components/ui/Dropdown';
 const DEFAULT_LIMIT = 20;
 
 export default function BillingPage() {
+  const router = useRouter();
   const { currentUser, loading: permissionsLoading } = usePermissions();
 
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -123,6 +125,7 @@ export default function BillingPage() {
       {loading ? <Loading /> : <Table<Invoice>
         rows={visibleInvoices}
         getKey={inv => inv.id}
+        onRowClick={inv => router.push(`/dashboard/billing/${inv.id}?tenantId=${currentUser?.tenantId ?? ''}`)}
         emptyMessage={error ? (
           <EmptyState variant="error" description={error} />
         ) : (
@@ -143,10 +146,12 @@ export default function BillingPage() {
           { header: 'Estado', render: inv => <Badge label={inv.status === 'cancelled' ? 'Cancelada' : 'Completada'} variant={inv.status === 'cancelled' ? 'inactive' : 'active'} /> },
           { header: 'Fecha', render: inv => inv.issuedAt ? formatDateTime(inv.issuedAt) : '—', className: styles.tdMeta },
           { header: '', render: inv => (
-            <Dropdown items={[
-              { label: 'Ver', onClick: () => window.location.href = `/dashboard/billing/${inv.id}?tenantId=${currentUser?.tenantId ?? ''}`, icon: '/icons/eye.svg' },
-              ...(inv.status !== 'cancelled' ? [{ label: 'Cancelar', onClick: () => handleCancel(inv.id), variant: 'danger' as const, icon: '/icons/cancel.svg' }] : []),
-            ]} />
+            <div onClick={event => event.stopPropagation()}>
+              <Dropdown items={[
+                { label: 'Ver', onClick: () => router.push(`/dashboard/billing/${inv.id}?tenantId=${currentUser?.tenantId ?? ''}`), icon: '/icons/eye.svg' },
+                ...(inv.status !== 'cancelled' ? [{ label: 'Cancelar', onClick: () => handleCancel(inv.id), variant: 'danger' as const, icon: '/icons/cancel.svg' }] : []),
+              ]} />
+            </div>
           ), className: styles.tdActions },
         ] as Column<Invoice>[]}
       />}

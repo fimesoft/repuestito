@@ -26,6 +26,8 @@
 .lg { padding: 13px 24px; font-size: 15px; min-width: 170px; }
 .xl { padding: 16px 28px; font-size: 16px; font-weight: 700; min-width: 220px; }
 
+.iconOnly { padding: 8px; min-width: 0; width: 34px; height: 34px; }
+
 /* --- solid --- */
 .solid.primary  { background: var(--color-primary);  color: var(--color-text-inverse); }
 .solid.success  { background: var(--color-success);  color: var(--color-text-inverse); }

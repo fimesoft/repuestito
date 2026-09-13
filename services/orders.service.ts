@@ -118,6 +118,17 @@ export async function fulfillOrder(id: string, tenantId: string): Promise<{ id: 
   return res.json() as Promise<{ id: string; status: string }>;
 }
 
+export async function confirmOrderAndGenerateInvoice(id: string, tenantId: string): Promise<Order> {
+  try {
+    await confirmOrder(id, tenantId);
+  } catch (error) {
+    const current = await getOrder(id, tenantId);
+    if (current.status !== 'confirmed') throw error;
+  }
+  await fulfillOrder(id, tenantId);
+  return getOrder(id, tenantId);
+}
+
 export async function cancelOrder(id: string, tenantId: string): Promise<Order> {
   const res = await fetch(`${BASE}/${id}/cancel`, {
     method: 'PATCH',

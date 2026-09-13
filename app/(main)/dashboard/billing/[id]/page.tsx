@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { getInvoice, Invoice } from '@/services/billing.service';
-import Button from '@/components/ui/Button';
 import BackPage from '@/components/shared/BackPage';
 import styles from './page.module.css';
-import { formatDateLong } from '@/lib/date';
-import Badge from '@/components/ui/Badge';
+
+const InvoicePdfViewer = dynamic(() => import('@/components/features/billing/InvoicePdfViewer'), {
+  ssr: false,
+});
 
 export default function InvoiceDetailPage() {
   const params = useParams();
@@ -35,69 +37,9 @@ export default function InvoiceDetailPage() {
     <main className={styles.page}>
       <div className={styles.noPrint}>
         <BackPage href="/dashboard/billing" />
-        <Button label="Imprimir" variant="outline" color="neutral" onClick={() => window.print()} />
       </div>
 
-      <div className={styles.invoice}>
-        <div className={styles.invoiceHeader}>
-          <div>
-            <h1 className={styles.invoiceTitle}>Factura</h1>
-            <p className={styles.invoiceNumber}>{invoice.invoiceNumber}</p>
-          </div>
-          <div className={styles.invoiceMeta}>
-            <p className={styles.metaDate}>{formatDateLong(invoice.issuedAt)}</p>
-            <Badge label={invoice.status === 'cancelled' ? 'Cancelada' : 'Completada'} variant={invoice.status === 'cancelled' ? 'inactive' : 'active'} />
-          </div>
-        </div>
-
-        {(invoice.buyerName || invoice.buyerDoc || invoice.buyerPhone) && (
-          <div className={styles.buyerSection}>
-            <h2 className={styles.sectionTitle}>Comprador</h2>
-            {invoice.buyerName && <p className={styles.buyerField}>{invoice.buyerName}</p>}
-            {invoice.buyerDoc && <p className={styles.buyerField}>Doc: {invoice.buyerDoc}</p>}
-            {invoice.buyerPhone && <p className={styles.buyerField}>Tel: {invoice.buyerPhone}</p>}
-          </div>
-        )}
-
-        {invoice.items && invoice.items.length > 0 && (
-          <table className={styles.itemsTable}>
-            <thead>
-              <tr>
-                <th>Descripción</th>
-                <th className={styles.right}>Precio unit.</th>
-                <th className={styles.right}>Qty</th>
-                <th className={styles.right}>Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {invoice.items.map(item => (
-                <tr key={item.id}>
-                  <td>{item.description}</td>
-                  <td className={styles.right}>${Number(item.unitPrice).toFixed(2)}</td>
-                  <td className={styles.right}>{item.quantity}</td>
-                  <td className={styles.right}>${Number(item.lineTotal).toFixed(2)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-
-        <div className={styles.totals}>
-          <div className={styles.totalRow}><span>Subtotal</span><span>${Number(invoice.subtotal).toFixed(2)}</span></div>
-          <div className={styles.totalRow}><span>IVA ({Number(invoice.taxRate)}%)</span><span>${Number(invoice.taxAmount).toFixed(2)}</span></div>
-          <div className={`${styles.totalRow} ${styles.totalFinal}`}><span>Total</span><span>${Number(invoice.total).toFixed(2)}</span></div>
-        </div>
-
-        {invoice.notes && (
-          <div className={styles.notes}>
-            <span className={styles.notesLabel}>Notas:</span> {invoice.notes}
-          </div>
-        )}
-
-        <div className={styles.paymentRow}>
-          Método de pago: <strong>{invoice.paymentMethod}</strong>
-        </div>
-      </div>
+      <InvoicePdfViewer invoice={invoice} />
     </main>
   );
 }

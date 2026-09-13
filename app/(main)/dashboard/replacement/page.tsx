@@ -283,7 +283,11 @@ export default function ReplacementDashboardPage() {
             { header: 'Precio', render: r => `$${Number(r.price).toFixed(2)}`, className: styles.tdPrice },
             ...(isAdmin ? [{ header: 'País', render: (r: Replacement) => r.globalReplacement?.countryCode, className: styles.tdMeta } as Column<Replacement>] : []),
             { header: 'Stock', render: r => {
-              const STOCK_VARIANT: Record<string, BadgeVariant> = { low: 'inactive', normal: 'seller', full: 'active' };
+              const STOCK_VARIANT: Record<string, BadgeVariant> = {
+                low: 'stockLow',
+                normal: 'stockNormal',
+                full: 'stockFull',
+              };
               return <Badge label={`${r.stock} u.`} variant={STOCK_VARIANT[getStockLevel(r.stock)]} />;
             }},
             { header: 'Sucursal', render: r => r.branch?.name ?? '—', className: styles.tdMeta },

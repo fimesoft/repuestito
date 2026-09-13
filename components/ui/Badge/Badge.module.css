@@ -1,17 +1,63 @@
 .badge {
-  display: inline-block;
-  padding: 4px 10px;
+  display: inline-flex;
+  min-height: 24px;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 10px;
+  border: 1px solid var(--badge-accent);
   border-radius: 999px;
-  font-size: 11px;
-  font-weight: 600;
+  background: #fff;
+  color: var(--badge-accent);
+  box-shadow:
+    0 2px 6px color-mix(in srgb, var(--badge-accent) 20%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, var(--badge-accent) 8%, transparent);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1;
   white-space: nowrap;
+  vertical-align: middle;
 }
 
-.active     { background: var(--badge-active-bg);     color: var(--badge-active-text); }
-.inactive   { background: var(--badge-inactive-bg);   color: var(--badge-inactive-text); }
-.neutral    { background: var(--badge-neutral-bg);    color: var(--badge-neutral-text); }
-.warning    { background: var(--color-warning-bg);    color: var(--color-warning-text); border: 1px solid var(--color-warning-border); }
-.info       { background: var(--color-primary-subtle); color: var(--color-primary); }
-.admin      { background: var(--badge-admin-bg);      color: var(--badge-admin-text); }
-.moderator  { background: var(--badge-moderator-bg);  color: var(--badge-moderator-text); }
-.seller     { background: var(--badge-seller-bg);     color: var(--badge-seller-text); }
+.active {
+  --badge-accent: var(--badge-active-text);
+}
+
+.inactive {
+  --badge-accent: var(--badge-inactive-text);
+}
+
+.neutral {
+  --badge-accent: var(--badge-neutral-text);
+}
+
+.warning {
+  --badge-accent: var(--badge-warning-text);
+}
+
+.info {
+  --badge-accent: var(--badge-info-text);
+}
+
+.admin {
+  --badge-accent: var(--badge-admin-text);
+}
+
+.moderator {
+  --badge-accent: var(--badge-moderator-text);
+}
+
+.seller {
+  --badge-accent: var(--badge-seller-text);
+}
+
+.stockLow {
+  --badge-accent: var(--badge-inactive-text);
+}
+
+.stockNormal {
+  --badge-accent: var(--badge-warning-text);
+}
+
+.stockFull {
+  --badge-accent: var(--badge-active-text);
+}

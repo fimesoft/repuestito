@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import MainTitle from '@/components/shared/MainTitle';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import { usePermissions } from '@/hooks/usePermissions';
-import { getOrders, confirmOrder, cancelOrder, Order } from '@/services/orders.service';
+import { getOrders, confirmOrderAndGenerateInvoice, cancelOrder, Order } from '@/services/orders.service';
 import styles from './page.module.css';
 import Search from '@/components/ui/Search';
 import Table, { Column } from '@/components/ui/Table';
@@ -19,6 +19,7 @@ import PageCount from '@/components/shared/PageCount';
 import Paginator from '@/components/ui/Paginator';
 import Loading from '@/components/ui/Loading';
 import Dropdown from '@/components/ui/Dropdown';
+import Confirm from '@/components/shared/Confirm';
 
 const DEFAULT_LIMIT = 20;
 
@@ -48,6 +49,10 @@ export default function OrdersPage() {
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('');
   const [search, setSearch] = useState('');
+  const [orderToConfirm, setOrderToConfirm] = useState<Order | null>(null);
+  const [confirming, setConfirming] = useState(false);
+  const [orderToCancel, setOrderToCancel] = useState<Order | null>(null);
+  const [cancelling, setCancelling] = useState(false);
   const debouncedSearch = useDebounce(search, 600);
 
   const visibleOrders = orders.filter(o => {
@@ -81,24 +86,31 @@ export default function OrdersPage() {
     setPage(1);
   }, [load, permissionsLoading]);
 
-  async function handleConfirm(id: string) {
-    if (!currentUser?.tenantId) return;
+  async function handleConfirm() {
+    if (!currentUser?.tenantId || !orderToConfirm) return;
+    setConfirming(true);
     try {
-      await confirmOrder(id, currentUser.tenantId);
-      setOrders(prev => prev.map(o => o.id === id ? { ...o, status: 'confirmed' as const } : o));
+      const updated = await confirmOrderAndGenerateInvoice(orderToConfirm.id, currentUser.tenantId);
+      setOrders(prev => prev.map(o => o.id === orderToConfirm.id ? updated : o));
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Error al confirmar');
+      alert(err instanceof Error ? err.message : 'Error al confirmar y generar la factura');
+      throw err;
+    } finally {
+      setConfirming(false);
     }
   }
 
-  async function handleCancel(id: string) {
-    if (!currentUser?.tenantId) return;
-    if (!confirm('¿Cancelar este pedido? Se restaurará el stock.')) return;
+  async function handleCancel() {
+    if (!currentUser?.tenantId || !orderToCancel) return;
+    setCancelling(true);
     try {
-      const updated = await cancelOrder(id, currentUser.tenantId);
-      setOrders(prev => prev.map(o => o.id === id ? updated : o));
+      const updated = await cancelOrder(orderToCancel.id, currentUser.tenantId);
+      setOrders(prev => prev.map(o => o.id === orderToCancel.id ? updated : o));
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Error al cancelar');
+      throw err;
+    } finally {
+      setCancelling(false);
     }
   }
 
@@ -162,8 +174,8 @@ export default function OrdersPage() {
             <div onClick={event => event.stopPropagation()}>
               <Dropdown items={[
                 { label: 'Ver', onClick: () => router.push(`/dashboard/orders/${o.id}?tenantId=${currentUser?.tenantId ?? ''}`), icon: '/icons/eye.svg' },
-                ...(o.status === 'pending' ? [{ label: 'Confirmar', onClick: () => handleConfirm(o.id), icon: '/icons/check.svg' }] : []),
-                ...(o.status === 'pending' || o.status === 'confirmed' ? [{ label: 'Cancelar', onClick: () => handleCancel(o.id), variant: 'danger' as const, icon: '/icons/cancel.svg' }] : []),
+                ...(o.status === 'pending' ? [{ label: 'Confirmar', onClick: () => setOrderToConfirm(o), icon: '/icons/check.svg' }] : []),
+                ...(o.status === 'pending' || o.status === 'confirmed' ? [{ label: 'Cancelar', onClick: () => setOrderToCancel(o), variant: 'danger' as const, icon: '/icons/cancel.svg' }] : []),
               ]} />
             </div>
           ), className: styles.tdActions },
@@ -173,6 +185,30 @@ export default function OrdersPage() {
       {totalPages > 1 && (
         <Paginator currentPage={page} totalPages={totalPages} onPageChange={p => { setPage(p); void load(p); }} />
       )}
+
+      <Confirm
+        isOpen={orderToConfirm !== null}
+        onClose={() => setOrderToConfirm(null)}
+        onConfirm={handleConfirm}
+        isLoading={confirming}
+        message={`¿Estás seguro de que querés confirmar el pedido ${orderToConfirm?.orderNumber ?? ''}? La factura se generará automáticamente.`}
+        confirmLabel="Confirmar y facturar"
+        loadingLabel="Generando factura…"
+        successMessage="El pedido fue confirmado y la factura se generó correctamente."
+      />
+
+      <Confirm
+        isOpen={orderToCancel !== null}
+        onClose={() => setOrderToCancel(null)}
+        onConfirm={handleCancel}
+        isLoading={cancelling}
+        title="Cancelar pedido"
+        message={`¿Estás seguro de que querés cancelar el pedido ${orderToCancel?.orderNumber ?? ''}? Se restaurará el stock.`}
+        confirmLabel="Cancelar pedido"
+        loadingLabel="Cancelando…"
+        confirmColor="danger"
+        successMessage="El pedido fue cancelado y el stock fue restaurado."
+      />
     </main>
   );
 }

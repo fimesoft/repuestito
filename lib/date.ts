@@ -24,3 +24,12 @@ export function formatDateLong(value: string | Date): string {
     year: 'numeric',
   });
 }
+
+// "15:30"
+export function formatTime(value: string | Date): string {
+  return new Date(value).toLocaleTimeString('es-AR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+}

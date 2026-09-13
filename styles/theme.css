@@ -24,7 +24,6 @@
   --bg-subtle:              #f7fafc;
   --bg-muted:               #edf2f7;
   --bg-header:              #fff;
-  --bg-dark:                #1a2540;
 
   /* ── Feedback ───────────────────────────── */
   --color-error:            #c53030;
@@ -35,6 +34,7 @@
   --color-success-subtle:   #f0fff4;
   --color-success-bg:       #c6f6d5;
   --color-success-light:    #64c381;
+  --color-warning:          #b7791f;
   --color-warning-bg:       #fffbeb;
   --color-warning-border:   #f6e05e;
   --color-warning-text:     #744210;
@@ -64,17 +64,14 @@
   --sidebar-active-dot:     #f2771a;
 
   /* ── Badges ─────────────────────────────── */
-  --badge-active-bg:        #c6f6d5;
-  --badge-active-text:      #276749;
-  --badge-inactive-bg:      #fed7d7;
+  --badge-active-text:      #237a49;
+  --badge-inactive-bg:      #fff1f1;
   --badge-inactive-text:    #c53030;
-  --badge-admin-bg:         #e9d8fd;
   --badge-admin-text:       #553c9a;
-  --badge-moderator-bg:     #bee3f8;
   --badge-moderator-text:   #2a69ac;
-  --badge-seller-bg:        #fefcbf;
   --badge-seller-text:      #744210;
-  --badge-neutral-bg:       #e2e8f0;
+  --badge-warning-text:     #d88400;
+  --badge-info-text:        #2b6cb0;
   --badge-neutral-text:     #4a5568;
 }
 
@@ -101,14 +98,20 @@
   --bg-subtle:              #232020;
   --bg-muted:               #2a2626;
   --bg-header:              #1c1919;
-  --bg-dark:                #151313;
 
   --color-neutral:          #64748b;
   --color-neutral-hover:    #94a3b8;
   --color-disabled-bg:      #334155;
   --color-disabled-text:    #64748b;
 
-  --badge-neutral-bg:       #334155;
+  --badge-active-text:      #72d59b;
+  --badge-inactive-bg:      #422426;
+  --badge-inactive-text:    #ff9292;
+  --badge-admin-text:       #c9afff;
+  --badge-moderator-text:   #8bc8ff;
+  --badge-seller-text:      #f4ce71;
+  --badge-warning-text:     #f2ad18;
+  --badge-info-text:        #8bc8ff;
   --badge-neutral-text:     #cbd5e1;
 
   --sidebar-bg:             #1c1919;

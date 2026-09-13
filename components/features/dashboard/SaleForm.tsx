@@ -11,6 +11,7 @@ import { createOrder } from '@/services/orders.service';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import BackPage from '@/components/shared/BackPage';
+import Confirm from '@/components/shared/Confirm';
 import { getStockLevel, StockLevel } from '@/constants/replacement';
 import styles from '@/app/(main)/dashboard/billing/page.module.css';
 
@@ -91,6 +92,7 @@ export default function SaleForm({ mode }: SaleFormProps) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmed, setConfirmed] = useState<ConfirmedResult | null>(null);
+  const [createConfirmOpen, setCreateConfirmOpen] = useState(false);
 
   const handleSearch = useCallback(async (q: string) => {
     setSearch(q);
@@ -130,9 +132,9 @@ export default function SaleForm({ mode }: SaleFormProps) {
   const taxAmount = subtotal * taxRate / 100;
   const total = subtotal + taxAmount;
 
-  async function handleSubmit() {
-    if (!currentUser?.tenantId) { setError('Sin tenant'); return; }
-    if (cart.length === 0) { setError('El carrito está vacío'); return; }
+  async function handleSubmit(): Promise<boolean> {
+    if (!currentUser?.tenantId) { setError('Sin tenant'); return false; }
+    if (cart.length === 0) { setError('El carrito está vacío'); return false; }
     setSubmitting(true);
     setError(null);
 
@@ -162,8 +164,10 @@ export default function SaleForm({ mode }: SaleFormProps) {
         const ord = await createOrder(commonPayload);
         setConfirmed({ number: ord.orderNumber, total: Number(ord.total) });
       }
+      return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al procesar');
+      return false;
     } finally {
       setSubmitting(false);
     }
@@ -178,7 +182,7 @@ export default function SaleForm({ mode }: SaleFormProps) {
     setError(null); setConfirmed(null);
   }
 
-  if (confirmed) {
+  if (confirmed && mode === 'invoice') {
     return (
       <main className={styles.page}>
         <div className={styles.confirmation}>
@@ -394,7 +398,10 @@ export default function SaleForm({ mode }: SaleFormProps) {
           <button
             className={styles.btnSubmit}
             disabled={submitting || cart.length === 0}
-            onClick={handleSubmit}
+            onClick={() => {
+              if (mode === 'order') setCreateConfirmOpen(true);
+              else void handleSubmit();
+            }}
           >
             {submitting
               ? (mode === 'invoice' ? 'Emitiendo...' : 'Creando...')
@@ -402,6 +409,25 @@ export default function SaleForm({ mode }: SaleFormProps) {
           </button>
         </div>
       </div>
+
+      {mode === 'order' && (
+        <Confirm
+          isOpen={createConfirmOpen}
+          onClose={() => setCreateConfirmOpen(false)}
+          onSuccess={() => router.push('/dashboard/orders')}
+          onConfirm={handleSubmit}
+          isLoading={submitting}
+          title="Crear pedido"
+          message={`¿Estás seguro de que querés crear este pedido por un total de $${total.toFixed(2)}?`}
+          confirmLabel="Crear pedido"
+          loadingLabel="Creando pedido…"
+          successTitle="Pedido creado"
+          successMessage={confirmed
+            ? `${confirmed.number} fue creado correctamente. Total: $${confirmed.total.toFixed(2)}`
+            : 'El pedido fue creado correctamente.'}
+          successDuration={1800}
+        />
+      )}
     </main>
   );
 }
