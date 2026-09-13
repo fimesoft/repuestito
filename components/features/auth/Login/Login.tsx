@@ -1,5 +1,6 @@
 import { FormEvent } from 'react';
 import Button from '@/components/ui/Button';
+import Logo from '@/components/shared/Logo';
 import styles from '../authForm.module.css';
 
 interface Props {
@@ -29,8 +30,9 @@ export default function Login({
 }: Props) {
   return (
     <>
-      <h1 className={styles.heading}>Bienvenido</h1>
-      <p className={styles.sub}>Ingresa a tu cuenta para administrar tu marketplace</p>
+      <div className={styles.loginLogo}>
+        <Logo href="/" />
+      </div>
       <form className={styles.form} onSubmit={onSubmit}>
         <label className={styles.label}>
           Correo electrónico
