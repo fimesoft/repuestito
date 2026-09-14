@@ -1,18 +1,20 @@
-export const STOCK_THRESHOLDS = {
-  LOW_MAX: 4,
-  NORMAL_MAX: 15,
-} as const;
+const DEFAULT_LOW_STOCK_MAX = 4;
+const DEFAULT_NORMAL_STOCK_MAX = 15;
+
+export interface StockThresholds {
+  lowStockMax: number;
+  normalStockMax: number;
+}
+
+export const DEFAULT_STOCK_THRESHOLDS: StockThresholds = {
+  lowStockMax: DEFAULT_LOW_STOCK_MAX,
+  normalStockMax: DEFAULT_NORMAL_STOCK_MAX,
+};
 
 export type StockLevel = 'low' | 'normal' | 'full';
 
-export function getStockLevel(stock: number): StockLevel {
-  if (stock <= STOCK_THRESHOLDS.LOW_MAX) return 'low';
-  if (stock <= STOCK_THRESHOLDS.NORMAL_MAX) return 'normal';
+export function getStockLevel(stock: number, thresholds: StockThresholds = DEFAULT_STOCK_THRESHOLDS): StockLevel {
+  if (stock <= thresholds.lowStockMax) return 'low';
+  if (stock <= thresholds.normalStockMax) return 'normal';
   return 'full';
 }
-
-export const STOCK_LEVEL_LABEL: Record<StockLevel, string> = {
-  low: 'Stock bajo',
-  normal: 'Stock normal',
-  full: 'Stock completo',
-};

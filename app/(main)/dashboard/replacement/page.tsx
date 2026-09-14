@@ -14,11 +14,12 @@ import Table, { Column } from '@/components/ui/Table';
 import Select from '@/components/ui/Select';
 import ViewToggle from '@/components/ui/ViewToggle';
 import Toggle from '@/components/ui/Toggle';
-import Badge, { BadgeVariant } from '@/components/ui/Badge';
+import Badge, { BADGE_ACCENT_VAR, BadgeVariant } from '@/components/ui/Badge';
 import EmptyState from '@/components/shared/EmptyState';
 import PageCount from '@/components/shared/PageCount';
 import Loading from '@/components/ui/Loading';
 import Dropdown from '@/components/ui/Dropdown';
+import Tooltip from '@/components/ui/Tooltip';
 import PartCard from '@/components/features/replacements/PartCard';
 
 import {
@@ -31,9 +32,10 @@ import { getBrands, Brand } from '@/services/brands.service';
 
 import { usePermissions } from '@/hooks/usePermissions';
 import { useDebounce } from '@/hooks/useDebounce';
+import { useStockThresholds } from '@/hooks/useStockThresholds';
 import { useCountry } from '@/context/CountryContext';
 
-import { getStockLevel } from '@/constants/replacement';
+import { getStockLevel, StockThresholds } from '@/constants/replacement';
 import { formatDateTime } from '@/lib/date';
 import styles from './page.module.css';
 
@@ -50,6 +52,12 @@ const EMPTY_EDIT: EditFormState = { price: 0, stock: 0, active: true, tenantId: 
 
 const DEFAULT_LIMIT = 10;
 
+const STOCK_LEVEL_HINT: Record<'low' | 'normal' | 'full', (thresholds: StockThresholds) => string> = {
+  low: t => `Stock bajo: ${t.lowStockMax} unidades o menos`,
+  normal: t => `Stock normal: entre ${t.lowStockMax + 1} y ${t.normalStockMax} unidades`,
+  full: t => `Stock completo: más de ${t.normalStockMax} unidades`,
+};
+
 export default function ReplacementDashboardPage() {
   const router = useRouter();
   const [replacements, setReplacements] = useState<Replacement[]>([]);
@@ -59,6 +67,7 @@ export default function ReplacementDashboardPage() {
 
   const { country } = useCountry();
   const { currentUser, isAdmin, canManage } = usePermissions();
+  const stockThresholds = useStockThresholds();
   const visibleTenants = isAdmin ? tenants : tenants.filter(t => t.id === currentUser?.tenantId);
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 600);
@@ -288,7 +297,13 @@ export default function ReplacementDashboardPage() {
                 normal: 'stockNormal',
                 full: 'stockFull',
               };
-              return <Badge label={`${r.stock} u.`} variant={STOCK_VARIANT[getStockLevel(r.stock)]} />;
+              const level = getStockLevel(r.stock, stockThresholds);
+              const variant = STOCK_VARIANT[level];
+              return (
+                <Tooltip content={STOCK_LEVEL_HINT[level](stockThresholds)} color={BADGE_ACCENT_VAR[variant]}>
+                  <Badge label={`${r.stock} u.`} variant={variant} />
+                </Tooltip>
+              );
             }},
             { header: 'Sucursal', render: r => r.branch?.name ?? '—', className: styles.tdMeta },
             { header: 'Fecha', render: r => formatDateTime(r.createdAt), className: styles.tdMeta },

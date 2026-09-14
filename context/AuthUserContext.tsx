@@ -27,6 +27,13 @@ export function AuthUserProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  useEffect(() => {
+    if (!currentUser) return;
+    const theme = currentUser.theme === 'DARK' ? 'dark' : 'light';
+    document.documentElement.dataset.theme = theme;
+    window.localStorage.setItem('piezify-theme', theme);
+  }, [currentUser]);
+
   return (
     <AuthUserContext.Provider value={{ currentUser, loading, refetch }}>
       {children}

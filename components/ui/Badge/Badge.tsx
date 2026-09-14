@@ -18,6 +18,20 @@ export interface BadgeProps {
   variant: BadgeVariant;
 }
 
+export const BADGE_ACCENT_VAR: Record<BadgeVariant, string> = {
+  active: 'var(--badge-active-text)',
+  inactive: 'var(--badge-inactive-text)',
+  neutral: 'var(--badge-neutral-text)',
+  warning: 'var(--badge-warning-text)',
+  info: 'var(--badge-info-text)',
+  admin: 'var(--badge-admin-text)',
+  moderator: 'var(--badge-moderator-text)',
+  seller: 'var(--badge-seller-text)',
+  stockLow: 'var(--badge-inactive-text)',
+  stockNormal: 'var(--badge-warning-text)',
+  stockFull: 'var(--badge-active-text)',
+};
+
 function toSentenceCase(value: string): string {
   const normalized = value.trim().toLocaleLowerCase('es-AR');
   return normalized

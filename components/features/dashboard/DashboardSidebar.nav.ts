@@ -43,6 +43,7 @@ export const NAV_SECTIONS: NavSection[] = [
       { href: '/dashboard/vehicles', label: 'Vehículos', icon: '/icons/car.svg', mobileHidden: true, minRole: 'ADMIN' },
       { href: '/dashboard/admin/countries', label: 'Países', icon: '/icons/globe.svg', mobileHidden: true, minRole: 'ADMIN' },
       { href: '/dashboard/admin/brands', label: 'Marcas', icon: '/icons/tag.svg', mobileHidden: true, minRole: 'ADMIN' },
+      { href: '/dashboard/config', label: 'Configuración', icon: '/icons/settings.svg', mobileHidden: true, minRole: 'MODERATOR' },
     ],
   },
 ];

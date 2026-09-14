@@ -9,6 +9,8 @@ const ERROR_MESSAGES: Record<string, string> = {
   RATE_LIMIT_EXCEEDED: 'Demasiados intentos. Intenta de nuevo en unos minutos.',
   INSUFFICIENT_PERMISSIONS: 'No tenés permisos para esta acción',
   TENANT_ALREADY_ASSIGNED: 'Tu usuario ya tiene un local asignado',
+  TENANT_REQUIRED: 'Tu usuario no tiene un local asignado',
+  TENANT_CONFIG_INVALID_RANGE: 'El stock bajo debe ser menor que el stock normal',
 };
 
 function isApiErrorPayload(data: unknown): data is ApiErrorPayload {

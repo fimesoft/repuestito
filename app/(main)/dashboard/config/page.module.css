@@ -1,0 +1,64 @@
+.page { padding: 2rem; }
+
+.section {
+  background: var(--bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+  max-width: 480px;
+}
+
+.sectionTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 4px;
+}
+
+.sectionHint {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin-bottom: 1rem;
+}
+
+.stockForm {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.error {
+  color: var(--color-error);
+  font-size: 13px;
+  margin-top: 10px;
+}
+
+.success {
+  color: var(--color-success);
+  font-size: 13px;
+  margin-top: 10px;
+}
+
+.themeOptions {
+  display: flex;
+  gap: 14px;
+}
+
+.themeSwatch {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border);
+  cursor: pointer;
+  padding: 0;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.themeSwatch:hover { border-color: var(--color-border-strong); }
+
+.themeSwatchActive {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-ring);
+}

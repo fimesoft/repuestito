@@ -2,6 +2,8 @@ import { translateApiError } from '@/lib/api-errors';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
+export type UserTheme = 'LIGHT' | 'DARK';
+
 export interface AuthUser {
   id: string;
   email: string;
@@ -10,6 +12,7 @@ export interface AuthUser {
   branchId: string | null;
   isEmailVerified: boolean;
   active: boolean;
+  theme: UserTheme;
   createdAt: string;
 }
 

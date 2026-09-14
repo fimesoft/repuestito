@@ -4,6 +4,7 @@ import { useReducer, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { usePermissions } from '@/hooks/usePermissions';
+import { useStockThresholds } from '@/hooks/useStockThresholds';
 import { getReplacements, Replacement } from '@/services/replacement.service';
 import { searchCustomers, Customer } from '@/services/customers.service';
 import { createInvoice } from '@/services/billing.service';
@@ -69,6 +70,7 @@ interface ConfirmedResult {
 
 export default function SaleForm({ mode }: SaleFormProps) {
   const { currentUser } = usePermissions();
+  const stockThresholds = useStockThresholds();
   const router = useRouter();
 
   const [search, setSearch] = useState('');
@@ -258,7 +260,7 @@ export default function SaleForm({ mode }: SaleFormProps) {
                     <span className={styles.resultName}>{r.globalReplacement?.name}</span>
                     <span className={styles.resultMeta}>Precio: ${Number(r.price).toFixed(2)}</span>
                     <span className={styles.resultMeta}>
-                      Stock: <span className={styles[STOCK_COLOR_CLASS[getStockLevel(r.stock)]]}>{r.stock}</span>
+                      Stock: <span className={styles[STOCK_COLOR_CLASS[getStockLevel(r.stock, stockThresholds)]]}>{r.stock}</span>
                     </span>
                   </div>
                   <Button

@@ -1,3 +1,5 @@
+import type { UserTheme } from './auth.service';
+
 const API = process.env.NEXT_PUBLIC_API_URL;
 
 export interface UserRecord {
@@ -8,6 +10,7 @@ export interface UserRecord {
   tenantId: string | null;
   branchId: string | null;
   active: boolean;
+  theme: UserTheme;
   createdAt: string;
 }
 
@@ -81,4 +84,13 @@ export function updateUser(id: string, payload: UpdateUserPayload): Promise<User
 export async function deleteUser(id: string): Promise<void> {
   const res = await fetch(`${API}/api/users/${id}`, { method: 'DELETE', credentials: 'include' });
   if (!res.ok) throw new Error('Error al eliminar el usuario');
+}
+
+export function updateMyTheme(theme: UserTheme): Promise<UserRecord> {
+  return fetch(`${API}/api/users/me/theme`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ theme }),
+  }).then(r => handleResponse<UserRecord>(r));
 }
