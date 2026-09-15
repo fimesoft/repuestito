@@ -6,6 +6,7 @@ import Button from '../../ui/Button/Button';
 import { createTenant } from '@/services/tenant.service';
 import { useCountry } from '@/context/CountryContext';
 import styles from './TenantBranchWizard.module.css';
+import Label from '@/components/ui/Label';
 
 interface TenantForm {
   businessName: string;
@@ -158,8 +159,7 @@ export default function TenantBranchWizard({ isOpen, onClose, onSuccess }: Props
 
       {step === 1 && (
         <form ref={tenantFormRef} className={styles.form} onSubmit={handleStep1}>
-          <label className={styles.label}>
-            Nombre del local
+          <Label text="Nombre del local">
             <input
               className={styles.input}
               name="businessName"
@@ -168,10 +168,9 @@ export default function TenantBranchWizard({ isOpen, onClose, onSuccess }: Props
               placeholder="ej. Repuestos García"
               required
             />
-          </label>
+          </Label>
           <div className={styles.row}>
-            <label className={styles.label}>
-              CUIT / RUT / NIT
+            <Label text="CUIT / RUT / NIT">
               <input
                 className={styles.input}
                 name="taxId"
@@ -180,9 +179,8 @@ export default function TenantBranchWizard({ isOpen, onClose, onSuccess }: Props
                 placeholder="ej. 20-12345678-9"
                 required
               />
-            </label>
-            <label className={styles.label}>
-              Subdominio
+            </Label>
+            <Label text="Subdominio">
               <input
                 className={styles.input}
                 name="subdomain"
@@ -191,7 +189,7 @@ export default function TenantBranchWizard({ isOpen, onClose, onSuccess }: Props
                 placeholder="ej. garcia-repuestos"
                 required
               />
-            </label>
+            </Label>
           </div>
           {error && <p className={styles.error}>{error}</p>}
         </form>
@@ -199,8 +197,7 @@ export default function TenantBranchWizard({ isOpen, onClose, onSuccess }: Props
 
       {step === 2 && (
         <form ref={branchFormRef} className={styles.form} onSubmit={handleStep2}>
-          <label className={styles.label}>
-            Nombre de la sucursal
+          <Label text="Nombre de la sucursal">
             <input
               className={styles.input}
               name="name"
@@ -209,9 +206,8 @@ export default function TenantBranchWizard({ isOpen, onClose, onSuccess }: Props
               placeholder="ej. Sucursal Centro"
               required
             />
-          </label>
-          <label className={styles.label}>
-            Dirección <span className={styles.optional}>(opcional)</span>
+          </Label>
+          <Label text={<>Dirección <span className={styles.optional}>(opcional)</span></>}>
             <textarea
               className={styles.textarea}
               name="address"
@@ -219,9 +215,8 @@ export default function TenantBranchWizard({ isOpen, onClose, onSuccess }: Props
               onChange={handleBranchChange}
               placeholder="ej. Av. Bolívar 1234, piso 2"
             />
-          </label>
-          <label className={styles.label}>
-            Teléfono <span className={styles.optional}>(opcional)</span>
+          </Label>
+          <Label text={<>Teléfono <span className={styles.optional}>(opcional)</span></>}>
             <input
               className={styles.input}
               name="phone"
@@ -229,7 +224,7 @@ export default function TenantBranchWizard({ isOpen, onClose, onSuccess }: Props
               onChange={handleBranchChange}
               placeholder="ej. +54 11 1234-5678"
             />
-          </label>
+          </Label>
           {error && <p className={styles.error}>{error}</p>}
         </form>
       )}

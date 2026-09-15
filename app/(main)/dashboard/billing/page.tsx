@@ -8,9 +8,8 @@ import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import { usePermissions } from '@/hooks/usePermissions';
 import { getInvoices, cancelInvoice, Invoice } from '@/services/billing.service';
 import styles from './page.module.css';
-import Search from '@/components/ui/Search';
 import Table, { Column } from '@/components/ui/Table';
-import Select from '@/components/ui/Select';
+import Filters from '@/components/shared/Filters';
 import Button from '@/components/ui/Button/Button';
 import { formatDateTime } from '@/lib/date';
 import EmptyState from '@/components/shared/EmptyState';
@@ -97,26 +96,17 @@ export default function BillingPage() {
         <Link href="/dashboard/billing/new" className={styles.btnNew}>+ Nueva venta</Link>
       </div>
 
-      <div className={styles.filters}>
-        <Search value={search} onChange={setSearch} placeholder="Buscar por comprador..." />
-        <label className={styles.filterLabel}>
-          Desde
-          <input type="date" className={styles.input} value={from} onChange={e => setFrom(e.target.value)} />
-        </label>
-        <label className={styles.filterLabel}>
-          Hasta
-          <input type="date" className={styles.input} value={to} onChange={e => setTo(e.target.value)} />
-        </label>
-        <label className={styles.filterLabel}>
-          Estado
-          <Select
-            value={statusFilter}
-            onChange={setStatusFilter}
-            options={[{ value: 'completed', label: 'Completada' }, { value: 'cancelled', label: 'Cancelada' }]}
-            placeholder="Todos"
-          />
-        </label>
-      </div>
+      <Filters
+        search={{ value: search, onChange: setSearch, placeholder: 'Buscar por comprador...' }}
+        dateRange={{ from, to, onFromChange: setFrom, onToChange: setTo }}
+        selects={[{
+          label: 'Estado',
+          value: statusFilter,
+          onChange: setStatusFilter,
+          placeholder: 'Todos',
+          options: [{ value: 'completed', label: 'Completada' }, { value: 'cancelled', label: 'Cancelada' }],
+        }]}
+      />
 
       <div className={styles.subControls}>
         <PageCount total={total} limit={limit} onLimitChange={next => { setLimit(next); setPage(1); void load(1); }} />

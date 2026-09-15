@@ -1,6 +1,7 @@
 import { FormEvent } from 'react';
 import Button from '@/components/ui/Button';
 import styles from '../authForm.module.css';
+import Label from '@/components/ui/Label';
 
 interface Props {
   email: string;
@@ -32,8 +33,7 @@ export default function Register({
       <h1 className={styles.heading}>Crear cuenta</h1>
       <p className={styles.sub}>Completa los datos para registrarte</p>
       <form className={styles.form} onSubmit={onSubmit}>
-        <label className={styles.label}>
-          Correo electrónico
+        <Label text="Correo electrónico">
           <input
             className={styles.input}
             type="email"
@@ -43,9 +43,8 @@ export default function Register({
             required
             autoComplete="email"
           />
-        </label>
-        <label className={styles.label}>
-          Contraseña
+        </Label>
+        <Label text="Contraseña">
           <input
             className={styles.input}
             type="password"
@@ -55,9 +54,8 @@ export default function Register({
             required
             autoComplete="new-password"
           />
-        </label>
-        <label className={styles.label}>
-          Confirmar contraseña
+        </Label>
+        <Label text="Confirmar contraseña">
           <input
             className={styles.input}
             type="password"
@@ -67,7 +65,7 @@ export default function Register({
             required
             autoComplete="new-password"
           />
-        </label>
+        </Label>
         {error && <p className={styles.error}>{error}</p>}
         <div className={styles.actions}>
           <Button label={loading ? 'Registrando...' : 'Registrarse'} type="submit" variant="solid" color="primary" size="lg" fullWidth disabled={loading} />

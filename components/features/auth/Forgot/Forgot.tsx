@@ -1,6 +1,7 @@
 import { FormEvent } from 'react';
 import Button from '@/components/ui/Button';
 import styles from '../authForm.module.css';
+import Label from '@/components/ui/Label';
 
 interface Props {
   email: string;
@@ -18,8 +19,7 @@ export default function Forgot({ email, setEmail, loading, error, success, onSub
       <h1 className={styles.heading}>Recuperar contraseña</h1>
       <p className={styles.sub}>Te enviaremos un código a tu correo</p>
       <form className={styles.form} onSubmit={onSubmit}>
-        <label className={styles.label}>
-          Correo electrónico
+        <Label text="Correo electrónico">
           <input
             className={styles.input}
             type="email"
@@ -29,7 +29,7 @@ export default function Forgot({ email, setEmail, loading, error, success, onSub
             required
             autoComplete="email"
           />
-        </label>
+        </Label>
         {error && <p className={styles.error}>{error}</p>}
         {success && <p className={styles.success}>{success}</p>}
         <div className={styles.actions}>

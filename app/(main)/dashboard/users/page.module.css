@@ -83,15 +83,6 @@
 
 .formRow { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
-.formLabel {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--color-text-secondary);
-}
-
 .optional { font-weight: 400; color: var(--color-text-faint); }
 
 .formInput,

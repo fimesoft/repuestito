@@ -9,8 +9,8 @@ import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import Modal from '@/components/ui/Modal/Modal';
 import Button from '@/components/ui/Button/Button';
 import ImageUpload from '@/components/ui/ImageUpload';
-import Search from '@/components/ui/Search';
 import Table, { Column } from '@/components/ui/Table';
+import Filters from '@/components/shared/Filters';
 import Select from '@/components/ui/Select';
 import ViewToggle from '@/components/ui/ViewToggle';
 import Toggle from '@/components/ui/Toggle';
@@ -38,6 +38,7 @@ import { useCountry } from '@/context/CountryContext';
 import { getStockLevel, StockThresholds } from '@/constants/replacement';
 import { formatDateTime } from '@/lib/date';
 import styles from './page.module.css';
+import Label from '@/components/ui/Label';
 
 const EMPTY: Omit<CreateReplacementPayload, 'countryCode'> = {
   name: '', brandId: 0, price: 0, tenantId: '',
@@ -71,6 +72,9 @@ export default function ReplacementDashboardPage() {
   const visibleTenants = isAdmin ? tenants : tenants.filter(t => t.id === currentUser?.tenantId);
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 600);
+  const [from, setFrom] = useState('');
+  const [to, setTo] = useState('');
+  const [activeFilter, setActiveFilter] = useState('');
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -96,7 +100,15 @@ export default function ReplacementDashboardPage() {
   useEffect(() => {
     setLoadError(false);
     setLoading(true);
-    getReplacements({ country, page, limit, search: debouncedSearch })
+    getReplacements({
+      country,
+      page,
+      limit,
+      search: debouncedSearch,
+      from: from || undefined,
+      to: to || undefined,
+      active: activeFilter ? activeFilter === 'true' : undefined,
+    })
       .then(r => {
         setReplacements(r.data);
         setTotalPages(r.totalPages);
@@ -104,11 +116,11 @@ export default function ReplacementDashboardPage() {
       })
       .catch(() => setLoadError(true))
       .finally(() => setLoading(false));
-  }, [country, page, debouncedSearch, limit]);
+  }, [country, page, debouncedSearch, limit, from, to, activeFilter]);
 
   useEffect(() => {
     setPage(1);
-  }, [country, debouncedSearch, limit]);
+  }, [country, debouncedSearch, limit, from, to, activeFilter]);
 
   useEffect(() => {
     getTenants(country).then(setTenants);
@@ -235,14 +247,16 @@ export default function ReplacementDashboardPage() {
   const modalSave = creating ? handleCreate : handleUpdate;
   const modalCanDisable = creating ? (saving || !canCreate) : saving;
 
+  const hasFilters = Boolean(search || from || to || activeFilter);
+
   const listEmptyMessage = loadError ? (
     <EmptyState variant="error" />
   ) : (
     <EmptyState
-      variant={search ? 'no-results' : 'empty'}
-      title={search ? 'Sin repuestos para tu búsqueda' : 'No hay repuestos registrados'}
-      description={search
-        ? 'No encontramos repuestos que coincidan con tu búsqueda. Probá con otro nombre, marca o código.'
+      variant={hasFilters ? 'no-results' : 'empty'}
+      title={hasFilters ? 'Sin repuestos para tu búsqueda' : 'No hay repuestos registrados'}
+      description={hasFilters
+        ? 'No encontramos repuestos que coincidan con tu búsqueda o filtros. Probá con otros términos.'
         : 'Aún no tienes repuestos registrados. Cuando ingresen, aparecerán aquí.'}
     />
   );
@@ -264,10 +278,19 @@ export default function ReplacementDashboardPage() {
         {canManage && <Button label="+ Nuevo repuesto" onClick={openCreate} shadow />}
       </div>
 
-      <div className={styles.controls}>
-        <Search value={search} onChange={setSearch} placeholder="Buscar por nombre de repuesto..." />
+      <Filters
+        search={{ value: search, onChange: setSearch, placeholder: 'Buscar por nombre de repuesto...' }}
+        dateRange={{ from, to, onFromChange: setFrom, onToChange: setTo }}
+        selects={[{
+          label: 'Estado',
+          value: activeFilter,
+          onChange: setActiveFilter,
+          placeholder: 'Todos',
+          options: [{ value: 'true', label: 'Activo' }, { value: 'false', label: 'Inactivo' }],
+        }]}
+      >
         <ViewToggle value={viewMode} onChange={setViewMode} />
-      </div>
+      </Filters>
       <div className={styles.subControls}>
         <PageCount total={total} limit={limit} onLimitChange={setLimit} />
       </div>
@@ -357,42 +380,35 @@ export default function ReplacementDashboardPage() {
               </div>
 
               <div className={styles.row}>
-                <label className={styles.label}>
-                  Nombre
+                <Label text="Nombre">
                   <input className={styles.input} value={form.name} onChange={e => set({ name: e.target.value })} required />
-                </label>
-                <label className={styles.label}>
-                  Marca
+                </Label>
+                <Label text="Marca">
                   <Select value={form.brandId || ''} onChange={v => set({ brandId: Number(v) || 0 })} options={brands.map(b => ({ value: b.id, label: b.name }))} placeholder="Seleccionar marca" required />
-                </label>
+                </Label>
               </div>
 
               <div className={styles.row}>
-                <label className={styles.label}>
-                  Precio
+                <Label text="Precio">
                   <input className={styles.input} type="text" inputMode="decimal" value={priceInput} onChange={e => { const v = e.target.value; if (/^\d*\.?\d*$/.test(v)) { setPriceInput(v); set({ price: parseFloat(v) || 0 }); } }} placeholder="0.00" required />
-                </label>
-                <label className={styles.label}>
-                  Stock
+                </Label>
+                <Label text="Stock">
                   <input className={styles.input} type="text" inputMode="numeric" value={form.stock ?? ''} onChange={e => { if (/^\d*$/.test(e.target.value)) set({ stock: Number(e.target.value) }); }} placeholder="0" />
-                </label>
+                </Label>
               </div>
 
               <div className={styles.row}>
-                <label className={styles.label}>
-                  Código OEM <span className={styles.optional}>(opcional)</span>
+                <Label text={<>Código OEM <span className={styles.optional}>(opcional)</span></>}>
                   <input className={styles.input} value={form.codeOem ?? ''} onChange={e => set({ codeOem: e.target.value })} placeholder="ej. 15400-PLM-A02" />
-                </label>
-                <label className={styles.label}>
-                  Local
+                </Label>
+                <Label text="Local">
                   <Select value={form.tenantId} onChange={onTenantChange} options={visibleTenants.map(t => ({ value: t.id, label: t.businessName }))} placeholder="Seleccionar local" disabled={!isAdmin} required />
-                </label>
+                </Label>
               </div>
 
-              <label className={styles.label}>
-                Sucursal <span className={styles.optional}>(opcional)</span>
+              <Label text={<>Sucursal <span className={styles.optional}>(opcional)</span></>}>
                 <Select value={form.branchId ?? ''} onChange={v => { const branch = formBranches.find(b => b.id === v); set({ branchId: v, ...(branch?.latitude != null && branch?.longitude != null && { latitude: branch.latitude, longitude: branch.longitude }) }); }} options={formBranches.map(b => ({ value: b.id, label: b.name }))} placeholder="Sin asignar" disabled={!form.tenantId} />
-              </label>
+              </Label>
 
               {formError && <p className={styles.error}>{formError}</p>}
             </>
@@ -412,25 +428,21 @@ export default function ReplacementDashboardPage() {
               )}
 
               <div className={styles.row}>
-                <label className={styles.label}>
-                  Precio
+                <Label text="Precio">
                   <input className={styles.input} type="text" inputMode="decimal" value={editPriceInput} onChange={e => { const v = e.target.value; if (/^\d*\.?\d*$/.test(v)) { setEditPriceInput(v); setEdit({ price: parseFloat(v) || 0 }); } }} placeholder="0.00" required />
-                </label>
-                <label className={styles.label}>
-                  Stock
+                </Label>
+                <Label text="Stock">
                   <input className={styles.input} type="text" inputMode="numeric" value={editForm.stock ?? ''} onChange={e => { if (/^\d*$/.test(e.target.value)) setEdit({ stock: Number(e.target.value) }); }} placeholder="0" />
-                </label>
+                </Label>
               </div>
 
               <div className={styles.row}>
-                <label className={styles.label}>
-                  Local
+                <Label text="Local">
                   <Select value={editForm.tenantId} onChange={onEditTenantChange} options={tenants.map(t => ({ value: t.id, label: t.businessName }))} placeholder="Seleccionar local" required />
-                </label>
-                <label className={styles.label}>
-                  Sucursal <span className={styles.optional}>(opcional)</span>
+                </Label>
+                <Label text={<>Sucursal <span className={styles.optional}>(opcional)</span></>}>
                   <Select value={editForm.branchId ?? ''} onChange={v => { const branch = editBranches.find(b => b.id === v); setEdit({ branchId: v, ...(branch?.latitude != null && branch?.longitude != null && { latitude: branch.latitude, longitude: branch.longitude }) }); }} options={editBranches.map(b => ({ value: b.id, label: b.name }))} placeholder="Sin asignar" disabled={!editForm.tenantId} />
-                </label>
+                </Label>
               </div>
 
               <Toggle

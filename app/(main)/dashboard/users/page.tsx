@@ -12,6 +12,7 @@ import { usePermissions } from '@/hooks/usePermissions';
 import { toRole } from '@/lib/roles';
 import { useCountry } from '@/context/CountryContext';
 import styles from './page.module.css';
+import Label from '@/components/ui/Label';
 import Search from '@/components/ui/Search';
 import Table, { Column } from '@/components/ui/Table';
 import Select from '@/components/ui/Select';
@@ -211,23 +212,19 @@ export default function UsersPage() {
           </div>
         ) : (
         <div className={styles.form}>
-          <label className={styles.formLabel}>
-            Email
+          <Label text="Email">
             <input className={styles.formInput} type="email" value={createForm.email} onChange={e => setCreateForm(p => ({ ...p, email: e.target.value }))} />
-          </label>
-          <label className={styles.formLabel}>
-            Rol
+          </Label>
+          <Label text="Rol">
             <Select value={createForm.role ?? 'MODERATOR'} onChange={v => setCreateForm(p => ({ ...p, role: v }))} options={ROLES.map(r => ({ value: r, label: r }))} />
-          </label>
+          </Label>
           <div className={styles.formRow}>
-            <label className={styles.formLabel}>
-              Local
+            <Label text="Local">
               <Select value={createForm.tenantId ?? ''} onChange={onCreateTenantChange} options={tenants.map(t => ({ value: t.id, label: t.businessName }))} placeholder="Sin asignar" />
-            </label>
-            <label className={styles.formLabel}>
-              Sucursal
+            </Label>
+            <Label text="Sucursal">
               <Select value={createForm.branchId ?? ''} onChange={v => setCreateForm(p => ({ ...p, branchId: v || undefined }))} options={formBranches.map(b => ({ value: b.id, label: b.name }))} placeholder="Sin asignar" disabled={!createForm.tenantId} />
-            </label>
+            </Label>
           </div>
           {modalError && <p className={styles.error}>{modalError}</p>}
         </div>
@@ -236,16 +233,13 @@ export default function UsersPage() {
 
       <Modal isOpen={!!editingUser} onClose={() => setEditingUser(null)} title="Editar usuario" size="md" footer={editFooter}>
         <div className={styles.form}>
-          <label className={styles.formLabel}>
-            Email
+          <Label text="Email">
             <input className={styles.formInput} type="email" value={editForm.email ?? ''} onChange={e => setEditForm(p => ({ ...p, email: e.target.value }))} />
-          </label>
-          <label className={styles.formLabel}>
-            Nueva contraseña <span className={styles.optional}>(dejar vacío para no cambiar)</span>
+          </Label>
+          <Label text={<>Nueva contraseña <span className={styles.optional}>(dejar vacío para no cambiar)</span></>}>
             <input className={styles.formInput} type="password" value={editForm.password ?? ''} onChange={e => setEditForm(p => ({ ...p, password: e.target.value || undefined }))} />
-          </label>
-          <label className={styles.formLabel}>
-            Rol
+          </Label>
+          <Label text="Rol">
             <Select
               value={editForm.role ?? ''}
               onChange={v => setEditForm(p => ({ ...p, role: v }))}
@@ -255,16 +249,14 @@ export default function UsersPage() {
               ]}
               disabled={editingUser?.role === 'GOD'}
             />
-          </label>
+          </Label>
           <div className={styles.formRow}>
-            <label className={styles.formLabel}>
-              Local
+            <Label text="Local">
               <Select value={editForm.tenantId ?? ''} onChange={onEditTenantChange} options={tenants.map(t => ({ value: t.id, label: t.businessName }))} placeholder="Sin asignar" />
-            </label>
-            <label className={styles.formLabel}>
-              Sucursal
+            </Label>
+            <Label text="Sucursal">
               <Select value={editForm.branchId ?? ''} onChange={v => setEditForm(p => ({ ...p, branchId: v || null }))} options={formBranches.map(b => ({ value: b.id, label: b.name }))} placeholder="Sin asignar" disabled={!editForm.tenantId} />
-            </label>
+            </Label>
           </div>
           <label className={styles.formCheckbox}>
             <input type="checkbox" checked={editForm.active ?? true} onChange={e => setEditForm(p => ({ ...p, active: e.target.checked }))} />

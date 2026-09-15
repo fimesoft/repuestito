@@ -8,9 +8,8 @@ import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import { usePermissions } from '@/hooks/usePermissions';
 import { getOrders, confirmOrderAndGenerateInvoice, cancelOrder, Order } from '@/services/orders.service';
 import styles from './page.module.css';
-import Search from '@/components/ui/Search';
 import Table, { Column } from '@/components/ui/Table';
-import Select from '@/components/ui/Select';
+import Filters from '@/components/shared/Filters';
 import { formatDateTime } from '@/lib/date';
 import EmptyState from '@/components/shared/EmptyState';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -59,6 +58,8 @@ export default function OrdersPage() {
     const fullName = [o.buyerName, o.buyerLastname].filter(Boolean).join(' ').toLowerCase();
     return !debouncedSearch || fullName.includes(debouncedSearch.toLowerCase());
   });
+
+  const hasFilters = Boolean(debouncedSearch || statusFilter);
 
   const load = useCallback(async (p: number) => {
     if (!currentUser?.tenantId) { setLoading(false); return; }
@@ -126,23 +127,21 @@ export default function OrdersPage() {
         <Link href="/dashboard/orders/new" className={styles.btnNew}>+ Nuevo pedido</Link>
       </div>
 
-      <div className={styles.filters}>
-        <Search value={search} onChange={setSearch} placeholder="Buscar por comprador..." />
-        <label className={styles.filterLabel}>
-          Estado
-          <Select
-            value={statusFilter}
-            onChange={setStatusFilter}
-            options={[
-              { value: 'pending', label: 'Pendiente' },
-              { value: 'confirmed', label: 'Confirmado' },
-              { value: 'fulfilled', label: 'Facturado' },
-              { value: 'cancelled', label: 'Cancelado' },
-            ]}
-            placeholder="Todos"
-          />
-        </label>
-      </div>
+      <Filters
+        search={{ value: search, onChange: setSearch, placeholder: 'Buscar por comprador...' }}
+        selects={[{
+          label: 'Estado',
+          value: statusFilter,
+          onChange: setStatusFilter,
+          placeholder: 'Todos',
+          options: [
+            { value: 'pending', label: 'Pendiente' },
+            { value: 'confirmed', label: 'Confirmado' },
+            { value: 'fulfilled', label: 'Facturado' },
+            { value: 'cancelled', label: 'Cancelado' },
+          ],
+        }]}
+      />
 
       <div className={styles.subControls}>
         <PageCount total={total} limit={limit} onLimitChange={next => { setLimit(next); setPage(1); void load(1); }} />
@@ -156,10 +155,10 @@ export default function OrdersPage() {
           <EmptyState variant="error" description={error} />
         ) : (
           <EmptyState
-            variant={debouncedSearch ? 'no-results' : 'empty'}
-            title={debouncedSearch ? 'Sin pedidos para tu búsqueda' : 'No hay pedidos registrados'}
-            description={debouncedSearch
-              ? 'No encontramos pedidos que coincidan con tu búsqueda. Probá con otro comprador.'
+            variant={hasFilters ? 'no-results' : 'empty'}
+            title={hasFilters ? 'Sin pedidos para tu búsqueda' : 'No hay pedidos registrados'}
+            description={hasFilters
+              ? 'No encontramos pedidos que coincidan con los filtros aplicados. Probá ajustarlos.'
               : 'Aún no tienes ventas registradas. Cuando ingresen, aparecerán aquí.'}
             illustration="orders"
           />

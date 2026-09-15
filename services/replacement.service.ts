@@ -106,6 +106,9 @@ export interface ReplacementQuery {
   limit?: number;
   country?: string;
   ids?: string;
+  active?: boolean;
+  from?: string;
+  to?: string;
 }
 
 export async function getReplacement(id: string, options?: RequestInit): Promise<Replacement> {
@@ -125,6 +128,9 @@ export async function getReplacements(
   if (query.limit) params.set('limit', String(query.limit));
   if (query.country) params.set('country', query.country);
   if (query.ids) params.set('ids', query.ids);
+  if (query.active !== undefined) params.set('active', String(query.active));
+  if (query.from) params.set('from', query.from);
+  if (query.to) params.set('to', query.to);
 
   const url = `${process.env.NEXT_PUBLIC_API_URL}/api/replacements?${params.toString()}`;
   const res = await fetch(url, { credentials: 'include', ...options });

@@ -18,6 +18,7 @@ import Paginator from '@/components/ui/Paginator';
 import MainTitle from '@/components/shared/MainTitle';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import styles from './page.module.css';
+import Label from '@/components/ui/Label';
 
 const DEFAULT_LIMIT = 20;
 
@@ -145,29 +146,24 @@ export default function CountriesPage() {
 
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editing ? 'Editar país' : 'Nuevo país'} size="md" footer={footer}>
         <div className={styles.form}>
-          <label className={styles.label}>
-            Nombre
+          <Label text="Nombre">
             <input className={styles.input} value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} />
-          </label>
+          </Label>
           <div className={styles.row}>
-            <label className={styles.label}>
-              Código (2 letras)
+            <Label text="Código (2 letras)">
               <input className={styles.input} value={form.code} maxLength={2} onChange={e => setForm(p => ({ ...p, code: e.target.value.toUpperCase() }))} />
-            </label>
-            <label className={styles.label}>
-              Alpha3 (3 letras)
+            </Label>
+            <Label text="Alpha3 (3 letras)">
               <input className={styles.input} value={form.codeAlpha3 ?? ''} maxLength={3} onChange={e => setForm(p => ({ ...p, codeAlpha3: e.target.value.toUpperCase() }))} />
-            </label>
+            </Label>
           </div>
           <div className={styles.row}>
-            <label className={styles.label}>
-              Moneda
+            <Label text="Moneda">
               <input className={styles.input} value={form.currencyCode ?? ''} maxLength={3} onChange={e => setForm(p => ({ ...p, currencyCode: e.target.value.toUpperCase() }))} />
-            </label>
-            <label className={styles.label}>
-              Código tel.
+            </Label>
+            <Label text="Código tel.">
               <input className={styles.input} value={form.phoneCode ?? ''} onChange={e => setForm(p => ({ ...p, phoneCode: e.target.value }))} />
-            </label>
+            </Label>
           </div>
           {editing && (
             <label className={styles.checkLabel}>

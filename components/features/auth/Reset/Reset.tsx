@@ -1,6 +1,7 @@
 import { FormEvent } from 'react';
 import Button from '@/components/ui/Button';
 import styles from '../authForm.module.css';
+import Label from '@/components/ui/Label';
 
 interface Props {
   email: string;
@@ -34,8 +35,7 @@ export default function Reset({
       <h1 className={styles.heading}>Nueva contraseña</h1>
       <p className={styles.sub}>Ingresa el código enviado a {email}</p>
       <form className={styles.form} onSubmit={onSubmit}>
-        <label className={styles.label}>
-          Código de verificación
+        <Label text="Código de verificación">
           <input
             className={styles.input}
             type="text"
@@ -46,9 +46,8 @@ export default function Reset({
             placeholder="123456"
             required
           />
-        </label>
-        <label className={styles.label}>
-          Nueva contraseña
+        </Label>
+        <Label text="Nueva contraseña">
           <input
             className={styles.input}
             type="password"
@@ -58,9 +57,8 @@ export default function Reset({
             required
             autoComplete="new-password"
           />
-        </label>
-        <label className={styles.label}>
-          Confirmar contraseña
+        </Label>
+        <Label text="Confirmar contraseña">
           <input
             className={styles.input}
             type="password"
@@ -70,7 +68,7 @@ export default function Reset({
             required
             autoComplete="new-password"
           />
-        </label>
+        </Label>
         {error && <p className={styles.error}>{error}</p>}
         <div className={styles.actions}>
           <Button label={loading ? 'Guardando...' : 'Guardar contraseña'} type="submit" variant="solid" color="primary" size="lg" fullWidth disabled={loading} />

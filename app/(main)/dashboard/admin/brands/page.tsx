@@ -18,6 +18,7 @@ import Paginator from '@/components/ui/Paginator';
 import MainTitle from '@/components/shared/MainTitle';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import styles from './page.module.css';
+import Label from '@/components/ui/Label';
 
 const DEFAULT_LIMIT = 20;
 
@@ -144,19 +145,16 @@ export default function BrandsPage() {
 
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editing ? 'Editar marca' : 'Nueva marca'} size="md" footer={footer}>
         <div className={styles.form}>
-          <label className={styles.label}>
-            Nombre
+          <Label text="Nombre">
             <input className={styles.input} value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} />
-          </label>
+          </Label>
           <div className={styles.row}>
-            <label className={styles.label}>
-              Código de país
+            <Label text="Código de país">
               <input className={styles.input} value={form.countryCode ?? ''} maxLength={2} onChange={e => setForm(p => ({ ...p, countryCode: e.target.value.toUpperCase() }))} />
-            </label>
-            <label className={styles.label}>
-              URL logo
+            </Label>
+            <Label text="URL logo">
               <input className={styles.input} value={form.logoUrl ?? ''} onChange={e => setForm(p => ({ ...p, logoUrl: e.target.value }))} />
-            </label>
+            </Label>
           </div>
           <label className={styles.checkLabel}>
             <input type="checkbox" checked={form.isVerified ?? false} onChange={e => setForm(p => ({ ...p, isVerified: e.target.checked }))} />

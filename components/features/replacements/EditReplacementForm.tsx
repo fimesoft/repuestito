@@ -7,6 +7,7 @@ import Modal from '@/components/ui/Modal';
 import Toggle from '@/components/ui/Toggle';
 import { Replacement } from '@/services/replacement.service';
 import styles from '@/styles/Create.module.css';
+import Label from '@/components/ui/Label';
 
 interface EditReplacementFormProps {
   replacement: Replacement;
@@ -107,25 +108,21 @@ export default function EditReplacementForm({ replacement }: EditReplacementForm
         )}
 
         <div className={styles.row}>
-          <label className={styles.label}>
-            Precio
+          <Label text="Precio">
             <input className={styles.input} name="price" type="number" min="0" step="0.01" value={form.price} onChange={handleChange} required />
-          </label>
-          <label className={styles.label}>
-            Stock
+          </Label>
+          <Label text="Stock">
             <input className={styles.input} name="stock" type="number" min="0" step="1" value={form.stock} onChange={handleChange} />
-          </label>
+          </Label>
         </div>
 
         <div className={styles.row}>
-          <label className={styles.label}>
-            Latitud
+          <Label text="Latitud">
             <input className={styles.input} name="latitude" type="number" step="any" value={form.latitude} onChange={handleChange} />
-          </label>
-          <label className={styles.label}>
-            Longitud
+          </Label>
+          <Label text="Longitud">
             <input className={styles.input} name="longitude" type="number" step="any" value={form.longitude} onChange={handleChange} />
-          </label>
+          </Label>
         </div>
 
         <Toggle

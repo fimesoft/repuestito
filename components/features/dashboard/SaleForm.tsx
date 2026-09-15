@@ -15,6 +15,7 @@ import BackPage from '@/components/shared/BackPage';
 import Confirm from '@/components/shared/Confirm';
 import { getStockLevel, StockLevel } from '@/constants/replacement';
 import styles from '@/app/(main)/dashboard/billing/page.module.css';
+import Label from '@/components/ui/Label';
 
 const STOCK_COLOR_CLASS: Record<StockLevel, string> = {
   low: 'stockLow',
@@ -363,17 +364,15 @@ export default function SaleForm({ mode }: SaleFormProps) {
 
           <div className={styles.section}>
             {mode === 'invoice' && (
-              <label className={styles.fieldLabel}>
-                Método de pago
+              <Label text="Método de pago">
                 <select className={styles.select} value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)}>
                   <option value="cash">Efectivo</option>
                   <option value="transfer">Transferencia</option>
                   <option value="card">Tarjeta</option>
                 </select>
-              </label>
+              </Label>
             )}
-            <label className={styles.fieldLabel}>
-              IVA (%)
+            <Label text="IVA (%)">
               <input
                 className={styles.input}
                 type="number"
@@ -382,11 +381,10 @@ export default function SaleForm({ mode }: SaleFormProps) {
                 value={taxRate}
                 onChange={e => setTaxRate(parseFloat(e.target.value) || 0)}
               />
-            </label>
-            <label className={styles.fieldLabel}>
-              Notas
+            </Label>
+            <Label text="Notas">
               <textarea className={styles.textarea} rows={2} value={notes} onChange={e => setNotes(e.target.value)} />
-            </label>
+            </Label>
           </div>
 
           <div className={styles.totals}>

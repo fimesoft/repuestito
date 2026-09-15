@@ -25,6 +25,7 @@ import Search from '@/components/ui/Search';
 import MainTitle from '@/components/shared/MainTitle';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import styles from './page.module.css';
+import Label from '@/components/ui/Label';
 
 export default function StoresPage() {
   const [tenants, setTenants] = useState<Tenant[]>([]);
@@ -306,19 +307,16 @@ export default function StoresPage() {
 
       <Modal isOpen={!!editingTenant} onClose={() => setEditingTenant(null)} title="Editar local" size="md" footer={editTenantFooter}>
         <div className={styles.form}>
-          <label className={styles.formLabel}>
-            Nombre del local
+          <Label text="Nombre del local">
             <input className={styles.formInput} value={tenantForm.businessName ?? ''} onChange={e => setTenantForm(p => ({ ...p, businessName: e.target.value }))} />
-          </label>
+          </Label>
           <div className={styles.formRow}>
-            <label className={styles.formLabel}>
-              CUIT / RUT / NIT
+            <Label text="CUIT / RUT / NIT">
               <input className={styles.formInput} value={tenantForm.taxId ?? ''} onChange={e => setTenantForm(p => ({ ...p, taxId: e.target.value }))} />
-            </label>
-            <label className={styles.formLabel}>
-              Subdominio
+            </Label>
+            <Label text="Subdominio">
               <input className={styles.formInput} value={tenantForm.subdomain ?? ''} onChange={e => setTenantForm(p => ({ ...p, subdomain: e.target.value }))} disabled={!isAdmin} />
-            </label>
+            </Label>
           </div>
           <label className={styles.formCheckbox}>
             <input type="checkbox" checked={tenantForm.active ?? true} onChange={e => setTenantForm(p => ({ ...p, active: e.target.checked }))} />
@@ -330,42 +328,36 @@ export default function StoresPage() {
 
       <Modal isOpen={!!editingBranch} onClose={() => setEditingBranch(null)} title="Editar sucursal" size="md" footer={editBranchFooter}>
         <div className={styles.form}>
-          <label className={styles.formLabel}>
-            Nombre
+          <Label text="Nombre">
             <input className={styles.formInput} value={branchForm.name ?? ''} onChange={e => setBranchForm(p => ({ ...p, name: e.target.value }))} />
-          </label>
-          <label className={styles.formLabel}>
-            Ubicación
+          </Label>
+          <Label text="Ubicación">
             <LocationSearch
               key={editingBranch?.id}
               initialValue={branchForm.address ?? ''}
               onSelect={(lat, lon, address) => setBranchForm(p => ({ ...p, address, latitude: lat, longitude: lon }))}
             />
-          </label>
-          <label className={styles.formLabel}>
-            Teléfono
+          </Label>
+          <Label text="Teléfono">
             <input className={styles.formInput} value={branchForm.phone ?? ''} onChange={e => setBranchForm(p => ({ ...p, phone: e.target.value }))} />
-          </label>
+          </Label>
           {modalError && <p className={styles.error}>{modalError}</p>}
         </div>
       </Modal>
 
       <Modal isOpen={!!addBranchTenantId} onClose={() => setAddBranchTenantId(null)} title="Nueva sucursal" size="md" footer={addBranchFooter}>
         <div className={styles.form}>
-          <label className={styles.formLabel}>
-            Nombre
+          <Label text="Nombre">
             <input className={styles.formInput} value={newBranchForm.name} onChange={e => setNewBranchForm(p => ({ ...p, name: e.target.value }))} required />
-          </label>
-          <label className={styles.formLabel}>
-            Ubicación
+          </Label>
+          <Label text="Ubicación">
             <LocationSearch
               onSelect={(lat, lon, address) => setNewBranchForm(p => ({ ...p, address, latitude: lat, longitude: lon }))}
             />
-          </label>
-          <label className={styles.formLabel}>
-            Teléfono
+          </Label>
+          <Label text="Teléfono">
             <input className={styles.formInput} value={newBranchForm.phone ?? ''} onChange={e => setNewBranchForm(p => ({ ...p, phone: e.target.value }))} />
-          </label>
+          </Label>
           {modalError && <p className={styles.error}>{modalError}</p>}
         </div>
       </Modal>

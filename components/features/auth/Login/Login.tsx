@@ -2,6 +2,7 @@ import { FormEvent } from 'react';
 import Button from '@/components/ui/Button';
 import Logo from '@/components/shared/Logo';
 import styles from '../authForm.module.css';
+import Label from '@/components/ui/Label';
 
 interface Props {
   email: string;
@@ -34,8 +35,7 @@ export default function Login({
         <Logo href="/" />
       </div>
       <form className={styles.form} onSubmit={onSubmit}>
-        <label className={styles.label}>
-          Correo electrónico
+        <Label text="Correo electrónico">
           <input
             className={styles.input}
             type="email"
@@ -45,9 +45,8 @@ export default function Login({
             required
             autoComplete="email"
           />
-        </label>
-        <label className={styles.label}>
-          Contraseña
+        </Label>
+        <Label text="Contraseña">
           <input
             className={styles.input}
             type="password"
@@ -57,7 +56,7 @@ export default function Login({
             required
             autoComplete="current-password"
           />
-        </label>
+        </Label>
         {error && <p className={styles.error}>{error}</p>}
         {success && <p className={styles.success}>{success}</p>}
         <div className={styles.actions}>
