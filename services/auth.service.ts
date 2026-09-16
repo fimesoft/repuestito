@@ -1,6 +1,15 @@
-import { translateApiError } from '@/lib/api-errors';
+import { getApiErrorCode, translateApiError } from '@/lib/api-errors';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
+
+export class ApiError extends Error {
+  code?: string;
+
+  constructor(message: string, code?: string) {
+    super(message);
+    this.code = code;
+  }
+}
 
 export type UserTheme = 'LIGHT' | 'DARK';
 
@@ -25,7 +34,7 @@ async function request<T>(path: string, body: Record<string, string>): Promise<T
   });
   const data: unknown = await res.json();
   if (!res.ok) {
-    throw new Error(translateApiError(data));
+    throw new ApiError(translateApiError(data), getApiErrorCode(data));
   }
   return data as T;
 }
@@ -36,6 +45,10 @@ export function register(email: string, password: string) {
 
 export function verifyEmail(email: string, code: string) {
   return request<{ message: string }>('verify-email', { email, code });
+}
+
+export function resendVerification(email: string) {
+  return request<{ message: string }>('resend-verification', { email });
 }
 
 export function login(email: string, password: string) {

@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import * as Sentry from '@sentry/nextjs';
 import { getMeClient, type AuthUser } from '@/services/auth.service';
 
 interface AuthUserContextValue {
@@ -28,7 +29,19 @@ export function AuthUserProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!currentUser) return;
+    if (!currentUser) {
+      Sentry.setUser(null);
+      Sentry.setTag('tenant.id', 'none');
+      Sentry.setTag('branch.id', 'none');
+      Sentry.setTag('user.role', 'anonymous');
+      return;
+    }
+
+    Sentry.setUser({ id: currentUser.id });
+    Sentry.setTag('tenant.id', currentUser.tenantId ?? 'none');
+    Sentry.setTag('branch.id', currentUser.branchId ?? 'none');
+    Sentry.setTag('user.role', currentUser.role);
+
     const theme = currentUser.theme === 'DARK' ? 'dark' : 'light';
     document.documentElement.dataset.theme = theme;
     window.localStorage.setItem('piezify-theme', theme);

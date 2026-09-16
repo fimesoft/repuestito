@@ -1,4 +1,4 @@
-.page { padding: 2rem; }
+.page { padding: 2rem; position: relative; }
 
 .section {
   background: var(--bg-surface);

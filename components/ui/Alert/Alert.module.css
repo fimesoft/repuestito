@@ -6,6 +6,49 @@
   border-radius: 8px;
   border: 1px solid transparent;
   font-size: 14px;
+  animation: slideInLeft 0.25s ease-out;
+  will-change: transform, opacity;
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-24px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .alert {
+    animation: none;
+  }
+}
+
+.top-left {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+}
+
+.top-right {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+.bottom-left {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+}
+
+.bottom-right {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
 }
 
 .icon {

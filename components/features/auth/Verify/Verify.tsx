@@ -12,9 +12,10 @@ interface Props {
   success: string | null;
   onSubmit: (e: FormEvent) => void;
   onBack: () => void;
+  onResend: () => void;
 }
 
-export default function Verify({ email, code, setCode, loading, error, success, onSubmit, onBack }: Props) {
+export default function Verify({ email, code, setCode, loading, error, success, onSubmit, onBack, onResend }: Props) {
   return (
     <>
       <h1 className={styles.heading}>Verifica tu correo</h1>
@@ -36,6 +37,9 @@ export default function Verify({ email, code, setCode, loading, error, success, 
         {success && <p className={styles.success}>{success}</p>}
         <div className={styles.actions}>
           <Button label={loading ? 'Verificando...' : 'Verificar'} type="submit" variant="solid" color="primary" size="lg" fullWidth disabled={loading} />
+          <button type="button" className={styles.link} onClick={onResend} disabled={loading}>
+            ¿No recibiste el código o venció? Reenviar
+          </button>
           <button type="button" className={styles.link} onClick={onBack}>
             Volver al registro
           </button>

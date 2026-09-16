@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from 'react';
 import MainTitle from '@/components/shared/MainTitle';
+import Alert from '@/components/ui/Alert';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import Button from '@/components/ui/Button/Button';
 import Input from '@/components/ui/Input';
@@ -65,17 +66,21 @@ export default function ConfigPage() {
 
   return (
     <div className={styles.page}>
+      {error && <Alert variant="error" message={error} duration={4000} position="top-right" />}
+      {savedMessage && (
+        <Alert variant="success" message={savedMessage} duration={4000} position="top-right" />
+      )}
       <Breadcrumbs items={[{ label: 'Configuración' }]} />
       <MainTitle title="Configuración" />
 
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Niveles de stock</h2>
         <p className={styles.sectionHint}>
-          Definí a partir de qué cantidad un repuesto se considera stock bajo, normal o completo.
+          Ej: hasta 4 unidades es stock bajo, hasta 15 es stock normal, más es stock completo.
         </p>
         <form className={styles.stockForm} onSubmit={handleSaveStock}>
           <Input
-            label="Stock bajo hasta"
+            label="Stock bajo (unidades)"
             type="number"
             min={0}
             value={lowStockMax}
@@ -83,7 +88,7 @@ export default function ConfigPage() {
             required
           />
           <Input
-            label="Stock normal hasta"
+            label="Stock normal (unidades)"
             type="number"
             min={0}
             value={normalStockMax}
@@ -92,8 +97,6 @@ export default function ConfigPage() {
           />
           <Button type="submit" label={saving ? 'Guardando...' : 'Guardar'} disabled={saving} />
         </form>
-        {error && <p className={styles.error}>{error}</p>}
-        {savedMessage && <p className={styles.success}>{savedMessage}</p>}
       </section>
 
       <section className={styles.section}>

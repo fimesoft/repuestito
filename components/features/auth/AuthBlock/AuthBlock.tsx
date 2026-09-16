@@ -3,6 +3,7 @@
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import * as auth from '@/services/auth.service';
+import { ApiError } from '@/services/auth.service';
 import Login from '../Login';
 import Register from '../Register';
 import Verify from '../Verify';
@@ -55,9 +56,29 @@ export default function AuthBlock({ initialView, initialEmail }: Props) {
 
   function handleLogin(e: FormEvent) {
     e.preventDefault();
+    setLoading(true);
+    setError(null);
+    auth
+      .login(email, password)
+      .then(() => router.push('/dashboard'))
+      .catch((err) => {
+        if (err instanceof ApiError && err.code === 'EMAIL_NOT_VERIFIED') {
+          setSuccess(null);
+          setError('Tu correo aún no fue verificado. Te enviamos un nuevo código.');
+          setCode('');
+          setView('verify');
+          auth.resendVerification(email).catch(() => {});
+          return;
+        }
+        setError(err instanceof Error ? err.message : 'Error inesperado');
+      })
+      .finally(() => setLoading(false));
+  }
+
+  function handleResendVerification() {
     submit(async () => {
-      await auth.login(email, password);
-      router.push('/dashboard');
+      await auth.resendVerification(email);
+      setSuccess('Nuevo código enviado a tu correo.');
     });
   }
 
@@ -145,6 +166,7 @@ export default function AuthBlock({ initialView, initialEmail }: Props) {
           success={success}
           onSubmit={handleVerify}
           onBack={() => goTo('register')}
+          onResend={handleResendVerification}
         />
       )}
       {view === 'forgot' && (

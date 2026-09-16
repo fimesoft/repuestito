@@ -6,6 +6,7 @@ interface ApiErrorPayload {
 
 const ERROR_MESSAGES: Record<string, string> = {
   INVALID_CREDENTIALS: 'Correo electrónico o contraseña incorrectos',
+  EMAIL_NOT_VERIFIED: 'Debes verificar tu correo antes de ingresar',
   RATE_LIMIT_EXCEEDED: 'Demasiados intentos. Intenta de nuevo en unos minutos.',
   INSUFFICIENT_PERMISSIONS: 'No tenés permisos para esta acción',
   TENANT_ALREADY_ASSIGNED: 'Tu usuario ya tiene un local asignado',
@@ -15,6 +16,10 @@ const ERROR_MESSAGES: Record<string, string> = {
 
 function isApiErrorPayload(data: unknown): data is ApiErrorPayload {
   return typeof data === 'object' && data !== null && 'statusCode' in data;
+}
+
+export function getApiErrorCode(data: unknown): string | undefined {
+  return isApiErrorPayload(data) ? data.code : undefined;
 }
 
 export function translateApiError(data: unknown, fallback = 'Error inesperado'): string {
