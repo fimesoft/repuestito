@@ -97,7 +97,9 @@ Ahora acepta un segundo parámetro `thresholds` (default = 4/15, sin romper llam
 
 A diferencia de los thresholds de stock (por tenant), el theme es una preferencia **por usuario**: cada usuario podrá elegir entre varios themes predefinidos.
 
-Corrección sobre lo que se creía al planificar esta sección: **sí existe** un sistema de theming claro/oscuro completo y funcionando — `styles/theme.css` ya define un bloque `:root[data-theme='dark']` (línea 78) con toda la paleta oscura, y `components/shared/ThemeSelect/ThemeSelect.tsx` ya lo controla vía `localStorage` (`piezify-theme`) + `document.documentElement.dataset.theme`, usado en el `Header` público. Lo que faltaba era persistirlo por usuario en el backend y exponerlo también en `/dashboard/config`.
+Corrección sobre lo que se creía al planificar esta sección: **sí existe** un sistema de theming claro/oscuro completo y funcionando — `styles/theme.css` ya define un bloque `:root[data-theme='dark']` (línea 78) con toda la paleta oscura. Lo que faltaba era persistirlo por usuario en el backend y exponerlo también en `/dashboard/config`.
+
+> Nota posterior: `components/shared/ThemeSelect/` (mencionado más abajo como el selector público vía `localStorage`) nunca llegó a importarse desde ningún lado (ni `Header` ni otro componente) — quedó huérfano y se eliminó.
 
 De momento van a ser **2 themes**, y el valor se envía desde el front hacia el back al cambiarlo (no es el back quien decide/calcula el theme).
 
@@ -112,7 +114,7 @@ De momento van a ser **2 themes**, y el valor se envía desde el front hacia el 
 ### Frontend — implementado
 - No se creó un `ThemeContext` nuevo: `AuthUserContext.tsx` ya hace polling de `/api/auth/me`, así que se le agregó un `useEffect` que, cuando cambia `currentUser.theme`, aplica `document.documentElement.dataset.theme` y sincroniza `localStorage['piezify-theme']` (mismo storage key que `ThemeSelect`, para que el marketplace público también respete la preferencia una vez logueado).
 - Selector de theme en `/dashboard/config`: dos círculos (`.themeSwatch`, `border-radius: 50%`), el activo con `box-shadow`/`border` de `--color-primary`. Al hacer click llama a `updateMyTheme(theme)` (`services/user.service.ts`) y luego `refetch()` de `useAuthUser()`.
-- No se tocó `ThemeSelect`/`Header` (selector público anónimo vía localStorage) — fuera de alcance de este pedido.
+- No se tocó `Header` (no tenía selector público) — fuera de alcance de este pedido. `ThemeSelect` quedó huérfano (ver nota más arriba) y se eliminó luego.
 
 ---
 
