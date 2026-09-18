@@ -17,7 +17,7 @@ export async function middleware(req: NextRequest) {
   const token = req.cookies.get('token')?.value;
 
   if (!token || !(await isValidToken(token))) {
-    return NextResponse.redirect(new URL('/app', req.url));
+    return NextResponse.redirect(new URL('/', req.url));
   }
 
   return NextResponse.next();

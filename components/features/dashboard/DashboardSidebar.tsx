@@ -61,7 +61,7 @@ export default function DashboardSidebar() {
 
   async function handleLogout() {
     await logout();
-    router.push('/app');
+    router.push('/');
   }
 
   function renderItem(item: NavItem) {
