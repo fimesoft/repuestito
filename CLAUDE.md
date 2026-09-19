@@ -154,3 +154,64 @@ Vehicle:     id, brand, model, year, country, engine, fuelType, transmission, bo
   - `app/app/` — página de auth (login/register)
   - `app/dashboard/` — área protegida (aún en construcción)
 - `middleware.ts` — verifica JWT con `jose`; solo aplica a `/dashboard/**`
+
+### Deploy
+
+No hay CI/CD: el deploy sincroniza por `rsync` el working directory local al VPS y
+reconstruye ahí la imagen Docker del servicio que cambió. El servidor **no** usa
+`git pull` — el rsync copia el directorio tal cual esté, con o sin commitear.
+
+- Servidor: `root@2.25.65.69` (hostname `srv1975100`), SSH con key ya configurada.
+- Todo vive en `/opt/piezify/<repo>/` — carpetas planas, no son repos git.
+- `/opt/piezify/repuestito-deploy/` tiene el `docker-compose.yml` real, los `.env` del
+  server y el secret de Sentry (no es un repo git tampoco).
+
+**0. Detectar qué repo(s) cambiaron** — `git status --short` en `repuestito` (frontend)
+y en `repuestito-api` (backend). Si el usuario no especifica, deployar el/los que
+tengan commits nuevos desde el último deploy.
+
+**1. Confirmar commit limpio (obligatorio)** — `git status --short` debe estar vacío
+en cada repo a deployar. Si hay cambios sin commitear, parar y avisar.
+
+**2. Sync al servidor**
+
+Frontend:
+```
+rsync -az --delete \
+  --exclude='.git' --exclude='node_modules' --exclude='.next' --exclude='out' \
+  --exclude='coverage' --exclude='.env' --exclude='.env.*' --exclude='.DS_Store' \
+  /Users/diegoquintero/repuestito/ root@2.25.65.69:/opt/piezify/repuestito/
+```
+
+Backend:
+```
+rsync -az --delete \
+  --exclude='.git' --exclude='node_modules' --exclude='dist' \
+  --exclude='.env' --exclude='.env.*' --exclude='.DS_Store' \
+  /Users/diegoquintero/repuestito-api/ root@2.25.65.69:/opt/piezify/repuestito-api/
+```
+
+**3. Rebuild + restart en el servidor** (todo desde `/opt/piezify/repuestito-deploy`):
+```
+ssh root@2.25.65.69 "cd /opt/piezify/repuestito-deploy && docker compose build frontend && docker compose up -d frontend"
+```
+Cambiar `frontend` por `api` para el backend, o correr ambos si cambiaron los dos repos.
+
+Servicios del compose: `postgres`, `api` (build `../repuestito-api`, expone
+`127.0.0.1:3002->3000`) y `frontend` (build `../repuestito`, expone
+`127.0.0.1:3001->3000`, con build args `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SENTRY_DSN`,
+`NEXT_PUBLIC_SENTRY_ENVIRONMENT`, `SENTRY_ORG`, `SENTRY_PROJECT` y el secret
+`sentry_auth_token`). nginx (fuera de Docker) rutea `app.piezify.com`: `/api/*` →
+`127.0.0.1:3002`, todo lo demás → `127.0.0.1:3001`, HTTPS vía certbot.
+
+**4. Smoke test**
+```
+ssh root@2.25.65.69 "docker ps --format 'table {{.Names}}\t{{.Status}}'"
+curl -s -o /dev/null -w "%{http_code}\n" https://app.piezify.com/
+curl -s -o /dev/null -w "%{http_code}\n" -L https://app.piezify.com/dashboard
+```
+Verificar que los 3 contenedores estén `Up`/`healthy`. Ajustar las rutas del `curl`
+según lo que efectivamente cambió.
+
+No hay rollback automatizado — si un deploy rompe algo, preguntar al usuario cómo
+proceder en vez de asumir un comando.

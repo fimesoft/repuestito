@@ -1,0 +1,17 @@
+name: Deploy frontend
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deploy on VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 2.25.65.69
+          username: root
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: frontend
