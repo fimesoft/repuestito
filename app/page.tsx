@@ -1,7 +1,7 @@
 import AuthBlock from '@/components/features/auth/AuthBlock';
 import styles from './page.module.css';
 
-export const metadata = { title: 'Ingresar — Piezify' };
+export const metadata = { title: 'Ingresar - Piezify' };
 
 interface PageProps {
   searchParams: Promise<{ view?: string; email?: string }>;

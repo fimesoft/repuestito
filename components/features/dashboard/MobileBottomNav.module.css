@@ -13,6 +13,9 @@
     background: var(--sidebar-bg);
     border-top: 1px solid var(--sidebar-border);
     height: 64px;
+    padding-bottom: env(safe-area-inset-bottom);
+    transform: translateZ(0);
+    will-change: transform;
   }
 
   .item {
