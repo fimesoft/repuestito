@@ -21,7 +21,7 @@ export default function ReplacementsChart({ replacements, className }: { replace
   return (
     <Card className={`${styles.card}${className ? ` ${className}` : ''}`}>
       <div className={styles.header}>
-        <span className={styles.title}>Repuestos por estado</span>
+        <span className={styles.title}>Productos por estado</span>
         <span className={styles.total}>{replacements.total} <span className={styles.totalLabel}>totales</span></span>
       </div>
       <ResponsiveContainer width="100%" height={220}>

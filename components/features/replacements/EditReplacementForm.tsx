@@ -72,7 +72,7 @@ export default function EditReplacementForm({ replacement }: EditReplacementForm
         const message =
           data && typeof data === 'object' && 'message' in data
             ? String((data as { message: unknown }).message)
-            : 'Error al actualizar el repuesto';
+            : 'Error al actualizar el producto';
         throw new Error(message);
       }
 
@@ -128,7 +128,7 @@ export default function EditReplacementForm({ replacement }: EditReplacementForm
         <Toggle
           checked={active}
           onChange={handleToggle}
-          label="Estado del repuesto"
+          label="Estado del producto"
           description={active ? 'Activo — visible en el marketplace' : 'Inactivo — no aparece en búsquedas'}
         />
 
@@ -150,7 +150,7 @@ export default function EditReplacementForm({ replacement }: EditReplacementForm
         isOpen={showConfirm}
         onClose={() => setShowConfirm(false)}
         size="sm"
-        title="Desactivar repuesto"
+        title="Desactivar producto"
         footer={
           <div className={styles.confirmActions}>
             <Button label="Cancelar" variant="outline" color="neutral" onClick={() => setShowConfirm(false)} />
@@ -159,7 +159,7 @@ export default function EditReplacementForm({ replacement }: EditReplacementForm
         }
       >
         <p className={styles.confirmBody}>
-          El repuesto <strong>{gr?.name}</strong> dejará de aparecer en el marketplace. Podés volver a activarlo en cualquier momento.
+          El producto <strong>{gr?.name}</strong> dejará de aparecer en el marketplace. Podés volver a activarlo en cualquier momento.
         </p>
       </Modal>
     </>

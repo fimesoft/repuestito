@@ -8,7 +8,7 @@ const manrope = Manrope({ subsets: ["latin"], display: "swap", variable: "--font
 
 export const metadata: Metadata = {
   title: "Piezify",
-  description: "Marketplace de repuestos automotrices",
+  description: "Marketplace de productos automotrices",
   icons: {
     icon: "/favicon.ico",
     shortcut: "/favicon.ico",

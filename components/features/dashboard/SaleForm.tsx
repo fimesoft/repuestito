@@ -222,7 +222,7 @@ export default function SaleForm({ mode }: SaleFormProps) {
             {mode === 'invoice' ? 'Punto de venta' : 'Nuevo pedido'}
           </h1>
           <p className={styles.subtitle}>
-            {mode === 'invoice' ? 'Facturación rápida de repuestos' : 'El stock se descuenta al crear el pedido'}
+            {mode === 'invoice' ? 'Facturación rápida de productos' : 'El stock se descuenta al crear el pedido'}
           </p>
         </div>
       </div>
@@ -232,7 +232,7 @@ export default function SaleForm({ mode }: SaleFormProps) {
           <div className={styles.searchBox}>
             <input
               className={styles.input}
-              placeholder="Buscar repuesto..."
+              placeholder="Buscar producto..."
               value={search}
               onChange={e => handleSearch(e.target.value)}
             />

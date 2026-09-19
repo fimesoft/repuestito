@@ -11,7 +11,7 @@ const apiOrigin = process.env.NEXT_PUBLIC_API_URL ?? '';
 const csp = [
   "default-src 'self'",
   `connect-src 'self' https://nominatim.openstreetmap.org https://*.sentry.io ${apiOrigin}`.trim(),
-  "img-src 'self' data: https://res.cloudinary.com https://picsum.photos https://*.tile.openstreetmap.org",
+  "img-src 'self' data: blob: https://res.cloudinary.com https://picsum.photos https://*.tile.openstreetmap.org",
   "script-src 'self' 'unsafe-inline'",
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self' data:",

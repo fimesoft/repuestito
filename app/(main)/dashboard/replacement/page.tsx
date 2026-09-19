@@ -231,7 +231,7 @@ export default function ReplacementDashboardPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('¿Eliminar este repuesto?')) return;
+    if (!confirm('¿Eliminar este producto?')) return;
     try {
       await deleteReplacement(id);
       setReplacements(prev => prev.filter(r => r.id !== id));
@@ -242,7 +242,7 @@ export default function ReplacementDashboardPage() {
 
   const canCreate = !!form.name && form.brandId > 0 && form.price > 0 && !!form.tenantId;
   const modalOpen = creating || !!editingReplacement;
-  const modalTitle = creating ? 'Nuevo repuesto' : 'Editar repuesto';
+  const modalTitle = creating ? 'Nuevo producto' : 'Editar producto';
   const modalClose = creating ? () => setCreating(false) : () => setEditingReplacement(null);
   const modalSave = creating ? handleCreate : handleUpdate;
   const modalCanDisable = creating ? (saving || !canCreate) : saving;
@@ -254,10 +254,10 @@ export default function ReplacementDashboardPage() {
   ) : (
     <EmptyState
       variant={hasFilters ? 'no-results' : 'empty'}
-      title={hasFilters ? 'Sin repuestos para tu búsqueda' : 'No hay repuestos registrados'}
+      title={hasFilters ? 'Sin productos para tu búsqueda' : 'No hay productos registrados'}
       description={hasFilters
-        ? 'No encontramos repuestos que coincidan con tu búsqueda o filtros. Probá con otros términos.'
-        : 'Aún no tienes repuestos registrados. Cuando ingresen, aparecerán aquí.'}
+        ? 'No encontramos productos que coincidan con tu búsqueda o filtros. Probá con otros términos.'
+        : 'Aún no tienes productos registrados. Cuando ingresen, aparecerán aquí.'}
     />
   );
 
@@ -272,14 +272,14 @@ export default function ReplacementDashboardPage() {
     <main className={styles.page}>
       <div className={styles.header}>
         <div>
-          <Breadcrumbs items={[{ label: 'Repuestos' }]} />
-          <MainTitle title="Repuestos" subtitle="Catálogo de piezas disponibles en tu red de locales" />
+          <Breadcrumbs items={[{ label: 'Productos' }]} />
+          <MainTitle title="Productos" subtitle="Catálogo de productos" />
         </div>
-        {canManage && <Button label="+ Nuevo repuesto" onClick={openCreate} shadow />}
+        {canManage && <Button label="+ Nuevo producto" onClick={openCreate} shadow />}
       </div>
 
       <Filters
-        search={{ value: search, onChange: setSearch, placeholder: 'Buscar por nombre de repuesto...' }}
+        search={{ value: search, onChange: setSearch, placeholder: 'Buscar por nombre de producto...' }}
         dateRange={{ from, to, onFromChange: setFrom, onToChange: setTo }}
         selects={[{
           label: 'Estado',
@@ -304,7 +304,7 @@ export default function ReplacementDashboardPage() {
           onRowClick={r => router.push(`/dashboard/replacement/${r.id}/show`)}
           columns={[
             { header: 'Producto', render: r => r.globalReplacement?.imageUrl
-              ? <Image src={r.globalReplacement.imageUrl} alt={`${r.globalReplacement.name ?? 'Repuesto'} - ${r.globalReplacement.brand?.name ?? ''}`} title={`${r.globalReplacement.name ?? 'Repuesto'} - ${r.globalReplacement.brand?.name ?? ''}`} width={40} height={40} className={styles.img} />
+              ? <Image src={r.globalReplacement.imageUrl} alt={`${r.globalReplacement.name ?? 'Producto'} - ${r.globalReplacement.brand?.name ?? ''}`} title={`${r.globalReplacement.name ?? 'Producto'} - ${r.globalReplacement.brand?.name ?? ''}`} width={40} height={40} className={styles.img} />
               : <div className={styles.imgPlaceholder} />, className: styles.tdImg },
             { header: 'Nombre / Marca', render: r => (
               <div className={styles.nameCell}>
@@ -448,7 +448,7 @@ export default function ReplacementDashboardPage() {
               <Toggle
                 checked={editForm.active ?? true}
                 onChange={handleActiveToggle}
-                label="Estado del repuesto"
+                label="Estado del producto"
                 description={editForm.active ? 'Activo — visible en el marketplace' : 'Inactivo — no aparece en búsquedas'}
               />
 
@@ -462,7 +462,7 @@ export default function ReplacementDashboardPage() {
         isOpen={showDeactivateConfirm}
         onClose={() => setShowDeactivateConfirm(false)}
         size="sm"
-        title="Desactivar repuesto"
+        title="Desactivar producto"
         footer={
           <div className={styles.confirmActions}>
             <Button label="Cancelar" variant="outline" color="neutral" onClick={() => setShowDeactivateConfirm(false)} />
@@ -471,7 +471,7 @@ export default function ReplacementDashboardPage() {
         }
       >
         <p className={styles.confirmBody}>
-          El repuesto <strong>{editingReplacement?.globalReplacement?.name}</strong> dejará de aparecer en el marketplace. Podés volver a activarlo en cualquier momento.
+          El producto <strong>{editingReplacement?.globalReplacement?.name}</strong> dejará de aparecer en el marketplace. Podés volver a activarlo en cualquier momento.
         </p>
       </Modal>
     </main>

@@ -21,13 +21,13 @@ export default function ReplacementShowPage({ params }: PageProps) {
     params.then(({ id }) => {
       getReplacement(id)
         .then(setReplacement)
-        .catch(() => setError('No se pudo cargar el repuesto'))
+        .catch(() => setError('No se pudo cargar el producto'))
         .finally(() => setLoading(false));
     });
   }, [params]);
 
   if (loading) return <main className={styles.page}><p className={styles.hint}>Cargando...</p></main>;
-  if (error || !replacement) return <main className={styles.page}><p className={styles.error}>{error ?? 'Repuesto no encontrado'}</p></main>;
+  if (error || !replacement) return <main className={styles.page}><p className={styles.error}>{error ?? 'Producto no encontrado'}</p></main>;
 
   const info = replacement.globalReplacement;
   const hasLocation = replacement.latitude != null && replacement.longitude != null;

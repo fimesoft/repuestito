@@ -14,7 +14,7 @@ export default async function EditReplacementPage({ params }: PageProps) {
   return (
     <main className={styles.main}>
       <Link href={`/parts/${id}`} className={styles.back}>← Volver</Link>
-      <h1 className={styles.title}>Editar repuesto</h1>
+      <h1 className={styles.title}>Editar producto</h1>
       <EditReplacementForm replacement={replacement} />
     </main>
   );

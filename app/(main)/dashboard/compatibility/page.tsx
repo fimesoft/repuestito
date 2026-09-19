@@ -37,11 +37,11 @@ export default function CompatibilityPage() {
   return (
     <main className={styles.page}>
       <Breadcrumbs items={[{ label: 'Compatibilidades' }]} />
-      <MainTitle title="Compatibilidades" subtitle="Asociá repuestos a los modelos de vehículo compatibles" className={styles.pageTitle} />
+      <MainTitle title="Compatibilidades" subtitle="Asociá productos a los modelos de vehículo compatibles" className={styles.pageTitle} />
 
       <div className={styles.layout}>
         <aside className={styles.sidebar}>
-          <Search value={search} onChange={setSearch} placeholder="Buscar repuesto..." width="100%" />
+          <Search value={search} onChange={setSearch} placeholder="Buscar producto..." width="100%" />
           {loading ? (
             <Loading />
           ) : (
@@ -81,7 +81,7 @@ export default function CompatibilityPage() {
               onCountChange={count => setCounts(prev => ({ ...prev, [selected.globalReplacement.id]: count }))}
             />
           ) : (
-            <p className={styles.placeholder}>Seleccioná un repuesto para gestionar sus compatibilidades.</p>
+            <p className={styles.placeholder}>Seleccioná un producto para gestionar sus compatibilidades.</p>
           )}
         </section>
       </div>

@@ -51,7 +51,7 @@ export default function BulkUploadPage() {
 
   function handleDownloadTemplate() {
     const link = document.createElement('a');
-    link.href = '/templates/repuestos-ejemplo.csv';
+    link.href = '/templates/productos-ejemplo.csv';
     link.download = '';
     link.click();
   }
@@ -95,8 +95,8 @@ export default function BulkUploadPage() {
 
   return (
     <main className={styles.page}>
-      <Breadcrumbs items={[{ label: 'Repuestos', href: '/dashboard/replacement' }, { label: 'Carga masiva' }]} />
-      <MainTitle title="Carga masiva de repuestos" subtitle="Importá múltiples repuestos desde un archivo CSV" className={styles.pageTitle} />
+      <Breadcrumbs items={[{ label: 'Productos', href: '/dashboard/replacement' }, { label: 'Carga masiva' }]} />
+      <MainTitle title="Carga masiva de productos" subtitle="Importá múltiples productos desde un archivo CSV" className={styles.pageTitle} />
       <div className={styles.desc}>
         <Button label="Descargar CSV de ejemplo" onClick={handleDownloadTemplate} variant="secondary" icon="/icons/download.svg" />
       </div>
@@ -151,7 +151,7 @@ export default function BulkUploadPage() {
 
           {job.succeeded > 0 && (
             <p className={styles.detail}>
-              {job.catalogCreated} nuevo{job.catalogCreated === 1 ? '' : 's'} en el catálogo · {job.catalogReused} reutilizado{job.catalogReused === 1 ? '' : 's'} de repuestos ya cargados · {job.brandsCreated} marca{job.brandsCreated === 1 ? '' : 's'} nueva{job.brandsCreated === 1 ? '' : 's'}
+              {job.catalogCreated} nuevo{job.catalogCreated === 1 ? '' : 's'} en el catálogo · {job.catalogReused} reutilizado{job.catalogReused === 1 ? '' : 's'} de productos ya cargados · {job.brandsCreated} marca{job.brandsCreated === 1 ? '' : 's'} nueva{job.brandsCreated === 1 ? '' : 's'}
             </p>
           )}
 

@@ -29,7 +29,7 @@ function ProductShowcase() {
     <section className={styles.showcase} aria-label="Presentación de Piezify">
       <div className={styles.showcaseTop}>
         <div className={styles.copy}>
-          <p className={styles.eyebrow}>GESTIONA TODOS LOS REPUESTOS DE PUNTA A PUNTA.</p>
+          <p className={styles.eyebrow}>GESTIONA TODOS TUS PRODUCTOS DE PUNTA A PUNTA.</p>
           <h1>Todo tu negocio en un solo lugar<span>.</span></h1>
         </div>
       </div>
@@ -64,7 +64,7 @@ export default async function LoginPage({ searchParams }: PageProps) {
         <div className={styles.authCard}>
           <AuthBlock initialView={view} initialEmail={email} />
         </div>
-        <p className={styles.support}>¿Necesitás ayuda? <a href="mailto:soporte@piezify.com">Contactá a soporte</a></p>
+        <p className={styles.support}>¿Necesitás ayuda? <a href="mailto:soporte@piezify.com">soporte@piezify.com</a></p>
         <footer className={styles.footer}>(pzify-1.0.0) Copyright 2026©</footer>
       </section>
       <ProductShowcase />

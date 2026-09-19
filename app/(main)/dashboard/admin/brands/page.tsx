@@ -119,7 +119,7 @@ export default function BrandsPage() {
       <div className={styles.header}>
         <div>
           <Breadcrumbs items={[{ label: 'Marcas' }]} />
-          <MainTitle title="Marcas" subtitle="Catálogo de marcas de repuestos verificadas" />
+          <MainTitle title="Marcas" subtitle="Catálogo de marcas de productos verificadas" />
         </div>
         {isAdmin && <Button label="+ Nueva marca" onClick={openCreate} shadow />}
       </div>

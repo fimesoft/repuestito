@@ -45,7 +45,7 @@ function IconCar() {
 }
 
 const BOTTOM_NAV = [
-  { href: '/dashboard/replacement', label: 'Repuestos', Icon: IconWrench },
+  { href: '/dashboard/replacement', label: 'Productos', Icon: IconWrench },
   { href: '/dashboard/orders',      label: 'Pedidos',   Icon: IconClipboard },
   { href: '/dashboard/users',       label: 'Usuarios',  Icon: IconUsers },
   { href: '/dashboard/vehicles',    label: 'Vehículos', Icon: IconCar },

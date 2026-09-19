@@ -3,7 +3,10 @@
 import { useState } from "react";
 import Image from "next/image";
 import FileDropzone from "@/components/shared/FileDropzone";
+import { compressImage } from "@/lib/image";
 import styles from "./ImageUpload.module.css";
+
+const MAX_SIZE_BYTES = 5 * 1024 * 1024;
 
 interface ImageUploadProps {
   onUpload: (url: string) => void;
@@ -17,13 +20,25 @@ export default function ImageUpload({ onUpload, initialUrl }: ImageUploadProps) 
 
   async function handleFile(file: File) {
     setError(null);
-    setPreview(URL.createObjectURL(file));
+
+    if (!file.type.startsWith("image/")) {
+      setError("Solo se permiten imágenes");
+      return;
+    }
+    if (file.size > MAX_SIZE_BYTES) {
+      setError("La imagen no puede superar 5 MB");
+      return;
+    }
+
     setUploading(true);
 
-    const formData = new FormData();
-    formData.append("file", file);
-
     try {
+      const compressed = await compressImage(file);
+      setPreview(URL.createObjectURL(compressed));
+
+      const formData = new FormData();
+      formData.append("file", compressed);
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/upload`, {
         method: "POST",
         credentials: "include",
@@ -46,7 +61,14 @@ export default function ImageUpload({ onUpload, initialUrl }: ImageUploadProps) 
     <FileDropzone onFileSelect={handleFile} accept="image/*">
       {preview ? (
         <div className={styles.preview}>
-          <Image src={preview} alt="preview" fill sizes="100%" className={styles.previewImg} />
+          <Image
+            src={preview}
+            alt="preview"
+            fill
+            sizes="100%"
+            className={styles.previewImg}
+            unoptimized={preview.startsWith('blob:')}
+          />
           {uploading && <div className={styles.overlay}>Subiendo...</div>}
         </div>
       ) : (

@@ -54,7 +54,7 @@ export async function createReplacement(payload: CreateReplacementPayload): Prom
     throw new Error(
       data && typeof data === 'object' && 'message' in data
         ? String((data as { message: unknown }).message)
-        : 'Error al crear el repuesto',
+        : 'Error al crear el producto',
     );
   }
   return res.json() as Promise<Replacement>;
@@ -81,7 +81,7 @@ export async function updateReplacement(id: string, payload: UpdateReplacementPa
     throw new Error(
       data && typeof data === 'object' && 'message' in data
         ? String((data as { message: unknown }).message)
-        : 'Error al actualizar el repuesto',
+        : 'Error al actualizar el producto',
     );
   }
   return res.json() as Promise<Replacement>;
@@ -89,7 +89,7 @@ export async function updateReplacement(id: string, payload: UpdateReplacementPa
 
 export async function deleteReplacement(id: string): Promise<void> {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/replacements/${id}`, { method: 'DELETE', credentials: 'include' });
-  if (!res.ok) throw new Error('Error al eliminar el repuesto');
+  if (!res.ok) throw new Error('Error al eliminar el producto');
 }
 
 export interface PaginatedResult {
@@ -114,7 +114,7 @@ export interface ReplacementQuery {
 export async function getReplacement(id: string, options?: RequestInit): Promise<Replacement> {
   const url = `${process.env.NEXT_PUBLIC_API_URL}/api/replacements/${id}`;
   const res = await fetch(url, { credentials: 'include', ...options });
-  if (!res.ok) throw new Error('Error al obtener el repuesto');
+  if (!res.ok) throw new Error('Error al obtener el producto');
   return res.json() as Promise<Replacement>;
 }
 
@@ -134,6 +134,6 @@ export async function getReplacements(
 
   const url = `${process.env.NEXT_PUBLIC_API_URL}/api/replacements?${params.toString()}`;
   const res = await fetch(url, { credentials: 'include', ...options });
-  if (!res.ok) throw new Error('Error al obtener los repuestos');
+  if (!res.ok) throw new Error('Error al obtener los productos');
   return res.json() as Promise<PaginatedResult>;
 }
