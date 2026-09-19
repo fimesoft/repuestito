@@ -48,3 +48,13 @@
   color: var(--color-error);
   opacity: 0.7;
 }
+
+.create {
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-primary);
+  cursor: pointer;
+  border-top: 1px solid var(--color-border-subtle);
+}
+.create:hover { background: var(--color-primary-subtle); }

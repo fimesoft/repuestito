@@ -1,4 +1,14 @@
+import { throwApiError } from '@/lib/api-errors';
+
 const BASE = `${process.env.NEXT_PUBLIC_API_URL}/api/brand-replacements`;
+
+/** Marca ya existente que devuelve el 409 al intentar crear un duplicado. */
+export interface ExistingBrand {
+  id: number;
+  name: string;
+  countryCode: string | null;
+  isVerified: boolean;
+}
 
 export interface PaginatedBrands {
   data: Brand[];
@@ -38,10 +48,7 @@ export type UpdateBrandPayload = Partial<CreateBrandPayload>;
 
 async function req<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, { credentials: 'include', cache: 'no-store', ...init });
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({})) as { code?: string };
-    throw new Error(body.code ?? `Error ${res.status}`);
-  }
+  if (!res.ok) await throwApiError<ExistingBrand>(res, `Error ${res.status}`);
   if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;
 }

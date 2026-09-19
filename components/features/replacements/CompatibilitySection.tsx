@@ -14,11 +14,11 @@ import styles from './CompatibilitySection.module.css';
 interface Props {
   globalReplacementId: number;
   title?: string;
-  oemCode?: string | null;
+  sku?: string | null;
   onCountChange?: (count: number) => void;
 }
 
-export default function CompatibilitySection({ globalReplacementId, title = 'Compatibilidades', oemCode, onCountChange }: Props) {
+export default function CompatibilitySection({ globalReplacementId, title = 'Compatibilidades', sku, onCountChange }: Props) {
   const [items, setItems] = useState<Compatibility[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -116,7 +116,7 @@ export default function CompatibilitySection({ globalReplacementId, title = 'Com
         <div>
           <div className={styles.titleRow}>
             <h2 className={styles.title}>{title}</h2>
-            {oemCode && <span className={styles.oemChip}>{oemCode}</span>}
+            {sku && <span className={styles.oemChip}>{sku}</span>}
           </div>
           <p className={styles.meta}>{items.length} modelo{items.length === 1 ? '' : 's'} compatible{items.length === 1 ? '' : 's'}</p>
         </div>

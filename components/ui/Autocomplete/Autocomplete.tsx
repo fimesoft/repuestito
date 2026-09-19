@@ -15,6 +15,9 @@ interface AutocompleteProps<T> {
   emptyMessage?: string;
   minChars?: number;
   debounceMs?: number;
+  /** Si se pasa, agrega la opción final "Crear «texto»" (se oculta si ya hay una sugerencia con ese nombre exacto). */
+  onCreate?: (query: string) => void;
+  createLabel?: (query: string) => string;
 }
 
 export default function Autocomplete<T>({
@@ -29,6 +32,8 @@ export default function Autocomplete<T>({
   emptyMessage = 'No se encontraron resultados',
   minChars = 3,
   debounceMs = 400,
+  onCreate,
+  createLabel,
 }: AutocompleteProps<T>) {
   const [showDropdown, setShowDropdown] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -50,6 +55,9 @@ export default function Autocomplete<T>({
   }
 
   const isOpen = showDropdown && value.length >= minChars;
+  const query = value.trim();
+  const canCreate =
+    !!onCreate && query.length > 0 && !suggestions.some(item => getLabel(item).trim().toLowerCase() === query.toLowerCase());
 
   return (
     <div className={styles.wrapper}>
@@ -75,6 +83,17 @@ export default function Autocomplete<T>({
             </li>
           )) : (
             <li className={styles.empty}>{emptyMessage}</li>
+          )}
+          {canCreate && (
+            <li
+              className={styles.create}
+              onMouseDown={() => {
+                onCreate(query);
+                setShowDropdown(false);
+              }}
+            >
+              {createLabel ? createLabel(query) : `Crear «${query}»`}
+            </li>
           )}
         </ul>
       )}

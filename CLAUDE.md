@@ -124,18 +124,21 @@ AppModule
 ### Modelo de datos (relaciones clave)
 
 ```
-Country ──< Tenant ──< Branch
-                │
-               (storeId en Replacement — UUID directo, sin FK declarada aún)
+Tenant ──< Branch                       users → tenant_id, branch_id (FK)
+Tenant ──< customers, orders, invoices  (particionadas por tenant_id; sin FK al replacement)
 
-GlobalReplacement >──< VehicleModel/VehicleVersion   (vía ReplacementCompatibility, unique [globalReplacementId, modelId, versionId])
+BrandReplacement ──< GlobalReplacement >── ProductType   (catálogo compartido, único por [sku, country_code])
+GlobalReplacement ──< Replacement (oferta del tenant: price, stock, branch_id, tenant_id)
+GlobalReplacement >──< VehicleModel/VehicleVersion   (vía ReplacementCompatibility, unique [globalReplacementId, modelId, versionId];
+                                                       solo si ProductType.supportsVehicleCompatibility)
+VehicleBrand ──< VehicleModel ──< VehicleVersion >── Country
 
-User (SELLER) → sellerId en Replacement (UUID directo, sin FK declarada aún)
-
-Replacement: id, name, brand, price, stock, country, latitude, longitude,
-             codeOem, imageUrl, storeId, sellerId
-Vehicle:     id, brand, model, year, country, engine, fuelType, transmission, bodyType
+GlobalReplacement: id, name, brand_id, product_type_id, sku (A-Z0-9, opcional), image_url, country_code, is_verified
+Replacement:       id, global_replacement_id, price, stock, tenant_id, branch_id, active, latitude, longitude
+ProductType:       id, name, normalized_name (único), supports_vehicle_compatibility, is_system, is_verified, is_active
 ```
+
+Detalle y decisiones en `steps/evolution-catalog.md`.
 
 ### Servicios del frontend (`repuestito/services/`)
 

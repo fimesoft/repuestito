@@ -36,11 +36,6 @@
 
 .image { object-fit: contain; }
 
-.imagePlaceholder {
-  width: 100%;
-  height: 100%;
-  background: var(--bg-muted);
-}
 
 .info {
   display: flex;

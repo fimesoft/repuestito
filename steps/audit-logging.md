@@ -40,12 +40,23 @@ local dentro de una transacción. Al confirmarla deben existir estos eventos:
 | Evento | Cuándo se emite | Subject |
 |---|---|---|
 | `catalog.replacement_created` | se crea un `global_replacement` | globalReplacementId |
-| `catalog.replacement_reused` | se reutiliza el catálogo por OEM + país | globalReplacementId |
+| `catalog.replacement_reused` | se reutiliza el catálogo por SKU + país | globalReplacementId |
 | `replacement.created` | se crea el listado local | replacementId |
 
 Los eventos de catálogo y listado comparten `correlationId`. Esto permite saber
 que un catálogo global fue creado o reutilizado por el alta de un listado local,
 sin atribuir el catálogo a un tenant que no le pertenece.
+
+Marcas y tipos de producto creados o administrados desde la UI (implementados en
+`BrandReplacementService` y `ProductTypeService`):
+
+| Evento | Cuándo se emite | Subject |
+|---|---|---|
+| `brand.created` | se crea una marca | brand (id) |
+| `product_type.created` | se crea un tipo de producto | product_type (id) |
+| `product_type.updated` | `PUT` sobre un tipo (guarda `before` / `after`) | product_type (id) |
+| `product_type.deleted` | se elimina un tipo sin productos | product_type (id) |
+| `product_type.merged` | un tipo se fusiona en otro (`metadata.moved` = productos movidos) | product_type (id origen) |
 
 También se incorporan `replacement.updated` y `replacement.deleted` al tocar
 `PATCH` y `DELETE`; en cambios se guardan sólo los campos modificados y su valor

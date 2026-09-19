@@ -23,14 +23,15 @@ export default function CompatibilityPage() {
   useEffect(() => {
     setLoading(true);
     getReplacements({ country, limit: 100 })
-      .then(r => setReplacements(r.data))
+      // La compatibilidad vehicular solo aplica a tipos que la soportan (ej. Repuestos)
+      .then(r => setReplacements(r.data.filter(x => x.globalReplacement.productType?.supportsVehicleCompatibility ?? true)))
       .finally(() => setLoading(false));
   }, [country]);
 
   const filtered = search.trim()
     ? replacements.filter(r =>
         r.globalReplacement.name.toLowerCase().includes(search.toLowerCase()) ||
-        (r.globalReplacement.codeOem ?? '').toLowerCase().includes(search.toLowerCase()),
+        (r.globalReplacement.sku ?? '').toLowerCase().includes(search.toLowerCase()),
       )
     : replacements;
 
@@ -56,8 +57,8 @@ export default function CompatibilityPage() {
                     >
                       <span className={styles.itemText}>
                         <span className={styles.itemName}>{r.globalReplacement.name}</span>
-                        {r.globalReplacement.codeOem && (
-                          <span className={styles.itemCode}>{r.globalReplacement.codeOem}</span>
+                        {r.globalReplacement.sku && (
+                          <span className={styles.itemCode}>{r.globalReplacement.sku}</span>
                         )}
                       </span>
                       <span className={`${styles.countPill} ${count === 0 ? styles.zero : ''}`}>{count ?? '·'}</span>
@@ -77,7 +78,7 @@ export default function CompatibilityPage() {
             <CompatibilitySection
               globalReplacementId={selected.globalReplacement.id}
               title={selected.globalReplacement.name}
-              oemCode={selected.globalReplacement.codeOem}
+              sku={selected.globalReplacement.sku}
               onCountChange={count => setCounts(prev => ({ ...prev, [selected.globalReplacement.id]: count }))}
             />
           ) : (

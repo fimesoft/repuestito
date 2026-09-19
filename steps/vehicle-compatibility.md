@@ -2,6 +2,9 @@
 
 > Última actualización: julio 2026. Todo implementado y compilando sin errores.
 
+> Nota (evolución del catálogo): `codeOem` / `code_oem` pasó a llamarse **`sku`** y `global_replacements` ahora tiene `product_type_id`. Este documento conserva la nomenclatura original; ver `evolution-catalog.md`.
+> Además, la compatibilidad solo aplica a tipos de producto con `supports_vehicle_compatibility = true` (hoy «Repuestos»): el backend rechaza el alta (400 `PRODUCT_TYPE_COMPATIBILITY_NOT_SUPPORTED`) y la UI la oculta para los demás tipos.
+
 ---
 
 ## Arquitectura implementada

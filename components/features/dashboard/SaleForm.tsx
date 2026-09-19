@@ -2,7 +2,6 @@
 
 import { useReducer, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { usePermissions } from '@/hooks/usePermissions';
 import { useStockThresholds } from '@/hooks/useStockThresholds';
 import { getReplacements, Replacement } from '@/services/replacement.service';
@@ -10,6 +9,7 @@ import { searchCustomers, Customer } from '@/services/customers.service';
 import { createInvoice } from '@/services/billing.service';
 import { createOrder } from '@/services/orders.service';
 import Card from '@/components/ui/Card';
+import ProductImage from '@/components/shared/ProductImage';
 import Button from '@/components/ui/Button';
 import BackPage from '@/components/shared/BackPage';
 import Confirm from '@/components/shared/Confirm';
@@ -245,17 +245,7 @@ export default function SaleForm({ mode }: SaleFormProps) {
               {results.map(r => (
                 <Card key={r.id} className={styles.resultCard}>
                   <div className={styles.resultImageWrapper}>
-                    {r.globalReplacement?.imageUrl ? (
-                      <Image
-                        src={r.globalReplacement.imageUrl}
-                        alt={r.globalReplacement.name}
-                        fill
-                        sizes="160px"
-                        className={styles.resultImage}
-                      />
-                    ) : (
-                      <div className={styles.resultImagePlaceholder} />
-                    )}
+                    <ProductImage src={r.globalReplacement?.imageUrl} alt={r.globalReplacement?.name ?? 'Producto'} sizes="160px" className={styles.resultImage} showLabel />
                   </div>
                   <div className={styles.resultInfo}>
                     <span className={styles.resultName}>{r.globalReplacement?.name}</span>

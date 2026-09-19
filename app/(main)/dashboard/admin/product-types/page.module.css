@@ -1,0 +1,42 @@
+.page { padding: 2rem; }
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.nameCell {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form { display: flex; flex-direction: column; gap: 14px; }
+
+.input {
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--color-text);
+  background: var(--bg-surface);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.input:focus { border-color: var(--color-primary); }
+.input:disabled { background: var(--bg-muted); color: var(--color-text-muted); cursor: not-allowed; }
+
+.hint { margin: 0; font-size: 13px; color: var(--color-text-secondary); }
+
+.error { margin: 0; font-size: 13px; color: var(--color-error); }

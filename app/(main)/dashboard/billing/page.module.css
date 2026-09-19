@@ -98,7 +98,6 @@
   background: var(--bg-subtle);
 }
 .resultImage { object-fit: cover; }
-.resultImagePlaceholder { width: 100%; height: 100%; background: var(--bg-subtle); }
 
 .resultInfo { display: flex; flex-direction: column; gap: 6px; }
 .resultName { font-size: 14px; font-weight: 600; color: var(--color-text); }

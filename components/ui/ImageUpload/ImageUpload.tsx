@@ -1,22 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import FileDropzone from "@/components/shared/FileDropzone";
+import Button from "@/components/ui/Button/Button";
 import { compressImage } from "@/lib/image";
 import styles from "./ImageUpload.module.css";
 
 const MAX_SIZE_BYTES = 5 * 1024 * 1024;
 
 interface ImageUploadProps {
-  onUpload: (url: string) => void;
+  /**
+   * Entrega el archivo ya comprimido (o null al quitarlo). No sube nada: la subida la hace
+   * quien guarda el formulario, para no dejar imágenes huérfanas si el usuario cancela.
+   */
+  onChange: (file: File | null) => void;
   initialUrl?: string;
 }
 
-export default function ImageUpload({ onUpload, initialUrl }: ImageUploadProps) {
+export default function ImageUpload({ onChange, initialUrl }: ImageUploadProps) {
   const [preview, setPreview] = useState<string | null>(initialUrl ?? null);
-  const [uploading, setUploading] = useState(false);
+  const [processing, setProcessing] = useState(false);
+  const [picked, setPicked] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const blobUrl = useRef<string | null>(null);
+
+  function revokePreview() {
+    if (blobUrl.current) URL.revokeObjectURL(blobUrl.current);
+    blobUrl.current = null;
+  }
+
+  useEffect(() => revokePreview, []);
 
   async function handleFile(file: File) {
     setError(null);
@@ -30,34 +44,37 @@ export default function ImageUpload({ onUpload, initialUrl }: ImageUploadProps) 
       return;
     }
 
-    setUploading(true);
+    setProcessing(true);
 
     try {
       const compressed = await compressImage(file);
-      setPreview(URL.createObjectURL(compressed));
-
-      const formData = new FormData();
-      formData.append("file", compressed);
-
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/upload`, {
-        method: "POST",
-        credentials: "include",
-        body: formData,
-      });
-
-      if (!res.ok) throw new Error("Error al subir la imagen");
-
-      const data = await res.json() as { url: string; publicId: string };
-      onUpload(data.url);
+      revokePreview();
+      blobUrl.current = URL.createObjectURL(compressed);
+      setPreview(blobUrl.current);
+      setPicked(true);
+      onChange(compressed);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error inesperado");
-      setPreview(null);
+      revokePreview();
+      setPreview(initialUrl ?? null);
+      setPicked(false);
+      onChange(null);
     } finally {
-      setUploading(false);
+      setProcessing(false);
     }
   }
 
+  // Descarta el archivo elegido: vuelve a la imagen inicial (si la hay) o queda vacío
+  function handleRemove() {
+    revokePreview();
+    setPreview(initialUrl ?? null);
+    setPicked(false);
+    setError(null);
+    onChange(null);
+  }
+
   return (
+    <>
     <FileDropzone onFileSelect={handleFile} accept="image/*">
       {preview ? (
         <div className={styles.preview}>
@@ -69,17 +86,19 @@ export default function ImageUpload({ onUpload, initialUrl }: ImageUploadProps) 
             className={styles.previewImg}
             unoptimized={preview.startsWith('blob:')}
           />
-          {uploading && <div className={styles.overlay}>Subiendo...</div>}
+          {processing && <div className={styles.overlay}>Procesando...</div>}
         </div>
       ) : (
         <div className={styles.placeholder}>
           <span className={styles.icon}>↑</span>
-          <p>{uploading ? "Subiendo..." : "Arrastra una imagen o haz clic"}</p>
+          <p>{processing ? "Procesando..." : "Arrastra una imagen o haz clic"}</p>
           <span className={styles.hint}>JPG, PNG, WEBP · Máx. 5 MB</span>
         </div>
       )}
 
       {error && <p className={styles.error}>{error}</p>}
     </FileDropzone>
+    {picked && <Button label={initialUrl ? "Descartar nueva imagen" : "Quitar imagen"} variant="ghost" color="neutral" size="sm" onClick={handleRemove} />}
+    </>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import ProductImage from '@/components/shared/ProductImage';
 import Badge from "../../ui/Badge";
 import Button from "../../ui/Button";
 import styles from "./PartCard.module.css";
@@ -22,11 +22,7 @@ export default function PartCard({ id, image, brand, name, price, active = true,
     <div className={styles.card}>
       <Link href={`/parts/${id}`} className={styles.cardLink}>
         <div className={styles.imageWrapper}>
-          {image ? (
-            <Image src={image} alt={name} fill sizes="100%" className={styles.image} priority={priority} />
-          ) : (
-            <div className={styles.imagePlaceholder} />
-          )}
+          <ProductImage src={image} alt={name} className={styles.image} priority={priority} showLabel />
         </div>
         <div className={styles.body}>
           <div className={styles.metaRow}>

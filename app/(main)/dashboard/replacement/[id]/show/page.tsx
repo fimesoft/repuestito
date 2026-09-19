@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Image from 'next/image';
 import BackPage from '@/components/shared/BackPage';
+import ProductImage from '@/components/shared/ProductImage';
 import { getReplacement, Replacement } from '@/services/replacement.service';
 import PartMapWrapper from '@/components/features/replacements/PartMapWrapper';
 import CompatibilitySection from '@/components/features/replacements/CompatibilitySection';
@@ -37,21 +37,25 @@ export default function ReplacementShowPage({ params }: PageProps) {
       <BackPage href="/dashboard/replacement" />
 
       <div className={styles.card}>
-        {info.imageUrl && (
-          <div className={styles.imageWrapper}>
-            <Image src={info.imageUrl} alt={info.name} width={200} height={200} className={styles.image} />
-          </div>
-        )}
+        <div className={styles.imageWrapper}>
+          <ProductImage src={info.imageUrl} alt={info.name} width={200} height={200} className={styles.image} showLabel />
+        </div>
 
         <div className={styles.details}>
           <h1 className={styles.name}>{info.name}</h1>
           <p className={styles.brand}>{info.brand?.name}</p>
 
           <div className={styles.meta}>
-            {info.codeOem && (
+            {info.productType && (
               <div className={styles.metaRow}>
-                <span className={styles.metaLabel}>Código OEM</span>
-                <span className={styles.metaValue}>{info.codeOem}</span>
+                <span className={styles.metaLabel}>Tipo</span>
+                <span className={styles.metaValue}>{info.productType.name}</span>
+              </div>
+            )}
+            {info.sku && (
+              <div className={styles.metaRow}>
+                <span className={styles.metaLabel}>SKU</span>
+                <span className={styles.metaValue}>{info.sku}</span>
               </div>
             )}
             <div className={styles.metaRow}>
@@ -83,7 +87,9 @@ export default function ReplacementShowPage({ params }: PageProps) {
         </div>
       )}
 
-      <CompatibilitySection globalReplacementId={replacement.globalReplacement.id} />
+      {(replacement.globalReplacement.productType?.supportsVehicleCompatibility ?? true) && (
+        <CompatibilitySection globalReplacementId={replacement.globalReplacement.id} />
+      )}
     </main>
   );
 }

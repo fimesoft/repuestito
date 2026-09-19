@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import MainTitle from '@/components/shared/MainTitle';
@@ -21,14 +21,18 @@ import Loading from '@/components/ui/Loading';
 import Dropdown from '@/components/ui/Dropdown';
 import Tooltip from '@/components/ui/Tooltip';
 import PartCard from '@/components/features/replacements/PartCard';
+import ProductImage from '@/components/shared/ProductImage';
+import CatalogPicker, { CatalogOption } from '@/components/shared/CatalogPicker';
 
 import {
   getReplacements, createReplacement, updateReplacement, deleteReplacement,
-  Replacement, CreateReplacementPayload, UpdateReplacementPayload,
+  getGlobalBySku, Replacement, CreateReplacementPayload, UpdateReplacementPayload, GlobalReplacementInfo,
 } from '@/services/replacement.service';
 import { getTenants, Tenant } from '@/services/tenant.service';
 import { getBranches, Branch } from '@/services/branch.service';
-import { getBrands, Brand } from '@/services/brands.service';
+import { getBrands, createBrand } from '@/services/brands.service';
+import { getProductTypes, createProductType, ProductType } from '@/services/product-types.service';
+import { uploadImage } from '@/services/upload.service';
 
 import { usePermissions } from '@/hooks/usePermissions';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -63,7 +67,7 @@ export default function ReplacementDashboardPage() {
   const router = useRouter();
   const [replacements, setReplacements] = useState<Replacement[]>([]);
   const [tenants, setTenants] = useState<Tenant[]>([]);
-  const [brands, setBrands] = useState<Brand[]>([]);
+  const [productTypes, setProductTypes] = useState<ProductType[]>([]);
   const [formBranches, setFormBranches] = useState<Branch[]>([]);
 
   const { country } = useCountry();
@@ -75,6 +79,7 @@ export default function ReplacementDashboardPage() {
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [activeFilter, setActiveFilter] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -84,7 +89,12 @@ export default function ReplacementDashboardPage() {
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState<Omit<CreateReplacementPayload, 'countryCode'>>(EMPTY);
   const [priceInput, setPriceInput] = useState('');
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [brand, setBrand] = useState<CatalogOption | null>(null);
+  const [productType, setProductType] = useState<CatalogOption | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
+  const [skuMatch, setSkuMatch] = useState<GlobalReplacementInfo | null>(null);
+  const [useSkuMatch, setUseSkuMatch] = useState(false);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -93,6 +103,8 @@ export default function ReplacementDashboardPage() {
   const [editPriceInput, setEditPriceInput] = useState('');
   const [editBranches, setEditBranches] = useState<Branch[]>([]);
   const [editError, setEditError] = useState<string | null>(null);
+  const [editImageFile, setEditImageFile] = useState<File | null>(null);
+  const [editUploadedUrl, setEditUploadedUrl] = useState<string | null>(null);
   const [showDeactivateConfirm, setShowDeactivateConfirm] = useState(false);
   const [loadError, setLoadError] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -108,6 +120,7 @@ export default function ReplacementDashboardPage() {
       from: from || undefined,
       to: to || undefined,
       active: activeFilter ? activeFilter === 'true' : undefined,
+      productTypeId: typeFilter ? Number(typeFilter) : undefined,
     })
       .then(r => {
         setReplacements(r.data);
@@ -116,19 +129,47 @@ export default function ReplacementDashboardPage() {
       })
       .catch(() => setLoadError(true))
       .finally(() => setLoading(false));
-  }, [country, page, debouncedSearch, limit, from, to, activeFilter]);
+  }, [country, page, debouncedSearch, limit, from, to, activeFilter, typeFilter]);
 
   useEffect(() => {
     setPage(1);
-  }, [country, debouncedSearch, limit, from, to, activeFilter]);
+  }, [country, debouncedSearch, limit, from, to, activeFilter, typeFilter]);
 
   useEffect(() => {
     getTenants(country).then(setTenants);
   }, [country]);
 
   useEffect(() => {
-    getBrands({ countryCode: country ?? undefined, limit: 100 }).then(r => setBrands(r.data));
-  }, [country]);
+    getProductTypes({ isActive: true, limit: 100 }).then(r => setProductTypes(r.data));
+  }, []);
+
+  const searchBrands = useCallback(
+    (query: string) =>
+      getBrands({ search: query, countryCode: country ?? undefined, limit: 10 })
+        .then(r => r.data.map(b => ({ id: b.id, name: b.name }))),
+    [country],
+  );
+
+  const createBrandOption = useCallback(
+    async (name: string) => {
+      if (!country) throw new Error('Selecciona un país para crear la marca');
+      const created = await createBrand({ name, countryCode: country });
+      return { id: created.id, name: created.name };
+    },
+    [country],
+  );
+
+  const searchProductTypes = useCallback(
+    (query: string) =>
+      getProductTypes({ search: query, isActive: true, limit: 10 })
+        .then(r => r.data.map(t => ({ id: t.id, name: t.name }))),
+    [],
+  );
+
+  const createProductTypeOption = useCallback(
+    (name: string) => createProductType(name).then(t => ({ id: t.id, name: t.name })),
+    [],
+  );
 
   function set(field: Partial<CreateReplacementPayload>) {
     setForm(p => ({ ...p, ...field }));
@@ -149,7 +190,12 @@ export default function ReplacementDashboardPage() {
     const tenantId = !isAdmin && currentUser?.tenantId ? currentUser.tenantId : '';
     setForm({ ...EMPTY, tenantId });
     setPriceInput('');
-    setImageUrl(null);
+    setBrand(null);
+    setProductType(null);
+    setImageFile(null);
+    setUploadedUrl(null);
+    setSkuMatch(null);
+    setUseSkuMatch(false);
     setFormBranches([]);
     setFormError(null);
     setCreating(true);
@@ -171,6 +217,8 @@ export default function ReplacementDashboardPage() {
     setEditPriceInput(String(r.price));
     setEditBranches([]);
     setEditError(null);
+    setEditImageFile(null);
+    setEditUploadedUrl(null);
     if (r.tenantId) {
       const data = await getBranches(r.tenantId);
       setEditBranches(data);
@@ -191,7 +239,17 @@ export default function ReplacementDashboardPage() {
     setEditError(null);
     try {
       const { tenantId: _t, branchId, ...payload } = editForm;
-      const updated = await updateReplacement(editingReplacement.id, { ...payload, branchId: branchId || undefined });
+      // La imagen nueva se sube recién ahora; la URL se guarda para no volver a subirla si el guardado falla y se reintenta.
+      let imageUrl = editUploadedUrl;
+      if (editImageFile && !imageUrl) {
+        imageUrl = (await uploadImage(editImageFile)).url;
+        setEditUploadedUrl(imageUrl);
+      }
+      const updated = await updateReplacement(editingReplacement.id, {
+        ...payload,
+        branchId: branchId || undefined,
+        ...(imageUrl ? { imageUrl } : {}),
+      });
       setReplacements(prev => prev.map(r => r.id === updated.id ? updated : r));
       setEditingReplacement(null);
     } catch (err) {
@@ -201,14 +259,61 @@ export default function ReplacementDashboardPage() {
     }
   }
 
+  function onSkuChange(value: string) {
+    set({ sku: value.toUpperCase().replace(/[^A-Z0-9]/g, '') });
+    setSkuMatch(null);
+    setUseSkuMatch(false);
+  }
+
+  async function onSkuBlur() {
+    if (!form.sku || !country) return;
+    try {
+      setSkuMatch(await getGlobalBySku(form.sku, country));
+    } catch {
+      setSkuMatch(null);
+    }
+  }
+
+  /** Rellena y bloquea nombre, tipo, marca e imagen con el producto que ya existe en el catálogo. */
+  function applySkuMatch() {
+    if (!skuMatch) return;
+    set({ name: skuMatch.name });
+    setBrand({ id: skuMatch.brand.id, name: skuMatch.brand.name });
+    if (skuMatch.productType) setProductType({ id: skuMatch.productType.id, name: skuMatch.productType.name });
+    setImageFile(null);
+    setUploadedUrl(null);
+    setUseSkuMatch(true);
+  }
+
+  function onImageChange(file: File | null) {
+    setImageFile(file);
+    setUploadedUrl(null);
+  }
+
+  function onEditImageChange(file: File | null) {
+    setEditImageFile(file);
+    setEditUploadedUrl(null);
+  }
+
   async function handleCreate() {
     if (!form.tenantId) { setFormError('Selecciona un local'); return; }
+    if (!country) { setFormError('Selecciona un país'); return; }
+    if (!brand || !productType) { setFormError('Selecciona el tipo y la marca'); return; }
     setSaving(true);
     setFormError(null);
     try {
+      // La imagen se sube recién ahora (no al elegirla) y solo si el producto es nuevo en el catálogo.
+      // Se guarda la URL subida para que un reintento tras un error del alta no vuelva a subirla.
+      let imageUrl = useSkuMatch ? null : uploadedUrl;
+      if (!useSkuMatch && imageFile && !imageUrl) {
+        imageUrl = (await uploadImage(imageFile)).url;
+        setUploadedUrl(imageUrl);
+      }
       const payload: CreateReplacementPayload = {
         ...form,
-        countryCode: country ?? '',
+        brandId: brand.id,
+        productTypeId: productType.id,
+        countryCode: country,
         ...(imageUrl ? { imageUrl } : {}),
         ...(form.branchId ? { branchId: form.branchId } : { branchId: undefined }),
       };
@@ -240,14 +345,15 @@ export default function ReplacementDashboardPage() {
     }
   }
 
-  const canCreate = !!form.name && form.brandId > 0 && form.price > 0 && !!form.tenantId;
+  const skuPendingDecision = !!skuMatch && !useSkuMatch;
+  const canCreate = !!form.name && !!brand && !!productType && form.price > 0 && !!form.tenantId && !skuPendingDecision;
   const modalOpen = creating || !!editingReplacement;
   const modalTitle = creating ? 'Nuevo producto' : 'Editar producto';
   const modalClose = creating ? () => setCreating(false) : () => setEditingReplacement(null);
   const modalSave = creating ? handleCreate : handleUpdate;
   const modalCanDisable = creating ? (saving || !canCreate) : saving;
 
-  const hasFilters = Boolean(search || from || to || activeFilter);
+  const hasFilters = Boolean(search || from || to || activeFilter || typeFilter);
 
   const listEmptyMessage = loadError ? (
     <EmptyState variant="error" />
@@ -281,13 +387,22 @@ export default function ReplacementDashboardPage() {
       <Filters
         search={{ value: search, onChange: setSearch, placeholder: 'Buscar por nombre de producto...' }}
         dateRange={{ from, to, onFromChange: setFrom, onToChange: setTo }}
-        selects={[{
-          label: 'Estado',
-          value: activeFilter,
-          onChange: setActiveFilter,
-          placeholder: 'Todos',
-          options: [{ value: 'true', label: 'Activo' }, { value: 'false', label: 'Inactivo' }],
-        }]}
+        selects={[
+          {
+            label: 'Estado',
+            value: activeFilter,
+            onChange: setActiveFilter,
+            placeholder: 'Todos',
+            options: [{ value: 'true', label: 'Activo' }, { value: 'false', label: 'Inactivo' }],
+          },
+          {
+            label: 'Tipo',
+            value: typeFilter,
+            onChange: setTypeFilter,
+            placeholder: 'Todos',
+            options: productTypes.map(t => ({ value: String(t.id), label: t.name })),
+          },
+        ]}
       >
         <ViewToggle value={viewMode} onChange={setViewMode} />
       </Filters>
@@ -303,15 +418,17 @@ export default function ReplacementDashboardPage() {
           emptyMessage={listEmptyMessage}
           onRowClick={r => router.push(`/dashboard/replacement/${r.id}/show`)}
           columns={[
-            { header: 'Producto', render: r => r.globalReplacement?.imageUrl
-              ? <Image src={r.globalReplacement.imageUrl} alt={`${r.globalReplacement.name ?? 'Producto'} - ${r.globalReplacement.brand?.name ?? ''}`} title={`${r.globalReplacement.name ?? 'Producto'} - ${r.globalReplacement.brand?.name ?? ''}`} width={40} height={40} className={styles.img} />
-              : <div className={styles.imgPlaceholder} />, className: styles.tdImg },
+            { header: 'Producto', render: r => {
+              const label = `${r.globalReplacement?.name ?? 'Producto'} - ${r.globalReplacement?.brand?.name ?? ''}`;
+              return <ProductImage src={r.globalReplacement?.imageUrl} alt={label} title={label} width={40} height={40} className={styles.img} />;
+            }, className: styles.tdImg },
             { header: 'Nombre / Marca', render: r => (
               <div className={styles.nameCell}>
                 <span className={styles.namePrimary}>{r.globalReplacement?.name}</span>
                 <span className={styles.nameSecondary}>{r.globalReplacement?.brand?.name}</span>
               </div>
             ), className: styles.tdName },
+            { header: 'Tipo', render: r => r.globalReplacement?.productType?.name ?? '—', className: styles.tdMeta },
             { header: 'Precio', render: r => `$${Number(r.price).toFixed(2)}`, className: styles.tdPrice },
             ...(isAdmin ? [{ header: 'País', render: (r: Replacement) => r.globalReplacement?.countryCode, className: styles.tdMeta } as Column<Replacement>] : []),
             { header: 'Stock', render: r => {
@@ -374,19 +491,50 @@ export default function ReplacementDashboardPage() {
         <div className={styles.form}>
           {creating ? (
             <>
-              <div className={styles.label}>
-                Imagen <span className={styles.optional}>(opcional)</span>
-                <ImageUpload onUpload={setImageUrl} />
-              </div>
+              {useSkuMatch ? (
+                skuMatch?.imageUrl && (
+                  <div className={styles.label}>
+                    Imagen del catálogo
+                    <Image src={skuMatch.imageUrl} alt={skuMatch.name} width={120} height={120} className={styles.img} />
+                  </div>
+                )
+              ) : (
+                <div className={styles.label}>
+                  Imagen <span className={styles.optional}>(opcional)</span>
+                  <ImageUpload onChange={onImageChange} />
+                </div>
+              )}
+
+              {skuMatch && (
+                <div className={styles.notice}>
+                  <p>
+                    Este SKU ya existe en el catálogo: <strong>{skuMatch.name}</strong>
+                    {skuMatch.brand?.name ? ` — ${skuMatch.brand.name}` : ''}
+                    {skuMatch.productType?.name ? ` (${skuMatch.productType.name})` : ''}.
+                    {useSkuMatch ? ' Se usará ese producto.' : ' Usa ese producto o cambia el SKU.'}
+                  </p>
+                  {!useSkuMatch && <Button label="Usar este producto" size="sm" onClick={applySkuMatch} />}
+                </div>
+              )}
 
               <div className={styles.row}>
                 <Label text="Nombre">
-                  <input className={styles.input} value={form.name} onChange={e => set({ name: e.target.value })} required />
+                  {useSkuMatch
+                    ? <p className={styles.readOnly}>{form.name}</p>
+                    : <input className={styles.input} value={form.name} onChange={e => set({ name: e.target.value })} required />}
                 </Label>
-                <Label text="Marca">
-                  <Select value={form.brandId || ''} onChange={v => set({ brandId: Number(v) || 0 })} options={brands.map(b => ({ value: b.id, label: b.name }))} placeholder="Seleccionar marca" required />
+                <Label text="Tipo">
+                  {useSkuMatch
+                    ? <p className={styles.readOnly}>{productType?.name}</p>
+                    : <CatalogPicker entity="tipo" value={productType} onChange={setProductType} search={searchProductTypes} create={createProductTypeOption} placeholder="Buscar o crear tipo..." />}
                 </Label>
               </div>
+
+              <Label text="Marca">
+                {useSkuMatch
+                  ? <p className={styles.readOnly}>{brand?.name}</p>
+                  : <CatalogPicker entity="marca" feminine value={brand} onChange={setBrand} search={searchBrands} create={createBrandOption} placeholder="Buscar o crear marca..." />}
+              </Label>
 
               <div className={styles.row}>
                 <Label text="Precio">
@@ -398,8 +546,8 @@ export default function ReplacementDashboardPage() {
               </div>
 
               <div className={styles.row}>
-                <Label text={<>Código OEM <span className={styles.optional}>(opcional)</span></>}>
-                  <input className={styles.input} value={form.codeOem ?? ''} onChange={e => set({ codeOem: e.target.value })} placeholder="ej. 15400-PLM-A02" />
+                <Label text={<>SKU <span className={styles.optional}>(opcional)</span></>}>
+                  <input className={styles.input} value={form.sku ?? ''} onChange={e => onSkuChange(e.target.value)} onBlur={onSkuBlur} maxLength={64} placeholder="ej. 15400PLMA02" />
                 </Label>
                 <Label text="Local">
                   <Select value={form.tenantId} onChange={onTenantChange} options={visibleTenants.map(t => ({ value: t.id, label: t.businessName }))} placeholder="Seleccionar local" disabled={!isAdmin} required />
@@ -415,6 +563,13 @@ export default function ReplacementDashboardPage() {
           ) : (
             <>
               {editingReplacement && (
+                <div className={styles.label}>
+                  Imagen {!editingReplacement.globalReplacement?.imageUrl && <span className={styles.optional}>(no disponible: agrega una)</span>}
+                  <ImageUpload key={editingReplacement.id} initialUrl={editingReplacement.globalReplacement?.imageUrl ?? undefined} onChange={onEditImageChange} />
+                </div>
+              )}
+
+              {editingReplacement && (
                 <div className={styles.row}>
                   <div className={styles.label}>
                     Nombre
@@ -423,6 +578,19 @@ export default function ReplacementDashboardPage() {
                   <div className={styles.label}>
                     Marca
                     <p className={styles.readOnly}>{editingReplacement.globalReplacement?.brand?.name}</p>
+                  </div>
+                </div>
+              )}
+
+              {editingReplacement && (
+                <div className={styles.row}>
+                  <div className={styles.label}>
+                    Tipo
+                    <p className={styles.readOnly}>{editingReplacement.globalReplacement?.productType?.name ?? '—'}</p>
+                  </div>
+                  <div className={styles.label}>
+                    SKU
+                    <p className={styles.readOnly}>{editingReplacement.globalReplacement?.sku ?? '—'}</p>
                   </div>
                 </div>
               )}

@@ -100,10 +100,10 @@ export default function EditReplacementForm({ replacement }: EditReplacementForm
           </div>
         </div>
 
-        {gr?.codeOem && (
+        {gr?.sku && (
           <div className={styles.label}>
-            Código OEM
-            <p className={styles.readOnly}>{gr.codeOem}</p>
+            SKU
+            <p className={styles.readOnly}>{gr.sku}</p>
           </div>
         )}
 

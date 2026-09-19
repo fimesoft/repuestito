@@ -1,5 +1,5 @@
-import Image from 'next/image';
 import Link from 'next/link';
+import ProductImage from '@/components/shared/ProductImage';
 import { getReplacement } from '@/services/replacement.service';
 import PartMapWrapper from '@/components/features/replacements/PartMapWrapper';
 import DistanceBadge from '@/components/features/replacements/DistanceBadge';
@@ -19,11 +19,7 @@ export default async function PartDetailPage({ params }: PageProps) {
 
       <div className={styles.detail}>
         <div className={styles.imageWrapper}>
-          {part.globalReplacement?.imageUrl ? (
-            <Image src={part.globalReplacement.imageUrl} alt={part.globalReplacement.name} fill sizes="100%" className={styles.image} priority />
-          ) : (
-            <div className={styles.imagePlaceholder} />
-          )}
+          <ProductImage src={part.globalReplacement?.imageUrl} alt={part.globalReplacement?.name ?? 'Producto'} className={styles.image} priority showLabel />
         </div>
 
         <div className={styles.info}>
@@ -32,10 +28,16 @@ export default async function PartDetailPage({ params }: PageProps) {
           <p className={styles.price}>${part.price.toLocaleString()}</p>
 
           <dl className={styles.meta}>
-            {part.globalReplacement?.codeOem && (
+            {part.globalReplacement?.productType && (
               <>
-                <dt>Código OEM</dt>
-                <dd>{part.globalReplacement.codeOem}</dd>
+                <dt>Tipo</dt>
+                <dd>{part.globalReplacement.productType.name}</dd>
+              </>
+            )}
+            {part.globalReplacement?.sku && (
+              <>
+                <dt>SKU</dt>
+                <dd>{part.globalReplacement.sku}</dd>
               </>
             )}
             <dt>Stock</dt>

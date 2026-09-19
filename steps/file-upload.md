@@ -6,7 +6,7 @@
 
 ## Objetivo
 
-Permitir a un `MODERATOR`/`GOD` cargar múltiples repuestos de una sola vez subiendo un CSV, en vez de crearlos uno por uno desde el formulario. El CSV pide solo datos que el usuario que hace la carga conoce (nombre, marca, código OEM, precio, stock); todo lo que depende de su cuenta (tenant, sucursal, país, ubicación) se resuelve del lado del servidor.
+Permitir a un `MODERATOR`/`GOD` cargar múltiples repuestos de una sola vez subiendo un CSV, en vez de crearlos uno por uno desde el formulario. El CSV pide solo datos que el usuario que hace la carga conoce (nombre, marca, SKU, precio, stock); todo lo que depende de su cuenta (tenant, sucursal, país, ubicación) se resuelve del lado del servidor. Todas las filas se cargan con el tipo de producto **«Repuestos»** (tipo de sistema, `product_types.is_system`): el CSV no trae columna de tipo.
 
 ---
 
@@ -77,14 +77,14 @@ const jobStore = new Map<string, JobState>();  // replacement-bulk-upload.proces
 Columnas esperadas (header obligatorio, orden no importa):
 
 ```
-name, brand, codeOem, imageUrl, price, stock
+name, brand, sku, imageUrl, price, stock
 ```
 
 | Campo | Tipo | Obligatorio | Notas |
 |---|---|---|---|
 | `name` | string | sí | |
 | `brand` | string | sí | nombre de marca en texto libre — ver "Resolución de marca" abajo |
-| `codeOem` | string | no | se normaliza a `A-Z0-9` mayúsculas antes de insertar |
+| `sku` | string | no | se normaliza a `A-Z0-9` mayúsculas (máx. 64); un valor con solo símbolos (`---`) se rechaza. El encabezado anterior `codeOem` se sigue aceptando como alias de `sku` |
 | `imageUrl` | URL | no | |
 | `price` | number positivo | sí | |
 | `stock` | int ≥ 0 | no | default `0` |
@@ -108,20 +108,20 @@ Ejemplo: `"Bosch"`, `"bosch"` y `"Bosch!!"` normalizan al mismo `"BOSCH"` y comp
 
 Por cada fila, en orden:
 1. `class-validator` sobre `BulkUploadRowDto` (tipos, obligatoriedad, formato).
-2. Duplicado de `codeOem` **dentro del mismo archivo** (mismo `codeOem` ya visto en una fila anterior; `countryCode` es el mismo para todo el archivo) → se rechaza, gana la primera ocurrencia.
+2. Duplicado de `sku` **dentro del mismo archivo** (mismo `sku` ya visto en una fila anterior; `countryCode` es el mismo para todo el archivo) → se rechaza, gana la primera ocurrencia.
 3. La marca debe haberse podido resolver en el paso anterior (en la práctica siempre se resuelve, porque se crea si no existe).
 
 Cualquier fila que falle en estos pasos se agrega a `errors[]` con `{ line, reason }` y no se intenta insertar.
 
 ### Inserción — `global_replacement` es catálogo compartido, `replacement` es tu listado
 
-`global_replacement` identifica una pieza por `(codeOem, countryCode)` y **no pertenece a ningún tenant** — cualquier tenant/sucursal del mismo país puede vender la misma pieza. `replacement` es tu listado individual (precio, stock, sucursal) apuntando a ese catálogo.
+`global_replacement` identifica una pieza por `(sku, countryCode)` y **no pertenece a ningún tenant** — cualquier tenant/sucursal del mismo país puede vender la misma pieza. `replacement` es tu listado individual (precio, stock, sucursal) apuntando a ese catálogo.
 
 Las filas válidas se procesan en **batches de 500** (`BATCH_SIZE`), cada batch en su propia transacción (`QueryRunner`). Dentro de un batch, todo se resuelve **en bloque** (arrays, no fila por fila) para evitar hasta ~1.500 round-trips secuenciales a la DB por batch:
 
-1. **Filas con `codeOem`**: un solo `INSERT ... ON CONFLICT (code_oem, country_code) DO NOTHING` con los `VALUES` de las hasta 500 filas — si la pieza ya existe (la haya catalogado tu tenant, otro tenant, o vos en otra sucursal), no se toca (no pisa `name`/`imageUrl` de nadie); si no existe, se crea. Como `DO NOTHING` no devuelve las filas que ya existían, un `SELECT` aparte (`code_oem IN (...)`) trae el `id` de todas — nuevas y preexistentes — en una sola consulta.
-2. **Filas sin `codeOem`**: un `INSERT` bulk simple, sin `ON CONFLICT` (los `NULL` no colisionan en Postgres, así que siempre crean un `global_replacement` nuevo — no hay forma de reusar catálogo para piezas sin código OEM). Se correlaciona cada fila insertada con su línea del CSV por orden de `RETURNING`.
-3. **Chequeo de listado propio**, en bloque: un solo `SELECT ... WHERE global_replacement_id IN (...) AND tenant_id = ... AND branch_id = ...` sobre todos los `globalId` resueltos en los pasos 1-2. Las filas cuyo `globalId` ya aparece ahí se marcan `failed` (`Ya tenés un listado para el código OEM '...' en esta sucursal`) — evita que resubir el mismo archivo te duplique el listado a vos; no bloquea a otro tenant ni a otra sucursal tuya.
+1. **Filas con `sku`**: un solo `INSERT ... ON CONFLICT (sku, country_code) DO NOTHING` con los `VALUES` de las hasta 500 filas — si la pieza ya existe (la haya catalogado tu tenant, otro tenant, o vos en otra sucursal), no se toca (no pisa `name`/`imageUrl` de nadie); si no existe, se crea. Como `DO NOTHING` no devuelve las filas que ya existían, un `SELECT` aparte (`sku IN (...)`) trae el `id` de todas — nuevas y preexistentes — en una sola consulta. Para saber cuáles se crearon (`catalogCreated` vs `catalogReused`) se lee el `RETURNING id` de ese `INSERT`, no `insertResult.identifiers`: con `DO NOTHING` este último trae entradas `undefined` para las filas ignoradas y romper con `Cannot read properties of undefined (reading 'id')` todo el batch.
+2. **Filas sin `sku`**: un `INSERT` bulk simple, sin `ON CONFLICT` (los `NULL` no colisionan en Postgres, así que siempre crean un `global_replacement` nuevo — no hay forma de reusar catálogo para piezas sin SKU). Se correlaciona cada fila insertada con su línea del CSV por orden de `RETURNING`.
+3. **Chequeo de listado propio**, en bloque: un solo `SELECT ... WHERE global_replacement_id IN (...) AND tenant_id = ... AND branch_id = ...` sobre todos los `globalId` resueltos en los pasos 1-2. Las filas cuyo `globalId` ya aparece ahí se marcan `failed` (`Ya tenés un listado para el SKU '...' en esta sucursal`) — evita que resubir el mismo archivo te duplique el listado a vos; no bloquea a otro tenant ni a otra sucursal tuya.
 4. **Insert final**: un solo `INSERT` bulk en `replacement` para todas las filas que pasaron el paso 3, con `globalReplacementId` apuntando al registro correspondiente, más `price`/`stock` de cada fila y `tenantId`/`branchId`/`latitude`/`longitude` resueltos del usuario (mismos valores para todas las filas del job).
 
 Si algo falla en el medio (ej. error de Postgres), se hace `rollbackTransaction()` de **todo el batch** — como nada quedó commiteado, todas sus filas se marcan `failed` de forma uniforme con el mensaje del error, sin mezclar errores parciales ya calculados (a diferencia de la versión anterior fila-por-fila, donde el rollback podía dejar `state.errors`/`state.succeeded` con conteos parcialmente inconsistentes).
@@ -140,7 +140,7 @@ Si algo falla en el medio (ej. error de Postgres), se hace `rollbackTransaction(
   "catalogCreated": 80,
   "catalogReused": 17,
   "brandsCreated": 4,
-  "errors": [{ "line": 42, "reason": "Código OEM 'F-4781' duplicado en el archivo" }]
+  "errors": [{ "line": 42, "reason": "SKU 'F-4781' duplicado en el archivo" }]
 }
 ```
 
@@ -160,20 +160,21 @@ Componente genérico de drag & drop + click-to-select, reutilizado también por 
 ### Template `public/templates/repuestos-ejemplo.csv`
 
 ```csv
-name,brand,codeOem,imageUrl,price,stock
+name,brand,sku,imageUrl,price,stock
 TEST CARGA MASIVA 1,Bosch,F-4781,,12500,50
 TEST CARGA MASIVA 2,Fram,PF-1190,https://example.com/img.jpg,18900,20
 TEST CARGA MASIVA 3,Bosch,CD-3320,,45000,
 ```
 
-Solo las columnas que el usuario final puede completar sin ayuda: nombre, marca (texto libre), código OEM opcional, imagen opcional, precio, stock opcional. No incluye tenant, sucursal, país ni coordenadas — esos los pone el backend según la cuenta que hace la carga.
+Solo las columnas que el usuario final puede completar sin ayuda: nombre, marca (texto libre), SKU opcional, imagen opcional, precio, stock opcional. No incluye tenant, sucursal, país ni coordenadas — esos los pone el backend según la cuenta que hace la carga.
 
 ---
 
 ## Limitaciones conocidas
 
 - **Estado de job no persistido**: reinicio de server = jobs perdidos, sin forma de recuperar el resultado de una carga en curso.
-- **Sin reintento automático de filas fallidas**: hay que corregir el CSV y volver a subir el archivo completo. Las filas con `codeOem` no se duplican en un reintento (el chequeo `globalReplacementId`+`tenantId`+`branchId` las rechaza), pero las filas sin `codeOem` no tienen ninguna protección — un reintento las vuelve a insertar como piezas nuevas.
+- **Sin reintento automático de filas fallidas**: hay que corregir el CSV y volver a subir el archivo completo. Las filas con `sku` no se duplican en un reintento (el chequeo `globalReplacementId`+`tenantId`+`branchId` las rechaza), pero las filas sin `sku` no tienen ninguna protección — un reintento las vuelve a insertar como piezas nuevas.
+- **Sin imágenes en el CSV**: `imageUrl` es opcional y la carga no sube archivos. Los productos sin imagen se muestran con «Imagen no disponible» y se les puede agregar una desde el modal de edición de `dashboard/replacement`.
 - **Un usuario `GOD` sin `tenantId` propio no puede usar bulk-upload**: el endpoint responde 400 (`El usuario no tiene un tenant asignado`) porque no hay forma de elegir a qué tenant pertenecen las filas cargadas.
 - **Un tenant sin `country` configurado bloquea el bulk-upload** de todos sus usuarios: 400 (`El tenant no tiene país configurado`).
 - **Auto-creación de marcas sin control de typos**: si el usuario escribe el nombre de la marca distinto entre subidas de forma no trivial (ej. "Bosch" vs "Boch"), se crean marcas separadas no verificadas — no hay sugerencia/autocompletado ni deduplicación fuzzy, solo exact match por `normalized_name`.

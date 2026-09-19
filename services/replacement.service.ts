@@ -1,10 +1,13 @@
 import { Brand } from './brands.service';
+import { ProductType } from './product-types.service';
+import { translateApiError } from '@/lib/api-errors';
 
 export interface GlobalReplacementInfo {
   id: number;
   name: string;
   brand: Brand;
-  codeOem: string | null;
+  productType?: ProductType;
+  sku: string | null;
   imageUrl: string | null;
   countryCode: string;
   isVerified: boolean;
@@ -32,7 +35,8 @@ export interface CreateReplacementPayload {
   name: string;
   brandId: number;
   countryCode: string;
-  codeOem?: string;
+  productTypeId?: number;
+  sku?: string;
   imageUrl?: string;
   price: number;
   tenantId: string;
@@ -50,14 +54,21 @@ export async function createReplacement(payload: CreateReplacementPayload): Prom
     body: JSON.stringify(payload),
   });
   if (!res.ok) {
-    const data: unknown = await res.json();
-    throw new Error(
-      data && typeof data === 'object' && 'message' in data
-        ? String((data as { message: unknown }).message)
-        : 'Error al crear el producto',
-    );
+    const data: unknown = await res.json().catch(() => null);
+    throw new Error(translateApiError(data, 'Error al crear el producto'));
   }
   return res.json() as Promise<Replacement>;
+}
+
+/** Producto del catálogo compartido con ese SKU en el país, o null si no existe. */
+export async function getGlobalBySku(sku: string, countryCode: string): Promise<GlobalReplacementInfo | null> {
+  const params = new URLSearchParams({ sku, countryCode });
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/global-replacements/by-sku?${params.toString()}`, {
+    credentials: 'include',
+  });
+  if (!res.ok) throw new Error('Error al buscar el SKU');
+  const body = (await res.json()) as { data: GlobalReplacementInfo | null };
+  return body.data;
 }
 
 export interface UpdateReplacementPayload {
@@ -67,6 +78,7 @@ export interface UpdateReplacementPayload {
   longitude?: number;
   branchId?: string;
   active?: boolean;
+  imageUrl?: string;
 }
 
 export async function updateReplacement(id: string, payload: UpdateReplacementPayload): Promise<Replacement> {
@@ -77,12 +89,8 @@ export async function updateReplacement(id: string, payload: UpdateReplacementPa
     body: JSON.stringify(payload),
   });
   if (!res.ok) {
-    const data: unknown = await res.json();
-    throw new Error(
-      data && typeof data === 'object' && 'message' in data
-        ? String((data as { message: unknown }).message)
-        : 'Error al actualizar el producto',
-    );
+    const data: unknown = await res.json().catch(() => null);
+    throw new Error(translateApiError(data, 'Error al actualizar el producto'));
   }
   return res.json() as Promise<Replacement>;
 }
@@ -105,6 +113,7 @@ export interface ReplacementQuery {
   page?: number;
   limit?: number;
   country?: string;
+  productTypeId?: number;
   ids?: string;
   active?: boolean;
   from?: string;
@@ -127,6 +136,7 @@ export async function getReplacements(
   if (query.page) params.set('page', String(query.page));
   if (query.limit) params.set('limit', String(query.limit));
   if (query.country) params.set('country', query.country);
+  if (query.productTypeId) params.set('productTypeId', String(query.productTypeId));
   if (query.ids) params.set('ids', query.ids);
   if (query.active !== undefined) params.set('active', String(query.active));
   if (query.from) params.set('from', query.from);

@@ -2,6 +2,8 @@
 
 > Creado: julio 2026. Pendiente de implementación.
 
+> Nota (evolución del catálogo): `codeOem` / `code_oem` pasó a llamarse **`sku`** y `global_replacements` ahora tiene `product_type_id`. Este documento conserva la nomenclatura original; ver `evolution-catalog.md`.
+
 ---
 
 ## Objetivo
