@@ -26,6 +26,10 @@ export function AuthUserProvider({ children }: { children: React.ReactNode }) {
       setCurrentUser(user);
       setLoading(false);
     });
+
+    return () => {
+      delete document.documentElement.dataset.theme;
+    };
   }, []);
 
   useEffect(() => {
