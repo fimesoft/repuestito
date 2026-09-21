@@ -44,7 +44,7 @@ export default function CompatibilityPage() {
         <aside className={styles.sidebar}>
           <Search value={search} onChange={setSearch} placeholder="Buscar producto..." width="100%" />
           {loading ? (
-            <Loading />
+            <Loading variant="orbit" />
           ) : (
             <ul className={styles.list}>
               {filtered.map(r => {

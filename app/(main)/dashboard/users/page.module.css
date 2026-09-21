@@ -7,6 +7,12 @@
   margin-bottom: 1.5rem;
 }
 
+@media (max-width: 560px) {
+  .header { align-items: flex-start; gap: 12px; }
+  .createAction { flex-shrink: 0; }
+  .createAction button { min-width: 0; padding: 8px 10px; font-size: 12px; white-space: nowrap; }
+}
+
 .title { font-size: 1.5rem; font-weight: 700; color: var(--color-text); }
 
 .tableWrapper {
@@ -155,4 +161,3 @@
 .controls { display: flex; align-items: center; gap: 12px; margin-bottom: 0.5rem; }
 
 .subControls { display: flex; justify-content: flex-end; margin-bottom: 1rem; }
-

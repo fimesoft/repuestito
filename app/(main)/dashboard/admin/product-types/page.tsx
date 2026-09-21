@@ -200,7 +200,7 @@ export default function ProductTypesPage() {
 
       {actionError && <p className={styles.error}>{actionError}</p>}
 
-      {loading ? <Loading /> : (
+      {loading ? <Loading variant="orbit" /> : (
         <>
           <Table
             columns={columns}

@@ -80,7 +80,7 @@ export default function ReplacementDashboardPage() {
   const [to, setTo] = useState('');
   const [activeFilter, setActiveFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
-  const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
+  const [viewMode, setViewMode] = useState<'table' | 'grid'>('grid');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
@@ -386,7 +386,11 @@ export default function ReplacementDashboardPage() {
           <Breadcrumbs items={[{ label: 'Productos' }]} />
           <MainTitle title="Productos" subtitle="Catálogo de productos" />
         </div>
-        {canManage && <Button label="+ Nuevo producto" onClick={openCreate} shadow />}
+        {canManage && (
+          <div className={styles.createAction}>
+            <Button label="+ Nuevo producto" onClick={openCreate} shadow />
+          </div>
+        )}
       </div>
 
       <Filters
@@ -415,7 +419,7 @@ export default function ReplacementDashboardPage() {
         <PageCount total={total} limit={limit} onLimitChange={setLimit} />
       </div>
       {loading ? (
-        <Loading />
+        <Loading variant="orbit" />
       ) : viewMode === 'table' ? (
         <Table<Replacement>
           rows={replacements}
@@ -468,9 +472,10 @@ export default function ReplacementDashboardPage() {
         />
       ) : (
         <div className={styles.grid}>
-          {replacements.map(r => (
+          {replacements.map((r, i) => (
             <PartCard
               key={r.id}
+              priority={i < 4}
               id={r.id}
               image={r.globalReplacement?.imageUrl ?? null}
               brand={r.globalReplacement?.brand?.name ?? ''}

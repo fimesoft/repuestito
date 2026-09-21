@@ -43,8 +43,8 @@ export default function ProductImage({ src, alt, title, width, height, sizes = '
   }
 
   return fixed ? (
-    <Image src={src} alt={alt} title={title} width={width} height={height} className={className} priority={priority} onError={() => setFailedSrc(src)} />
+    <Image src={src} alt={alt} title={title} width={width} height={height} className={className} loading={priority ? 'eager' : undefined} onError={() => setFailedSrc(src)} />
   ) : (
-    <Image src={src} alt={alt} title={title} fill sizes={sizes} className={className} priority={priority} onError={() => setFailedSrc(src)} />
+    <Image src={src} alt={alt} title={title} fill sizes={sizes} className={className} loading={priority ? 'eager' : undefined} onError={() => setFailedSrc(src)} />
   );
 }

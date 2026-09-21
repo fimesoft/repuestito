@@ -166,7 +166,7 @@ export default function UsersPage() {
           <Breadcrumbs items={[{ label: 'Usuarios' }]} />
           <MainTitle title="Usuarios" subtitle="Gestión de cuentas y roles de acceso" />
         </div>
-        {canManage && <Button label="+ Nuevo usuario" onClick={openCreate} shadow />}
+        {canManage && <div className={styles.createAction}><Button label="+ Nuevo usuario" onClick={openCreate} shadow /></div>}
       </div>
 
       <div className={styles.controls}>
@@ -176,7 +176,7 @@ export default function UsersPage() {
         <PageCount total={filteredUsers.length} limit={limit} onLimitChange={setLimit} />
       </div>
 
-      {loading ? <Loading /> : <Table<UserRecord>
+      {loading ? <Loading variant="orbit" /> : <Table<UserRecord>
         rows={visibleUsers}
         getKey={u => u.id}
         emptyMessage={<EmptyState variant={debouncedSearch ? 'no-results' : 'empty'} />}

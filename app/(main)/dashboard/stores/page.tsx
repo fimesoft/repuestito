@@ -183,7 +183,7 @@ export default function StoresPage() {
           <Breadcrumbs items={[{ label: 'Locales' }]} />
           <MainTitle title="Locales" subtitle="Administración de sucursales y puntos de venta" />
         </div>
-        {canManage && <Button label="+ Nuevo local" onClick={() => setWizardOpen(true)} shadow />}
+        {canManage && <div className={styles.createAction}><Button label="+ Nuevo local" onClick={() => setWizardOpen(true)} shadow /></div>}
       </div>
 
       <div className={styles.stats}>
@@ -209,7 +209,7 @@ export default function StoresPage() {
         <p className={styles.empty}>No se encontraron locales para &quot;{query}&quot;.</p>
       )}
 
-      {loading ? <Loading /> : <ul className={styles.list}>
+      {loading ? <Loading variant="orbit" /> : <ul className={styles.list}>
         {filteredTenants.map((tenant, i) => (
           <li key={tenant.id}>
             <Accordion

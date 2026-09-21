@@ -146,7 +146,7 @@ export default function OrdersPage() {
         <PageCount total={total} limit={limit} onLimitChange={next => { setLimit(next); setPage(1); void load(1); }} />
       </div>
 
-      {loading ? <Loading /> : <Table<Order>
+      {loading ? <Loading variant="orbit" /> : <Table<Order>
         rows={visibleOrders}
         getKey={o => o.id}
         onRowClick={o => router.push(`/dashboard/orders/${o.id}`)}

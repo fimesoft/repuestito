@@ -4,6 +4,8 @@ html,
 body {
   max-width: 100vw;
   overflow-x: hidden;
+  /* clip no crea scroll container: con hidden el header sticky no se pega al hacer scroll y el hamburger (fixed) queda flotando */
+  overflow-x: clip;
 }
 
 body {
@@ -17,6 +19,11 @@ body {
   box-sizing: border-box;
   padding: 0;
   margin: 0;
+}
+
+::placeholder {
+  color: var(--color-text-muted);
+  opacity: 1;
 }
 
 a {

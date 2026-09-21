@@ -62,7 +62,7 @@ export default function ConfigPage() {
     await refetch();
   }
 
-  if (loading) return <Loading />;
+  if (loading) return <Loading variant="orbit" />;
 
   return (
     <div className={styles.page}>

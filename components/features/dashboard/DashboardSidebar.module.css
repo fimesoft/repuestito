@@ -36,17 +36,17 @@
 }
 
 .logoSidebar :global(svg) {
-  width: 42px;
-  height: 42px;
+  width: 34px;
+  height: 34px;
 }
 
 .logoSidebar :global(span) {
-  font-size: 1.35rem;
+  font-size: 1.125rem;
 }
 
 .collapsed .logoSidebar :global(svg) {
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
 }
 
 .closeBtn {
@@ -402,10 +402,6 @@
     backdrop-filter: blur(2px);
     animation: fadeIn 0.2s ease;
   }
-}
-
-@media (max-width: 768px) {
-  .mobileHidden { display: none; }
 }
 
 @keyframes fadeIn {

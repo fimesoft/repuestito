@@ -5,7 +5,6 @@ import BackPage from '@/components/shared/BackPage';
 import ProductImage from '@/components/shared/ProductImage';
 import { getReplacement, Replacement } from '@/services/replacement.service';
 import PartMapWrapper from '@/components/features/replacements/PartMapWrapper';
-import CompatibilitySection from '@/components/features/replacements/CompatibilitySection';
 import styles from './page.module.css';
 
 interface PageProps {
@@ -85,10 +84,6 @@ export default function ReplacementShowPage({ params }: PageProps) {
             storeName={info.name}
           />
         </div>
-      )}
-
-      {(replacement.globalReplacement.productType?.supportsVehicleCompatibility ?? true) && (
-        <CompatibilitySection globalReplacementId={replacement.globalReplacement.id} />
       )}
     </main>
   );

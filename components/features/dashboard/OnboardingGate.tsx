@@ -9,7 +9,7 @@ export default function OnboardingGate({ children }: { children: React.ReactNode
   const { loading, needsOnboarding } = usePermissions();
   const { refetch } = useAuthUser();
 
-  if (loading) return <Loading />;
+  if (loading) return <Loading variant="orbit" />;
 
   if (needsOnboarding) {
     return (

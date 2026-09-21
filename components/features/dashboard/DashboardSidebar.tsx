@@ -67,7 +67,7 @@ export default function DashboardSidebar() {
   function renderItem(item: NavItem) {
     const isActive = pathname === item.href;
     return (
-      <li key={item.href} className={item.mobileHidden ? styles.mobileHidden : undefined}>
+      <li key={item.href}>
         <Link
           href={item.href}
           className={`${styles.navItem} ${isActive ? styles.active : ''}`}

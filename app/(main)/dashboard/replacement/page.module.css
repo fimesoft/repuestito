@@ -189,6 +189,9 @@
 .confirmActions { display: flex; gap: 10px; justify-content: flex-end; }
 
 @media (max-width: 560px) {
+  .header { align-items: flex-start; gap: 12px; }
+  .createAction { flex-shrink: 0; }
+  .createAction button { min-width: 0; padding: 8px 10px; font-size: 12px; white-space: nowrap; }
   .row { grid-template-columns: 1fr; }
   .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
 }

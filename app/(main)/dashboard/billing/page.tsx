@@ -111,7 +111,7 @@ export default function BillingPage() {
         <PageCount total={total} limit={limit} onLimitChange={next => { setLimit(next); setPage(1); void load(1); }} />
       </div>
 
-      {loading ? <Loading /> : <Table<Invoice>
+      {loading ? <Loading variant="orbit" /> : <Table<Invoice>
         rows={visibleInvoices}
         getKey={inv => inv.id}
         onRowClick={inv => router.push(`/dashboard/billing/${inv.id}`)}

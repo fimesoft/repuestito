@@ -130,7 +130,7 @@ export default function CountriesPage() {
         <PageCount total={result.total} limit={limit} onLimitChange={handleLimit} />
       </div>
 
-      {loading ? <Loading /> : (
+      {loading ? <Loading variant="orbit" /> : (
         <>
           <Table
             columns={columns}

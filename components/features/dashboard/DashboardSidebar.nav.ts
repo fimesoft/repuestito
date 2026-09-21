@@ -4,7 +4,6 @@ export interface NavItem {
   href: string;
   label: string;
   icon?: string;
-  mobileHidden?: boolean;
   minRole?: Role;
 }
 
@@ -27,10 +26,10 @@ export const NAV_SECTIONS: NavSection[] = [
     key: 'ecommerce',
     title: 'E-Commerce',
     items: [
-      { href: '/dashboard/orders', label: 'Pedidos', icon: '/icons/clipboard.svg', mobileHidden: true },
+      { href: '/dashboard/orders', label: 'Pedidos', icon: '/icons/clipboard.svg' },
       { href: '/dashboard/billing', label: 'Facturación', icon: '/icons/receipt.svg' },
-      { href: '/dashboard/replacement', label: 'Listado de Productos', icon: '/icons/wrench.svg', mobileHidden: true },
-      { href: '/dashboard/replacement/bulk-upload', label: 'Carga Masiva', icon: '/icons/upload.svg', mobileHidden: true },
+      { href: '/dashboard/replacement', label: 'Listado de Productos', icon: '/icons/package.svg' },
+      { href: '/dashboard/replacement/bulk-upload', label: 'Carga Masiva', icon: '/icons/upload.svg' },
     ],
   },
   {
@@ -38,12 +37,12 @@ export const NAV_SECTIONS: NavSection[] = [
     title: 'Administración',
     items: [
       { href: '/dashboard/stores', label: 'Locales', icon: '/icons/store.svg', minRole: 'MODERATOR' },
-      { href: '/dashboard/users', label: 'Usuarios', icon: '/icons/users.svg', mobileHidden: true, minRole: 'MODERATOR' },
-      { href: '/dashboard/vehicles', label: 'Vehículos', icon: '/icons/car.svg', mobileHidden: true, minRole: 'ADMIN' },
-      { href: '/dashboard/admin/countries', label: 'Países', icon: '/icons/globe.svg', mobileHidden: true, minRole: 'ADMIN' },
-      { href: '/dashboard/admin/brands', label: 'Marcas', icon: '/icons/tag.svg', mobileHidden: true, minRole: 'ADMIN' },
-      { href: '/dashboard/admin/product-types', label: 'Tipos', icon: '/icons/layers.svg', mobileHidden: true, minRole: 'ADMIN' },
-      { href: '/dashboard/config', label: 'Configuración', icon: '/icons/settings.svg', mobileHidden: true, minRole: 'MODERATOR' },
+      { href: '/dashboard/users', label: 'Usuarios', icon: '/icons/users.svg', minRole: 'MODERATOR' },
+      { href: '/dashboard/vehicles', label: 'Vehículos', icon: '/icons/car.svg', minRole: 'ADMIN' },
+      { href: '/dashboard/admin/countries', label: 'Países', icon: '/icons/globe.svg', minRole: 'ADMIN' },
+      { href: '/dashboard/admin/brands', label: 'Marcas', icon: '/icons/tag.svg', minRole: 'ADMIN' },
+      { href: '/dashboard/admin/product-types', label: 'Tipos', icon: '/icons/layers.svg', minRole: 'ADMIN' },
+      { href: '/dashboard/config', label: 'Configuración', icon: '/icons/settings.svg', minRole: 'MODERATOR' },
     ],
   },
 ];

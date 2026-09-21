@@ -57,7 +57,7 @@ export default function DashboardPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className={styles.page}><Loading /></div>;
+  if (loading) return <div className={styles.page}><Loading variant="orbit" /></div>;
   if (error || !stats) return <div className={styles.page}><p className={styles.error}>{error}</p></div>;
 
   const margin = stats.replacements.profitMargin;
