@@ -60,12 +60,16 @@ export default function Filters({ search, dateRange, selects, children }: Filter
       <div id={panelId} className={`${styles.panel}${open ? ` ${styles.panelOpen}` : ''}`}>
         {dateRange && (
           <>
-            <Label text={dateRange.fromLabel ?? 'Desde'}>
-              <input type="date" className={`${styles.input}${dateRange.from ? '' : ` ${styles.empty}`}`} value={dateRange.from} max={dateRange.to || undefined} onChange={e => dateRange.onFromChange(e.target.value)} />
-            </Label>
-            <Label text={dateRange.toLabel ?? 'Hasta'}>
-              <input type="date" className={`${styles.input}${dateRange.to ? '' : ` ${styles.empty}`}`} value={dateRange.to} min={dateRange.from || undefined} onChange={e => dateRange.onToChange(e.target.value)} />
-            </Label>
+            <div className={styles.dateField}>
+              <Label text={dateRange.fromLabel ?? 'Desde'}>
+                <input type="date" className={`${styles.input}${dateRange.from ? '' : ` ${styles.empty}`}`} value={dateRange.from} max={dateRange.to || undefined} onChange={e => dateRange.onFromChange(e.target.value)} />
+              </Label>
+            </div>
+            <div className={styles.dateField}>
+              <Label text={dateRange.toLabel ?? 'Hasta'}>
+                <input type="date" className={`${styles.input}${dateRange.to ? '' : ` ${styles.empty}`}`} value={dateRange.to} min={dateRange.from || undefined} onChange={e => dateRange.onToChange(e.target.value)} />
+              </Label>
+            </div>
           </>
         )}
         {selects?.map(select => (

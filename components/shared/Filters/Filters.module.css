@@ -22,6 +22,8 @@
 
 .empty { color: var(--color-text-muted); }
 
+.dateField { display: contents; }
+
 /* Ícono del calendario: mismo gris que los placeholders (el ícono nativo es un bitmap sin color configurable) */
 .input::-webkit-calendar-picker-indicator {
   width: 13px;
@@ -109,15 +111,36 @@
 
   .panelOpen { display: grid; }
 
+  .panel > * { min-width: 0; }
+
   .panel select,
   .panel .input {
     width: 100%;
+    min-width: 0;
+    max-width: 100%;
   }
 
   .right {
     grid-column: 1 / -1;
     margin-left: 0;
+    justify-self: end;
+    width: max-content;
+    max-width: 100%;
   }
+}
+
+@media (max-width: 560px) {
+  .dateField {
+    display: block;
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+
+  .dateField .input {
+    display: block;
+    font-size: 16px;
+  }
+
 }
 
 @media (prefers-reduced-motion: reduce) {
