@@ -5,9 +5,12 @@ import Button from '@/components/ui/Button/Button';
 import MainTitle from '@/components/shared/MainTitle';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import FileDropzone from '@/components/shared/FileDropzone';
+import { parseCsv } from '@/lib/csv';
+import { validateBulkCsv, CsvError } from '@/lib/bulk-upload';
 import styles from './page.module.css';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
+const MAX_CSV_ERRORS_SHOWN = 50;
 
 type JobStatus = 'queued' | 'processing' | 'done' | 'failed';
 
@@ -25,6 +28,8 @@ interface JobState {
 
 export default function BulkUploadPage() {
   const [file, setFile] = useState<File | null>(null);
+  const [csvErrors, setCsvErrors] = useState<CsvError[]>([]);
+  const [validating, setValidating] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [job, setJob] = useState<JobState | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -49,6 +54,20 @@ export default function BulkUploadPage() {
     }
   }
 
+  async function handleFileSelect(selected: File) {
+    setFile(selected);
+    setUploadError(null);
+    setCsvErrors([]);
+    setValidating(true);
+    try {
+      setCsvErrors(validateBulkCsv(parseCsv(await selected.text())));
+    } catch {
+      setUploadError('No se pudo leer el archivo');
+    } finally {
+      setValidating(false);
+    }
+  }
+
   function handleDownloadTemplate() {
     const link = document.createElement('a');
     link.href = '/templates/productos-ejemplo.csv';
@@ -57,7 +76,7 @@ export default function BulkUploadPage() {
   }
 
   async function handleUpload() {
-    if (!file) return;
+    if (!file || csvErrors.length > 0) return;
     setUploading(true);
     setUploadError(null);
     setJob(null);
@@ -100,9 +119,10 @@ export default function BulkUploadPage() {
       <div className={styles.desc}>
         <Button label="Descargar CSV de ejemplo" onClick={handleDownloadTemplate} variant="secondary" icon="/icons/download.svg" />
       </div>
+      <p className={styles.detail}>Columnas obligatorias: <code>name</code>, <code>brand</code>, <code>price</code> y <code>cost</code>. Opcionales: <code>sku</code>, <code>imageUrl</code> y <code>stock</code>.</p>
 
       <div className={styles.card}>
-        <FileDropzone onFileSelect={setFile} accept=".csv" className={styles.dropzone}>
+        <FileDropzone onFileSelect={handleFileSelect} accept=".csv" className={styles.dropzone}>
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={styles.uploadIcon}>
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
             <polyline points="17 8 12 3 7 8" />
@@ -115,12 +135,29 @@ export default function BulkUploadPage() {
           )}
         </FileDropzone>
 
+        {csvErrors.length > 0 && (
+          <div className={styles.errors}>
+            <p className={styles.errorsTitle}>
+              El archivo tiene {csvErrors.length} {csvErrors.length === 1 ? 'error' : 'errores'}: corrígelos y vuelve a elegirlo
+            </p>
+            <ul className={styles.errorList}>
+              {csvErrors.slice(0, MAX_CSV_ERRORS_SHOWN).map((e, i) => (
+                <li key={i} className={styles.errorItem}>
+                  <span className={styles.errorLine}>Línea {e.line}</span>
+                  <span>{e.reason}</span>
+                </li>
+              ))}
+            </ul>
+            {csvErrors.length > MAX_CSV_ERRORS_SHOWN && <p className={styles.detail}>… y {csvErrors.length - MAX_CSV_ERRORS_SHOWN} más</p>}
+          </div>
+        )}
+
         {uploadError && <p className={styles.error}>{uploadError}</p>}
 
         <Button
           label={uploading ? 'Subiendo...' : 'Iniciar carga'}
           onClick={handleUpload}
-          disabled={!file || uploading || (job?.status === 'processing' || job?.status === 'queued')}
+          disabled={!file || validating || csvErrors.length > 0 || uploading || (job?.status === 'processing' || job?.status === 'queued')}
           shadow
         />
       </div>

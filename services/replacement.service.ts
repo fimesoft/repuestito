@@ -21,6 +21,8 @@ export interface Replacement {
   id: string;
   globalReplacement: GlobalReplacementInfo;
   price: number;
+  /** Costo unitario (el API lo envía como texto decimal); null = desconocido. Solo llega en endpoints de tu tenant. */
+  cost?: string | number | null;
   stock: number;
   tenantId: string;
   branchId: string | null;
@@ -39,6 +41,7 @@ export interface CreateReplacementPayload {
   sku?: string;
   imageUrl?: string;
   price: number;
+  cost?: number;
   tenantId: string;
   branchId?: string;
   stock?: number;
@@ -73,6 +76,8 @@ export async function getGlobalBySku(sku: string, countryCode: string): Promise<
 
 export interface UpdateReplacementPayload {
   price?: number;
+  /** null borra el costo (queda desconocido). */
+  cost?: number | null;
   stock?: number;
   latitude?: number;
   longitude?: number;

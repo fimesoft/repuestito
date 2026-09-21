@@ -39,40 +39,7 @@
   gap: 1rem;
 }
 
-.input {
-  padding: 0.65rem 0.25rem;
-  border: none;
-  border-bottom: 1px solid var(--color-border);
-  border-radius: 0;
-  background: transparent;
-  font-size: 0.9375rem;
-  outline: none;
-  transition: border-color 0.15s;
-}
-
-.input::placeholder {
-  color: var(--color-text-faint);
-}
-
-.input:focus {
-  border-bottom-color: var(--color-primary);
-}
-
-.passwordField {
-  position: relative;
-  display: flex;
-}
-
-.passwordField .input {
-  flex: 1;
-  padding-right: 1.75rem;
-}
-
 .togglePassword {
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
   display: flex;
   align-items: center;
   justify-content: center;

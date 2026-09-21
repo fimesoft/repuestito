@@ -32,27 +32,29 @@ export default function OrdersChart({ orders, className }: { orders: OrderStats;
         <p className={styles.empty}>Sin pedidos registrados aún</p>
       ) : (
         <div className={styles.chartWrapper}>
-          <ResponsiveContainer width="100%" height={220}>
-            <PieChart>
-              <Pie data={data} cx="40%" cy="40%" innerRadius={40} outerRadius={70} paddingAngle={3} dataKey="value" label={false} labelLine={false}>
-                <Label content={({ viewBox }) => {
-                  const { cx, cy } = viewBox as { cx: number; cy: number };
-                  return (
-                    <g>
-                      <text x={cx} y={cy - 6} textAnchor="middle" dominantBaseline="middle" style={{ fontSize: '1.2rem', fontWeight: 700, fill: 'var(--color-text)' }}>
-                        {orders.total}
-                      </text>
-                      <text x={cx} y={cy + 14} textAnchor="middle" dominantBaseline="middle" style={{ fontSize: '11px', fill: 'var(--color-text-muted)' }}>
-                        totales
-                      </text>
-                    </g>
-                  );
-                }} />
-                {data.map((entry, i) => <Cell key={i} style={{ fill: entry.color }} />)}
-              </Pie>
-              <Tooltip formatter={(value, name) => [value, `Pedidos ${String(name).toLowerCase()}`]} />
-            </PieChart>
-          </ResponsiveContainer>
+          <div className={styles.chart}>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={data} cx="40%" cy="40%" innerRadius="36%" outerRadius="64%" paddingAngle={3} dataKey="value" label={false} labelLine={false}>
+                  <Label content={({ viewBox }) => {
+                    const { cx, cy } = viewBox as { cx: number; cy: number };
+                    return (
+                      <g>
+                        <text x={cx} y={cy - 6} textAnchor="middle" dominantBaseline="middle" style={{ fontSize: '1.2rem', fontWeight: 700, fill: 'var(--color-text)' }}>
+                          {orders.total}
+                        </text>
+                        <text x={cx} y={cy + 14} textAnchor="middle" dominantBaseline="middle" style={{ fontSize: '11px', fill: 'var(--color-text-muted)' }}>
+                          totales
+                        </text>
+                      </g>
+                    );
+                  }} />
+                  {data.map((entry, i) => <Cell key={i} style={{ fill: entry.color }} />)}
+                </Pie>
+                <Tooltip formatter={(value, name) => [value, `Pedidos ${String(name).toLowerCase()}`]} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
           <ul className={styles.legend}>
             {SLICES.map(s => (
               <li key={s.key} className={styles.legendItem}>

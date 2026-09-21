@@ -2,7 +2,7 @@ import { FormEvent, useState } from 'react';
 import Button from '@/components/ui/Button';
 import Logo from '@/components/shared/Logo';
 import styles from '../authForm.module.css';
-import Label from '@/components/ui/Label';
+import FloatingInput from '@/components/ui/FloatingInput';
 
 function EyeIcon() {
   return (
@@ -55,27 +55,22 @@ export default function Login({
         <Logo href="/" />
       </div>
       <form className={styles.form} onSubmit={onSubmit}>
-        <Label text="Correo electrónico *">
-          <input
-            className={styles.input}
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="tu@correo.com"
-            required
-            autoComplete="email"
-          />
-        </Label>
-        <Label text="Contraseña *">
-          <div className={styles.passwordField}>
-            <input
-              className={styles.input}
-              type={showPassword ? 'text' : 'password'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              autoComplete="current-password"
-            />
+        <FloatingInput
+          label="Correo electrónico *"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          autoComplete="email"
+        />
+        <FloatingInput
+          label="Contraseña *"
+          type={showPassword ? 'text' : 'password'}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          autoComplete="current-password"
+          endAdornment={
             <button
               type="button"
               className={styles.togglePassword}
@@ -85,8 +80,8 @@ export default function Login({
             >
               {showPassword ? <EyeOffIcon /> : <EyeIcon />}
             </button>
-          </div>
-        </Label>
+          }
+        />
         {error && <p className={styles.error}>{error}</p>}
         {success && <p className={styles.success}>{success}</p>}
         <div className={styles.actions}>

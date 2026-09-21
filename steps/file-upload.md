@@ -77,7 +77,7 @@ const jobStore = new Map<string, JobState>();  // replacement-bulk-upload.proces
 Columnas esperadas (header obligatorio, orden no importa):
 
 ```
-name, brand, sku, imageUrl, price, stock
+name, brand, sku, imageUrl, price, cost, stock
 ```
 
 | Campo | Tipo | Obligatorio | Notas |
@@ -87,6 +87,7 @@ name, brand, sku, imageUrl, price, stock
 | `sku` | string | no | se normaliza a `A-Z0-9` mayúsculas (máx. 64); un valor con solo símbolos (`---`) se rechaza. El encabezado anterior `codeOem` se sigue aceptando como alias de `sku` |
 | `imageUrl` | URL | no | |
 | `price` | number positivo | sí | |
+| `cost` | number ≥ 0, máx. 2 decimales | **sí en el frontend**; el API todavía lo acepta vacío | costo unitario para el tenant (alimenta capital invertido y margen del dashboard). La página de carga masiva lo valida **antes de subir** el archivo (columna `cost` presente y un valor en cada fila) y bloquea el envío si falta. Si llegara vacío al API (otro cliente), queda como desconocido (`NULL`), **no** 0 |
 | `stock` | int ≥ 0 | no | default `0` |
 
 - Parseo con `csv-parse` (`columns: true`, `skip_empty_lines: true`, `trim: true` — recorta espacios al borde de cada celda).
@@ -160,18 +161,26 @@ Componente genérico de drag & drop + click-to-select, reutilizado también por 
 ### Template `public/templates/repuestos-ejemplo.csv`
 
 ```csv
-name,brand,sku,imageUrl,price,stock
-TEST CARGA MASIVA 1,Bosch,F-4781,,12500,50
-TEST CARGA MASIVA 2,Fram,PF-1190,https://example.com/img.jpg,18900,20
-TEST CARGA MASIVA 3,Bosch,CD-3320,,45000,
+name,brand,sku,imageUrl,price,cost,stock
+TEST CARGA MASIVA 1,Bosch,F-4781,,12500,8200,50
+TEST CARGA MASIVA 2,Fram,PF-1190,https://example.com/img.jpg,18900,,20
+TEST CARGA MASIVA 3,Bosch,CD-3320,,45000,31000,
 ```
 
-Solo las columnas que el usuario final puede completar sin ayuda: nombre, marca (texto libre), SKU opcional, imagen opcional, precio, stock opcional. No incluye tenant, sucursal, país ni coordenadas — esos los pone el backend según la cuenta que hace la carga.
+Solo las columnas que el usuario final puede completar sin ayuda: nombre, marca (texto libre), SKU opcional, imagen opcional, precio, costo opcional, stock opcional. No incluye tenant, sucursal, país ni coordenadas — esos los pone el backend según la cuenta que hace la carga.
 
 ---
 
 ## Limitaciones conocidas
 
+- **Validación previa en el frontend** (`lib/bulk-upload.ts` con el parser `lib/csv.ts`): al elegir el archivo, la página lo revisa en el navegador y bloquea el envío si hay errores, indicando la línea y el motivo (hasta 50 a la vez). Reglas:
+  - Columnas obligatorias: `name`, `brand`, `price` y `cost`. Opcionales: `sku`, `imageUrl` y `stock`.
+  - `name` y `brand` no vacíos; la marca, hasta 100 caracteres y con al menos una letra o número.
+  - `price`: mayor a 0; `cost`: 0 o más. Ambos con punto, hasta 2 decimales y máximo 99.999.999,99 (límite de `numeric(10,2)`).
+  - `stock`, si viene: entero de 0 o más (máx. 2.147.483.647).
+  - `sku`, si viene: al menos una letra o número, hasta 64 caracteres y sin repetirse en el archivo (tras normalizar).
+  - Cada fila debe tener tantas columnas como el encabezado (el backend aborta todo el archivo si no).
+  Los mismos criterios los vuelve a aplicar el backend; **el costo obligatorio solo se exige en el frontend** (el API aún lo acepta vacío) y `imageUrl` solo lo valida el backend.
 - **Estado de job no persistido**: reinicio de server = jobs perdidos, sin forma de recuperar el resultado de una carga en curso.
 - **Sin reintento automático de filas fallidas**: hay que corregir el CSV y volver a subir el archivo completo. Las filas con `sku` no se duplican en un reintento (el chequeo `globalReplacementId`+`tenantId`+`branchId` las rechaza), pero las filas sin `sku` no tienen ninguna protección — un reintento las vuelve a insertar como piezas nuevas.
 - **Sin imágenes en el CSV**: `imageUrl` es opcional y la carga no sube archivos. Los productos sin imagen se muestran con «Imagen no disponible» y se les puede agregar una desde el modal de edición de `dashboard/replacement`.

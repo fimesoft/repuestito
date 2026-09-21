@@ -5,10 +5,19 @@ export interface SaleDay { date: string; total: number }
 export interface DashboardStats {
   users: { total: number; active: number };
   brands: { total: number; active: number };
-  replacements: { total: number; active: number; inactive: number; inventoryValue?: number };
+  replacements: {
+    total: number;
+    active: number;
+    inactive: number;
+    totalStock?: number;
+    capitalInvested?: number;
+    potentialSalesValue?: number;
+    profitMargin?: { amount: number; percentage: number | null };
+    /** Productos sin costo cargado: no entran en capital invertido ni en margen. */
+    withoutCost?: number;
+  };
   orders: { total: number; pending: number; confirmed: number; fulfilled: number; cancelled: number };
   invoices: { total: number };
-  compatibilities: { total: number; topModels: { model: string; brand: string; count: number }[] };
 }
 
 export async function getSalesTimeline(days: number): Promise<SaleDay[]> {

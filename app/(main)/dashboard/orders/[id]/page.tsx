@@ -1,9 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams, useSearchParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { usePermissions } from '@/hooks/usePermissions';
 import { getOrder, confirmOrderAndGenerateInvoice, fulfillOrder, cancelOrder, Order } from '@/services/orders.service';
 import Button from '@/components/ui/Button';
 import BackPage from '@/components/shared/BackPage';
@@ -28,11 +27,8 @@ const STATUS_VARIANT: Record<string, BadgeVariant> = {
 
 export default function OrderDetailPage() {
   const params = useParams();
-  const searchParams = useSearchParams();
-  const { currentUser } = usePermissions();
 
   const id = typeof params.id === 'string' ? params.id : Array.isArray(params.id) ? params.id[0] : '';
-  const tenantId = searchParams.get('tenantId') ?? currentUser?.tenantId ?? '';
 
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
@@ -44,19 +40,19 @@ export default function OrderDetailPage() {
   const [cancelling, setCancelling] = useState(false);
 
   useEffect(() => {
-    if (!id || !tenantId) { setError('Parámetros inválidos'); setLoading(false); return; }
-    getOrder(id, tenantId)
+    if (!id) { setError('Parámetros inválidos'); setLoading(false); return; }
+    getOrder(id)
       .then(setOrder)
       .catch(err => setError(err instanceof Error ? err.message : 'Error al cargar el pedido'))
       .finally(() => setLoading(false));
-  }, [id, tenantId]);
+  }, [id]);
 
   async function handleConfirm() {
     if (!order) return;
     setActionError(null);
     setConfirming(true);
     try {
-      const updated = await confirmOrderAndGenerateInvoice(order.id, tenantId);
+      const updated = await confirmOrderAndGenerateInvoice(order.id);
       setOrder(updated);
     } catch (err) {
       setActionError(err instanceof Error ? err.message : 'Error al confirmar y generar la factura');
@@ -71,8 +67,8 @@ export default function OrderDetailPage() {
     if (!confirm('¿Convertir este pedido a factura? Se generará una invoice.')) return;
     setActionError(null);
     try {
-      await fulfillOrder(order.id, tenantId);
-      const updated = await getOrder(order.id, tenantId);
+      await fulfillOrder(order.id);
+      const updated = await getOrder(order.id);
       setOrder(updated);
     } catch (err) {
       setActionError(err instanceof Error ? err.message : 'Error al convertir a factura');
@@ -84,7 +80,7 @@ export default function OrderDetailPage() {
     setActionError(null);
     setCancelling(true);
     try {
-      const updated = await cancelOrder(order.id, tenantId);
+      const updated = await cancelOrder(order.id);
       setOrder(updated);
     } catch (err) {
       setActionError(err instanceof Error ? err.message : 'Error al cancelar');
@@ -164,7 +160,7 @@ export default function OrderDetailPage() {
 
         {order.invoiceId && (
           <Link
-            href={`/dashboard/billing/${order.invoiceId}?tenantId=${tenantId}`}
+            href={`/dashboard/billing/${order.invoiceId}`}
             className={styles.invoiceLink}
           >
             Ver factura generada →

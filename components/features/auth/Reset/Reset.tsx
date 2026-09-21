@@ -1,7 +1,7 @@
 import { FormEvent } from 'react';
 import Button from '@/components/ui/Button';
 import styles from '../authForm.module.css';
-import Label from '@/components/ui/Label';
+import FloatingInput from '@/components/ui/FloatingInput';
 
 interface Props {
   email: string;
@@ -35,40 +35,33 @@ export default function Reset({
       <h1 className={styles.heading}>Nueva contraseña</h1>
       <p className={styles.sub}>Ingresa el código enviado a {email}</p>
       <form className={styles.form} onSubmit={onSubmit}>
-        <Label text="Código de verificación">
-          <input
-            className={styles.input}
-            type="text"
-            inputMode="numeric"
-            maxLength={6}
-            value={code}
-            onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-            placeholder="123456"
-            required
-          />
-        </Label>
-        <Label text="Nueva contraseña">
-          <input
-            className={styles.input}
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Mínimo 8 caracteres"
-            required
-            autoComplete="new-password"
-          />
-        </Label>
-        <Label text="Confirmar contraseña">
-          <input
-            className={styles.input}
-            type="password"
-            value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
-            placeholder="Repite la contraseña"
-            required
-            autoComplete="new-password"
-          />
-        </Label>
+        <FloatingInput
+          label="Código de verificación"
+          type="text"
+          inputMode="numeric"
+          maxLength={6}
+          value={code}
+          onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+          required
+        />
+        <FloatingInput
+          label="Nueva contraseña"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Mínimo 8 caracteres"
+          required
+          autoComplete="new-password"
+        />
+        <FloatingInput
+          label="Confirmar contraseña"
+          type="password"
+          value={confirm}
+          onChange={(e) => setConfirm(e.target.value)}
+          placeholder="Repite la contraseña"
+          required
+          autoComplete="new-password"
+        />
         {error && <p className={styles.error}>{error}</p>}
         <div className={styles.actions}>
           <Button label={loading ? 'Guardando...' : 'Guardar contraseña'} type="submit" variant="solid" color="primary" size="lg" fullWidth disabled={loading} />

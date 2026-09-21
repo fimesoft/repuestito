@@ -1,7 +1,7 @@
 import { FormEvent } from 'react';
 import Button from '@/components/ui/Button';
 import styles from '../authForm.module.css';
-import Label from '@/components/ui/Label';
+import FloatingInput from '@/components/ui/FloatingInput';
 
 interface Props {
   email: string;
@@ -21,18 +21,16 @@ export default function Verify({ email, code, setCode, loading, error, success, 
       <h1 className={styles.heading}>Verifica tu correo</h1>
       <p className={styles.sub}>Enviamos un código de 6 dígitos a {email}</p>
       <form className={styles.form} onSubmit={onSubmit}>
-        <Label text="Código de verificación">
-          <input
-            className={styles.input}
-            type="text"
-            inputMode="numeric"
-            maxLength={6}
-            value={code}
-            onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-            placeholder="123456"
-            required
-          />
-        </Label>
+        <FloatingInput
+          label="Código de verificación"
+          type="text"
+          inputMode="numeric"
+          maxLength={6}
+          value={code}
+          onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+          placeholder="123456"
+          required
+        />
         {error && <p className={styles.error}>{error}</p>}
         {success && <p className={styles.success}>{success}</p>}
         <div className={styles.actions}>

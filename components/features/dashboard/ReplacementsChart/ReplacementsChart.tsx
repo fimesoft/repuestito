@@ -24,16 +24,18 @@ export default function ReplacementsChart({ replacements, className }: { replace
         <span className={styles.title}>Productos por estado</span>
         <span className={styles.total}>{replacements.total} <span className={styles.totalLabel}>totales</span></span>
       </div>
-      <ResponsiveContainer width="100%" height={220}>
-        <BarChart data={data} barCategoryGap="40%">
-          <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'var(--color-text-muted)' }} axisLine={false} tickLine={false} />
-          <YAxis tick={{ fontSize: 11, fill: 'var(--color-text-muted)' }} axisLine={false} tickLine={false} width={30} />
-          <Tooltip formatter={(value, name) => [value, String(name)]} cursor={{ fill: 'var(--bg-subtle)' }} />
-          <Bar dataKey="value" radius={[6, 6, 0, 0]}>
-            {data.map((entry, i) => <Cell key={i} style={{ fill: entry.color }} />)}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+      <div className={styles.chart}>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={data} barCategoryGap="40%">
+            <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'var(--color-text-muted)' }} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fontSize: 11, fill: 'var(--color-text-muted)' }} axisLine={false} tickLine={false} width={30} />
+            <Tooltip formatter={(value, name) => [value, String(name)]} cursor={{ fill: 'var(--bg-subtle)' }} />
+            <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+              {data.map((entry, i) => <Cell key={i} style={{ fill: entry.color }} />)}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     </Card>
   );
 }

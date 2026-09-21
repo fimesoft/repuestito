@@ -67,7 +67,6 @@ export default function OrdersPage() {
     setError(null);
     try {
       const res = await getOrders({
-        tenantId: currentUser.tenantId,
         status: statusFilter || undefined,
         page: p,
         limit,
@@ -91,7 +90,7 @@ export default function OrdersPage() {
     if (!currentUser?.tenantId || !orderToConfirm) return;
     setConfirming(true);
     try {
-      const updated = await confirmOrderAndGenerateInvoice(orderToConfirm.id, currentUser.tenantId);
+      const updated = await confirmOrderAndGenerateInvoice(orderToConfirm.id);
       setOrders(prev => prev.map(o => o.id === orderToConfirm.id ? updated : o));
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Error al confirmar y generar la factura');
@@ -105,7 +104,7 @@ export default function OrdersPage() {
     if (!currentUser?.tenantId || !orderToCancel) return;
     setCancelling(true);
     try {
-      const updated = await cancelOrder(orderToCancel.id, currentUser.tenantId);
+      const updated = await cancelOrder(orderToCancel.id);
       setOrders(prev => prev.map(o => o.id === orderToCancel.id ? updated : o));
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Error al cancelar');
@@ -150,7 +149,7 @@ export default function OrdersPage() {
       {loading ? <Loading /> : <Table<Order>
         rows={visibleOrders}
         getKey={o => o.id}
-        onRowClick={o => router.push(`/dashboard/orders/${o.id}?tenantId=${currentUser?.tenantId ?? ''}`)}
+        onRowClick={o => router.push(`/dashboard/orders/${o.id}`)}
         emptyMessage={error ? (
           <EmptyState variant="error" description={error} />
         ) : (
@@ -172,7 +171,7 @@ export default function OrdersPage() {
           { header: '', render: o => (
             <div onClick={event => event.stopPropagation()}>
               <Dropdown items={[
-                { label: 'Ver', onClick: () => router.push(`/dashboard/orders/${o.id}?tenantId=${currentUser?.tenantId ?? ''}`), icon: '/icons/eye.svg' },
+                { label: 'Ver', onClick: () => router.push(`/dashboard/orders/${o.id}`), icon: '/icons/eye.svg' },
                 ...(o.status === 'pending' ? [{ label: 'Confirmar', onClick: () => setOrderToConfirm(o), icon: '/icons/check.svg' }] : []),
                 ...(o.status === 'pending' || o.status === 'confirmed' ? [{ label: 'Cancelar', onClick: () => setOrderToCancel(o), variant: 'danger' as const, icon: '/icons/cancel.svg' }] : []),
               ]} />

@@ -10,6 +10,12 @@
   text-align: center;
 }
 
+/* Alto del gráfico: el ResponsiveContainer de recharts toma el 100% de este contenedor */
+.chart {
+  height: 220px;
+  min-width: 0;
+}
+
 .title {
   font-size: 13px;
   font-weight: 600;

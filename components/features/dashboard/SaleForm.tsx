@@ -114,7 +114,7 @@ export default function SaleForm({ mode }: SaleFormProps) {
     setSelectedCustomer(null);
     if (!q.trim() || !currentUser?.tenantId) { setCustomerSuggestions([]); return; }
     try {
-      const list = await searchCustomers(currentUser.tenantId, q);
+      const list = await searchCustomers(q);
       setCustomerSuggestions(list);
     } catch {
       setCustomerSuggestions([]);
@@ -142,8 +142,6 @@ export default function SaleForm({ mode }: SaleFormProps) {
     setError(null);
 
     const commonPayload = {
-      tenantId: currentUser.tenantId,
-      sellerId: currentUser.id,
       customerId: selectedCustomer?.id,
       buyerName: buyerName || undefined,
       buyerLastname: buyerLastname || undefined,

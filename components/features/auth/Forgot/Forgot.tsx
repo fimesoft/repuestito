@@ -1,7 +1,7 @@
 import { FormEvent } from 'react';
 import Button from '@/components/ui/Button';
 import styles from '../authForm.module.css';
-import Label from '@/components/ui/Label';
+import FloatingInput from '@/components/ui/FloatingInput';
 
 interface Props {
   email: string;
@@ -19,17 +19,14 @@ export default function Forgot({ email, setEmail, loading, error, success, onSub
       <h1 className={styles.heading}>Recuperar contraseña</h1>
       <p className={styles.sub}>Te enviaremos un código a tu correo</p>
       <form className={styles.form} onSubmit={onSubmit}>
-        <Label text="Correo electrónico">
-          <input
-            className={styles.input}
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="tu@correo.com"
-            required
-            autoComplete="email"
-          />
-        </Label>
+        <FloatingInput
+          label="Correo electrónico"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          autoComplete="email"
+        />
         {error && <p className={styles.error}>{error}</p>}
         {success && <p className={styles.success}>{success}</p>}
         <div className={styles.actions}>

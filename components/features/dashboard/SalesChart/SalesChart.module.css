@@ -45,6 +45,12 @@
   color: #fff;
 }
 
+/* Alto del gráfico: el ResponsiveContainer de recharts toma el 100% de este contenedor */
+.chart {
+  height: 80px;
+  min-width: 0;
+}
+
 .total {
   font-size: 1.5rem;
   font-weight: 700;

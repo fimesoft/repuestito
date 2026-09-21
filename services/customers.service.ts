@@ -10,8 +10,8 @@ export interface Customer {
   createdAt?: string;
 }
 
-export async function searchCustomers(tenantId: string, q: string): Promise<Customer[]> {
-  const params = new URLSearchParams({ tenantId, q });
+export async function searchCustomers(q: string): Promise<Customer[]> {
+  const params = new URLSearchParams({ q });
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/customers?${params.toString()}`,
     { credentials: 'include' },
@@ -20,18 +20,14 @@ export async function searchCustomers(tenantId: string, q: string): Promise<Cust
   return res.json() as Promise<Customer[]>;
 }
 
-export async function getCustomersByTenant(tenantId: string): Promise<Customer[]> {
-  const params = new URLSearchParams({ tenantId });
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/customers?${params.toString()}`,
-    { credentials: 'include' },
-  );
+export async function getCustomersByTenant(): Promise<Customer[]> {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/customers`, { credentials: 'include' });
   if (!res.ok) throw new Error('Error al obtener clientes');
   return res.json() as Promise<Customer[]>;
 }
 
 export async function createCustomer(
-  payload: Omit<Customer, 'id'>,
+  payload: Omit<Customer, 'id' | 'tenantId'>,
 ): Promise<Customer> {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/customers`, {
     method: 'POST',

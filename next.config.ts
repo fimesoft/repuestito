@@ -8,11 +8,17 @@ const apiOrigin = process.env.NEXT_PUBLIC_API_URL ?? '';
 // React en todo el proyecto (CSS Modules no alcanza para eso). No es una
 // CSP estricta con nonce, pero igual bloquea inyección de <script>/<iframe>
 // externos, que es lo que importa contra XSS de terceros.
+// En desarrollo React usa eval() para reconstruir call stacks (nunca en producción), así que
+// 'unsafe-eval' se agrega solo con `next dev`; la CSP de producción no cambia.
+const scriptSrc = process.env.NODE_ENV === 'development'
+  ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+  : "script-src 'self' 'unsafe-inline'";
+
 const csp = [
   "default-src 'self'",
   `connect-src 'self' https://nominatim.openstreetmap.org https://*.sentry.io ${apiOrigin}`.trim(),
   "img-src 'self' data: blob: https://res.cloudinary.com https://picsum.photos https://*.tile.openstreetmap.org",
-  "script-src 'self' 'unsafe-inline'",
+  scriptSrc,
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self' data:",
   "frame-ancestors 'none'",

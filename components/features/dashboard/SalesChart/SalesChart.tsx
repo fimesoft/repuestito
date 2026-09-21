@@ -46,20 +46,22 @@ export default function SalesChart({ className }: { className?: string }) {
         </div>
       </div>
       <span className={styles.total}>{formatCurrency(total)}</span>
-      <ResponsiveContainer width="100%" height={180}>
-        <AreaChart data={chartData} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
-          <defs>
-            <linearGradient id="salesGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%"  stopColor="var(--color-primary)" stopOpacity={0.25} />
-              <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0} />
-            </linearGradient>
-          </defs>
-          <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--color-text-muted)' }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
-          <YAxis hide />
-          <Tooltip formatter={(value, _name, props) => [formatCurrency(Number(value)), props.payload?.fullDate ?? '']} labelFormatter={() => ''} contentStyle={{ fontSize: 12 }} />
-          <Area type="monotone" dataKey="total" stroke="var(--color-primary)" strokeWidth={2} fill="url(#salesGradient)" dot={false} />
-        </AreaChart>
-      </ResponsiveContainer>
+      <div className={styles.chart}>
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={chartData} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
+            <defs>
+              <linearGradient id="salesGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%"  stopColor="var(--color-primary)" stopOpacity={0.25} />
+                <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--color-text-muted)' }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
+            <YAxis hide />
+            <Tooltip formatter={(value, _name, props) => [formatCurrency(Number(value)), props.payload?.fullDate ?? '']} labelFormatter={() => ''} contentStyle={{ fontSize: 12 }} />
+            <Area type="monotone" dataKey="total" stroke="var(--color-primary)" strokeWidth={2} fill="url(#salesGradient)" dot={false} />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
     </Card>
   );
 }

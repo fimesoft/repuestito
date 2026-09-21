@@ -42,7 +42,6 @@ export default function BillingPage() {
     setError(null);
     try {
       const res = await getInvoices({
-        tenantId: currentUser.tenantId,
         from: from || undefined,
         to: to || undefined,
         page: p,
@@ -67,7 +66,7 @@ export default function BillingPage() {
     if (!currentUser?.tenantId) return;
     if (!confirm('¿Cancelar esta factura? Se restaurará el stock.')) return;
     try {
-      const updated = await cancelInvoice(id, currentUser.tenantId);
+      const updated = await cancelInvoice(id);
       setInvoices(prev => prev.map(inv => inv.id === id ? updated : inv));
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Error al cancelar');
@@ -115,7 +114,7 @@ export default function BillingPage() {
       {loading ? <Loading /> : <Table<Invoice>
         rows={visibleInvoices}
         getKey={inv => inv.id}
-        onRowClick={inv => router.push(`/dashboard/billing/${inv.id}?tenantId=${currentUser?.tenantId ?? ''}`)}
+        onRowClick={inv => router.push(`/dashboard/billing/${inv.id}`)}
         emptyMessage={error ? (
           <EmptyState variant="error" description={error} />
         ) : (
@@ -138,7 +137,7 @@ export default function BillingPage() {
           { header: '', render: inv => (
             <div onClick={event => event.stopPropagation()}>
               <Dropdown items={[
-                { label: 'Ver', onClick: () => router.push(`/dashboard/billing/${inv.id}?tenantId=${currentUser?.tenantId ?? ''}`), icon: '/icons/eye.svg' },
+                { label: 'Ver', onClick: () => router.push(`/dashboard/billing/${inv.id}`), icon: '/icons/eye.svg' },
                 ...(inv.status !== 'cancelled' ? [{ label: 'Cancelar', onClick: () => handleCancel(inv.id), variant: 'danger' as const, icon: '/icons/cancel.svg' }] : []),
               ]} />
             </div>

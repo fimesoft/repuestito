@@ -30,9 +30,7 @@ export interface Order {
 }
 
 export interface CreateOrderPayload {
-  tenantId: string;
   branchId?: string;
-  sellerId?: string;
   customerId?: string;
   buyerName?: string;
   buyerLastname?: string;
@@ -69,22 +67,20 @@ export async function createOrder(payload: CreateOrderPayload): Promise<Order> {
   return res.json() as Promise<Order>;
 }
 
-export async function getOrder(id: string, tenantId: string): Promise<Order> {
-  const params = new URLSearchParams({ tenantId });
-  const res = await fetch(`${BASE}/${id}?${params.toString()}`, { credentials: 'include' });
+export async function getOrder(id: string): Promise<Order> {
+  const res = await fetch(`${BASE}/${id}`, { credentials: 'include' });
   if (!res.ok) throw new Error('Error al obtener el pedido');
   return res.json() as Promise<Order>;
 }
 
 export async function getOrders(params: {
-  tenantId: string;
   status?: string;
   from?: string;
   to?: string;
   page?: number;
   limit?: number;
 }): Promise<{ data: Order[]; total: number }> {
-  const qs = new URLSearchParams({ tenantId: params.tenantId });
+  const qs = new URLSearchParams();
   if (params.status) qs.set('status', params.status);
   if (params.from) qs.set('from', params.from);
   if (params.to) qs.set('to', params.to);
@@ -96,46 +92,31 @@ export async function getOrders(params: {
   return res.json() as Promise<{ data: Order[]; total: number }>;
 }
 
-export async function confirmOrder(id: string, tenantId: string): Promise<{ id: string; status: string }> {
-  const res = await fetch(`${BASE}/${id}/confirm`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({ tenantId }),
-  });
+export async function confirmOrder(id: string): Promise<{ id: string; status: string }> {
+  const res = await fetch(`${BASE}/${id}/confirm`, { method: 'PATCH', credentials: 'include' });
   if (!res.ok) throwFromResponse(await res.json(), 'Error al confirmar el pedido');
   return res.json() as Promise<{ id: string; status: string }>;
 }
 
-export async function fulfillOrder(id: string, tenantId: string): Promise<{ id: string; status: string }> {
-  const res = await fetch(`${BASE}/${id}/fulfill`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({ tenantId }),
-  });
+export async function fulfillOrder(id: string): Promise<{ id: string; status: string }> {
+  const res = await fetch(`${BASE}/${id}/fulfill`, { method: 'POST', credentials: 'include' });
   if (!res.ok) throwFromResponse(await res.json(), 'Error al convertir pedido a factura');
   return res.json() as Promise<{ id: string; status: string }>;
 }
 
-export async function confirmOrderAndGenerateInvoice(id: string, tenantId: string): Promise<Order> {
+export async function confirmOrderAndGenerateInvoice(id: string): Promise<Order> {
   try {
-    await confirmOrder(id, tenantId);
+    await confirmOrder(id);
   } catch (error) {
-    const current = await getOrder(id, tenantId);
+    const current = await getOrder(id);
     if (current.status !== 'confirmed') throw error;
   }
-  await fulfillOrder(id, tenantId);
-  return getOrder(id, tenantId);
+  await fulfillOrder(id);
+  return getOrder(id);
 }
 
-export async function cancelOrder(id: string, tenantId: string): Promise<Order> {
-  const res = await fetch(`${BASE}/${id}/cancel`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({ tenantId }),
-  });
+export async function cancelOrder(id: string): Promise<Order> {
+  const res = await fetch(`${BASE}/${id}/cancel`, { method: 'PATCH', credentials: 'include' });
   if (!res.ok) throwFromResponse(await res.json(), 'Error al cancelar el pedido');
   return res.json() as Promise<Order>;
 }

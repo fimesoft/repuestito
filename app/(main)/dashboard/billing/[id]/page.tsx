@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams, useSearchParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { getInvoice, Invoice } from '@/services/billing.service';
 import BackPage from '@/components/shared/BackPage';
@@ -13,21 +13,19 @@ const InvoicePdfViewer = dynamic(() => import('@/components/features/billing/Inv
 
 export default function InvoiceDetailPage() {
   const params = useParams();
-  const searchParams = useSearchParams();
   const id = typeof params.id === 'string' ? params.id : Array.isArray(params.id) ? params.id[0] : '';
-  const tenantId = searchParams.get('tenantId') ?? '';
 
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!id || !tenantId) { setError('Parámetros inválidos'); setLoading(false); return; }
-    getInvoice(id, tenantId)
+    if (!id) { setError('Parámetros inválidos'); setLoading(false); return; }
+    getInvoice(id)
       .then(setInvoice)
       .catch(err => setError(err instanceof Error ? err.message : 'Error al cargar la factura'))
       .finally(() => setLoading(false));
-  }, [id, tenantId]);
+  }, [id]);
 
   if (loading) return <main className={styles.page}><p className={styles.hint}>Cargando...</p></main>;
   if (error) return <main className={styles.page}><p className={styles.error}>{error}</p></main>;

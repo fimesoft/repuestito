@@ -89,6 +89,7 @@ export default function ReplacementDashboardPage() {
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState<Omit<CreateReplacementPayload, 'countryCode'>>(EMPTY);
   const [priceInput, setPriceInput] = useState('');
+  const [costInput, setCostInput] = useState('');
   const [brand, setBrand] = useState<CatalogOption | null>(null);
   const [productType, setProductType] = useState<CatalogOption | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -101,6 +102,7 @@ export default function ReplacementDashboardPage() {
   const [editingReplacement, setEditingReplacement] = useState<Replacement | null>(null);
   const [editForm, setEditForm] = useState<EditFormState>(EMPTY_EDIT);
   const [editPriceInput, setEditPriceInput] = useState('');
+  const [editCostInput, setEditCostInput] = useState('');
   const [editBranches, setEditBranches] = useState<Branch[]>([]);
   const [editError, setEditError] = useState<string | null>(null);
   const [editImageFile, setEditImageFile] = useState<File | null>(null);
@@ -190,6 +192,7 @@ export default function ReplacementDashboardPage() {
     const tenantId = !isAdmin && currentUser?.tenantId ? currentUser.tenantId : '';
     setForm({ ...EMPTY, tenantId });
     setPriceInput('');
+    setCostInput('');
     setBrand(null);
     setProductType(null);
     setImageFile(null);
@@ -213,8 +216,9 @@ export default function ReplacementDashboardPage() {
   }
 
   async function openEdit(r: Replacement) {
-    setEditForm({ price: r.price, stock: r.stock, active: r.active ?? true, tenantId: r.tenantId, branchId: r.branchId ?? '' });
+    setEditForm({ price: r.price, cost: r.cost != null ? Number(r.cost) : null, stock: r.stock, active: r.active ?? true, tenantId: r.tenantId, branchId: r.branchId ?? '' });
     setEditPriceInput(String(r.price));
+    setEditCostInput(r.cost != null ? String(r.cost) : '');
     setEditBranches([]);
     setEditError(null);
     setEditImageFile(null);
@@ -346,7 +350,8 @@ export default function ReplacementDashboardPage() {
   }
 
   const skuPendingDecision = !!skuMatch && !useSkuMatch;
-  const canCreate = !!form.name && !!brand && !!productType && form.price > 0 && !!form.tenantId && !skuPendingDecision;
+  const hasCost = typeof form.cost === 'number' && Number.isFinite(form.cost);
+  const canCreate = !!form.name && !!brand && !!productType && form.price > 0 && hasCost && !!form.tenantId && !skuPendingDecision;
   const modalOpen = creating || !!editingReplacement;
   const modalTitle = creating ? 'Nuevo producto' : 'Editar producto';
   const modalClose = creating ? () => setCreating(false) : () => setEditingReplacement(null);
@@ -452,7 +457,6 @@ export default function ReplacementDashboardPage() {
               <div onClick={e => e.stopPropagation()}>
                 <Dropdown items={[
                   { label: 'Ver', onClick: () => router.push(`/dashboard/replacement/${r.id}/show`), icon: '/icons/eye.svg' },
-                  { label: 'Compatibilidades', onClick: () => router.push(`/dashboard/replacement/${r.id}`), icon: '/icons/link.svg' },
                   ...(canManage ? [
                     { label: 'Editar', onClick: () => openEdit(r), icon: '/icons/edit.svg' },
                     { label: 'Eliminar', onClick: () => handleDelete(r.id), variant: 'danger' as const, icon: '/icons/trash.svg' },
@@ -540,23 +544,28 @@ export default function ReplacementDashboardPage() {
                 <Label text="Precio">
                   <input className={styles.input} type="text" inputMode="decimal" value={priceInput} onChange={e => { const v = e.target.value; if (/^\d*\.?\d*$/.test(v)) { setPriceInput(v); set({ price: parseFloat(v) || 0 }); } }} placeholder="0.00" required />
                 </Label>
-                <Label text="Stock">
-                  <input className={styles.input} type="text" inputMode="numeric" value={form.stock ?? ''} onChange={e => { if (/^\d*$/.test(e.target.value)) set({ stock: Number(e.target.value) }); }} placeholder="0" />
+                <Label text="Costo">
+                  <input className={styles.input} type="text" inputMode="decimal" value={costInput} onChange={e => { const v = e.target.value; if (/^\d*\.?\d{0,2}$/.test(v)) { setCostInput(v); set({ cost: v === '' ? undefined : parseFloat(v) }); } }} placeholder="0.00" required />
                 </Label>
               </div>
 
               <div className={styles.row}>
+                <Label text="Stock">
+                  <input className={styles.input} type="text" inputMode="numeric" value={form.stock ?? ''} onChange={e => { if (/^\d*$/.test(e.target.value)) set({ stock: Number(e.target.value) }); }} placeholder="0" />
+                </Label>
                 <Label text={<>SKU <span className={styles.optional}>(opcional)</span></>}>
                   <input className={styles.input} value={form.sku ?? ''} onChange={e => onSkuChange(e.target.value)} onBlur={onSkuBlur} maxLength={64} placeholder="ej. 15400PLMA02" />
                 </Label>
+              </div>
+
+              <div className={styles.row}>
                 <Label text="Local">
                   <Select value={form.tenantId} onChange={onTenantChange} options={visibleTenants.map(t => ({ value: t.id, label: t.businessName }))} placeholder="Seleccionar local" disabled={!isAdmin} required />
                 </Label>
+                <Label text={<>Sucursal <span className={styles.optional}>(opcional)</span></>}>
+                  <Select value={form.branchId ?? ''} onChange={v => { const branch = formBranches.find(b => b.id === v); set({ branchId: v, ...(branch?.latitude != null && branch?.longitude != null && { latitude: branch.latitude, longitude: branch.longitude }) }); }} options={formBranches.map(b => ({ value: b.id, label: b.name }))} placeholder="Sin asignar" disabled={!form.tenantId} />
+                </Label>
               </div>
-
-              <Label text={<>Sucursal <span className={styles.optional}>(opcional)</span></>}>
-                <Select value={form.branchId ?? ''} onChange={v => { const branch = formBranches.find(b => b.id === v); set({ branchId: v, ...(branch?.latitude != null && branch?.longitude != null && { latitude: branch.latitude, longitude: branch.longitude }) }); }} options={formBranches.map(b => ({ value: b.id, label: b.name }))} placeholder="Sin asignar" disabled={!form.tenantId} />
-              </Label>
 
               {formError && <p className={styles.error}>{formError}</p>}
             </>
@@ -599,6 +608,12 @@ export default function ReplacementDashboardPage() {
                 <Label text="Precio">
                   <input className={styles.input} type="text" inputMode="decimal" value={editPriceInput} onChange={e => { const v = e.target.value; if (/^\d*\.?\d*$/.test(v)) { setEditPriceInput(v); setEdit({ price: parseFloat(v) || 0 }); } }} placeholder="0.00" required />
                 </Label>
+                <Label text={<>Costo <span className={styles.optional}>(opcional)</span></>}>
+                  <input className={styles.input} type="text" inputMode="decimal" value={editCostInput} onChange={e => { const v = e.target.value; if (/^\d*\.?\d{0,2}$/.test(v)) { setEditCostInput(v); setEdit({ cost: v === '' ? null : parseFloat(v) }); } }} placeholder="0.00" />
+                </Label>
+              </div>
+
+              <div className={styles.row}>
                 <Label text="Stock">
                   <input className={styles.input} type="text" inputMode="numeric" value={editForm.stock ?? ''} onChange={e => { if (/^\d*$/.test(e.target.value)) setEdit({ stock: Number(e.target.value) }); }} placeholder="0" />
                 </Label>

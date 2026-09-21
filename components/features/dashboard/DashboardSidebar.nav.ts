@@ -31,7 +31,6 @@ export const NAV_SECTIONS: NavSection[] = [
       { href: '/dashboard/billing', label: 'Facturación', icon: '/icons/receipt.svg' },
       { href: '/dashboard/replacement', label: 'Listado de Productos', icon: '/icons/wrench.svg', mobileHidden: true },
       { href: '/dashboard/replacement/bulk-upload', label: 'Carga Masiva', icon: '/icons/upload.svg', mobileHidden: true },
-      { href: '/dashboard/compatibility', label: 'Compatibilidades', icon: '/icons/link.svg', mobileHidden: true },
     ],
   },
   {

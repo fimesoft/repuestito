@@ -1,0 +1,74 @@
+.field {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 1.35rem 0.25rem 0.4rem;
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-text);
+  font-size: 0.9375rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.hasAdornment .input {
+  padding-right: 1.75rem;
+}
+
+.input:focus {
+  border-bottom-color: var(--color-primary);
+}
+
+/* La pista solo aparece cuando el label ya subió (campo enfocado) */
+.input::placeholder {
+  color: transparent;
+  transition: color 0.18s ease;
+}
+
+.input:focus::placeholder {
+  color: var(--color-text-faint);
+}
+
+.label {
+  position: absolute;
+  top: 1.35rem;
+  left: 0.25rem;
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+  line-height: 1.2;
+  pointer-events: none;
+  transform-origin: left top;
+  transition: transform 0.18s ease, color 0.18s ease;
+}
+
+.input:focus + .label,
+.input:not(:placeholder-shown) + .label,
+.input:-webkit-autofill + .label {
+  transform: translateY(-1.15rem) scale(0.78);
+}
+
+.input:focus + .label {
+  color: var(--color-primary);
+}
+
+.adornment {
+  position: absolute;
+  right: 0;
+  bottom: 0.3rem;
+  display: flex;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .input,
+  .input::placeholder,
+  .label {
+    transition: none;
+  }
+}

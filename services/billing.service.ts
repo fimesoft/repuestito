@@ -29,9 +29,7 @@ export interface Invoice {
 }
 
 export interface CreateInvoicePayload {
-  tenantId: string;
   branchId?: string;
-  sellerId?: string;
   customerId?: string;
   buyerName?: string;
   buyerLastname?: string;
@@ -69,23 +67,19 @@ export async function createInvoice(payload: CreateInvoicePayload): Promise<Invo
   return res.json() as Promise<Invoice>;
 }
 
-export async function getInvoice(id: string, tenantId: string): Promise<Invoice> {
-  const params = new URLSearchParams({ tenantId });
-  const res = await fetch(`${BASE}/${id}?${params.toString()}`, {
-    credentials: 'include',
-  });
+export async function getInvoice(id: string): Promise<Invoice> {
+  const res = await fetch(`${BASE}/${id}`, { credentials: 'include' });
   if (!res.ok) throw new Error('Error al obtener la factura');
   return res.json() as Promise<Invoice>;
 }
 
 export async function getInvoices(params: {
-  tenantId: string;
   from?: string;
   to?: string;
   page?: number;
   limit?: number;
 }): Promise<{ data: Invoice[]; total: number }> {
-  const qs = new URLSearchParams({ tenantId: params.tenantId });
+  const qs = new URLSearchParams();
   if (params.from) qs.set('from', params.from);
   if (params.to) qs.set('to', params.to);
   if (params.page != null) qs.set('page', String(params.page));
@@ -96,23 +90,17 @@ export async function getInvoices(params: {
   return res.json() as Promise<{ data: Invoice[]; total: number }>;
 }
 
-export async function cancelInvoice(id: string, tenantId: string): Promise<Invoice> {
-  const res = await fetch(`${BASE}/${id}/cancel`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({ tenantId }),
-  });
+export async function cancelInvoice(id: string): Promise<Invoice> {
+  const res = await fetch(`${BASE}/${id}/cancel`, { method: 'PATCH', credentials: 'include' });
   if (!res.ok) throwFromResponse(await res.json(), 'Error al cancelar la factura');
   return res.json() as Promise<Invoice>;
 }
 
 export async function getInvoiceSummary(
-  tenantId: string,
   from: string,
   to: string,
 ): Promise<{ total: number; count: number; topItems: { description: string; quantity: number }[] }> {
-  const qs = new URLSearchParams({ tenantId, from, to });
+  const qs = new URLSearchParams({ from, to });
   const res = await fetch(`${BASE}/summary?${qs.toString()}`, { credentials: 'include' });
   if (!res.ok) throw new Error('Error al obtener el resumen de facturación');
   return res.json() as Promise<{ total: number; count: number; topItems: { description: string; quantity: number }[] }>;
