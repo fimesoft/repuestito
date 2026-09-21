@@ -39,7 +39,7 @@ components/
     ├── auth/
     │   └── LoginForm.tsx
     └── replacements/
-        ├── PartCard.tsx
+        ├── ReplacementCard/
         └── PartMapWrapper.tsx
 ```
 
@@ -115,8 +115,8 @@ Cada servicio exporta las funciones de fetch junto con sus tipos de request/resp
 
 | Qué | Cómo |
 |---|---|
-| Componentes | PascalCase — `PartCard.tsx` |
-| Archivos CSS | Mismo nombre + `.module.css` — `PartCard.module.css` |
+| Componentes | PascalCase — `ReplacementCard.tsx` |
+| Archivos CSS | Mismo nombre + `.module.css` — `ReplacementCard.module.css` |
 | Servicios | camelCase + sufijo `.service.ts` |
 | Páginas | `app/<ruta>/page.tsx` (App Router) |
 | Server components | Por defecto. Agregar `'use client'` solo cuando se usen hooks o eventos. |

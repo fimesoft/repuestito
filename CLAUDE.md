@@ -92,13 +92,12 @@
 ```
 Browser
   │
-  ├─ /app          → LoginPage (AuthBlock: login/register/verify/reset)
+  ├─ /             → LoginPage (AuthBlock: login/register/verify/reset)
   │
-  ├─ / (main)      → Home: lista paginada de repuestos (Server Component)
-  │    └─ Header + CountrySelect + Search + PageCount + PartCard + Paginator
+  ├─ /parts/[id]   → detalle público de un repuesto
   │
-  └─ /dashboard/** → protegido por middleware.ts (verifica cookie `token` con jose)
-                      redirige a /app si token inválido/ausente
+  └─ /dashboard/**, /edit/** → protegidos por middleware.ts (verifica cookie `token` con jose)
+                      redirige a / si token inválido/ausente
 
 Frontend → NEXT_PUBLIC_API_URL (http://localhost:3000)
               └─ /api/** → NestJS (puerto 3000)
@@ -153,10 +152,10 @@ Detalle y decisiones en `steps/evolution-catalog.md`.
 
 - `context/CountryContext.tsx` — país seleccionado globalmente (filtro de búsqueda)
 - Rutas App Router:
-  - `app/(main)/` — layout con Header; página pública del marketplace
-  - `app/app/` — página de auth (login/register)
-  - `app/dashboard/` — área protegida (aún en construcción)
-- `middleware.ts` — verifica JWT con `jose`; solo aplica a `/dashboard/**`
+  - `app/page.tsx` — página de auth (login/register/verify/reset)
+  - `app/(main)/` — layout con Header; contiene `parts/[id]` (detalle público), `create`, `edit/[id]` y `dashboard/`
+  - `app/(main)/dashboard/` — área protegida con `DashboardSidebar` (productos, pedidos, facturación, locales, usuarios, catálogos de admin, configuración)
+- `middleware.ts` — verifica JWT con `jose`; aplica a `/dashboard/**` y `/edit/**` y redirige a `/`
 
 ### Deploy
 

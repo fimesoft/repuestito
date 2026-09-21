@@ -13,6 +13,7 @@ import Table, { Column } from '@/components/ui/Table';
 import Filters from '@/components/shared/Filters';
 import Select from '@/components/ui/Select';
 import ViewToggle from '@/components/ui/ViewToggle';
+import ChipRail from '@/components/ui/ChipRail';
 import Toggle from '@/components/ui/Toggle';
 import Badge, { BADGE_ACCENT_VAR, BadgeVariant } from '@/components/ui/Badge';
 import EmptyState from '@/components/shared/EmptyState';
@@ -20,7 +21,7 @@ import PageCount from '@/components/shared/PageCount';
 import Loading from '@/components/ui/Loading';
 import Dropdown from '@/components/ui/Dropdown';
 import Tooltip from '@/components/ui/Tooltip';
-import PartCard from '@/components/features/replacements/PartCard';
+import ReplacementCard from '@/components/features/replacements/ReplacementCard';
 import ProductImage from '@/components/shared/ProductImage';
 import CatalogPicker, { CatalogOption } from '@/components/shared/CatalogPicker';
 
@@ -404,17 +405,18 @@ export default function ReplacementDashboardPage() {
             placeholder: 'Todos',
             options: [{ value: 'true', label: 'Activo' }, { value: 'false', label: 'Inactivo' }],
           },
-          {
-            label: 'Tipo',
-            value: typeFilter,
-            onChange: setTypeFilter,
-            placeholder: 'Todos',
-            options: productTypes.map(t => ({ value: String(t.id), label: t.name })),
-          },
         ]}
       >
         <ViewToggle value={viewMode} onChange={setViewMode} />
       </Filters>
+      {productTypes.length > 0 && (
+        <ChipRail
+          ariaLabel="Filtrar por tipo de producto"
+          value={typeFilter}
+          onChange={setTypeFilter}
+          options={[{ value: '', label: 'Todos' }, ...productTypes.map(t => ({ value: String(t.id), label: t.name }))]}
+        />
+      )}
       <div className={styles.subControls}>
         <PageCount total={total} limit={limit} onLimitChange={setLimit} />
       </div>
@@ -472,18 +474,26 @@ export default function ReplacementDashboardPage() {
         />
       ) : (
         <div className={styles.grid}>
-          {replacements.map((r, i) => (
-            <PartCard
-              key={r.id}
-              priority={i < 4}
-              id={r.id}
-              image={r.globalReplacement?.imageUrl ?? null}
-              brand={r.globalReplacement?.brand?.name ?? ''}
-              name={r.globalReplacement?.name ?? ''}
-              price={r.price}
-              active={r.active !== false}
-            />
-          ))}
+          {replacements.map((r, i) => {
+            const level = getStockLevel(r.stock, stockThresholds);
+            return (
+              <ReplacementCard
+                key={r.id}
+                priority={i < 4}
+                href={`/dashboard/replacement/${r.id}/show`}
+                image={r.globalReplacement?.imageUrl ?? null}
+                brand={r.globalReplacement?.brand?.name ?? ''}
+                name={r.globalReplacement?.name ?? ''}
+                sku={r.globalReplacement?.sku}
+                price={Number(r.price)}
+                stock={r.stock}
+                stockLevel={level}
+                stockHint={STOCK_LEVEL_HINT[level](stockThresholds)}
+                active={r.active !== false}
+                onEdit={canManage ? () => openEdit(r) : undefined}
+              />
+            );
+          })}
           {replacements.length === 0 && listEmptyMessage}
         </div>
       )}
