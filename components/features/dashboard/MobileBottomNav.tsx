@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { usePermissions } from '@/hooks/usePermissions';
 import styles from './MobileBottomNav.module.css';
 
 function IconPackage() {
@@ -45,6 +46,10 @@ const BOTTOM_NAV = [
 
 export default function MobileBottomNav() {
   const pathname = usePathname();
+  const { loading, needsOnboarding } = usePermissions();
+
+  // Sin local no hay a dónde navegar; mientras carga, no se sabe todavía.
+  if (loading || needsOnboarding) return null;
 
   return (
     <nav className={styles.nav} aria-label="Navegación rápida">

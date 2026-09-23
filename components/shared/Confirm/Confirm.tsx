@@ -3,6 +3,7 @@
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import Button from '@/components/ui/Button';
 import Modal from '@/components/ui/Modal';
+import Alert from '@/components/ui/Alert';
 import styles from './Confirm.module.css';
 
 export interface ConfirmProps {
@@ -10,6 +11,8 @@ export interface ConfirmProps {
   onClose: () => void;
   onConfirm: () => void | boolean | Promise<void | boolean>;
   onSuccess?: () => void;
+  /** Recibe el error de `onConfirm`; si devuelve un string, es el mensaje que se muestra en el modal. */
+  onError?: (err: unknown) => string | void;
   title?: string;
   message?: ReactNode;
   confirmLabel?: string;
@@ -29,6 +32,7 @@ export default function Confirm({
   onClose,
   onConfirm,
   onSuccess,
+  onError,
   title = 'Confirmar pedido',
   message = '¿Estás seguro de que querés confirmar este pedido?',
   confirmLabel = 'Confirmar',
@@ -44,6 +48,7 @@ export default function Confirm({
 }: ConfirmProps) {
   const [submitting, setSubmitting] = useState(false);
   const [succeeded, setSucceeded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const busy = isLoading || submitting;
   const actionsDisabled = disabled || busy;
@@ -55,11 +60,13 @@ export default function Confirm({
   function handleClose() {
     if (busy || succeeded) return;
     setSucceeded(false);
+    setError(null);
     onClose();
   }
 
   async function handleConfirm() {
     setSubmitting(true);
+    setError(null);
     try {
       const result = await onConfirm();
       if (result === false) return;
@@ -68,8 +75,10 @@ export default function Confirm({
         setSucceeded(false);
         (onSuccess ?? onClose)();
       }, successDuration);
-    } catch {
-      // The consumer owns the error message; keep the modal open to allow a retry.
+    } catch (err) {
+      // Keep the modal open to allow a retry, showing why it failed.
+      const custom = onError?.(err);
+      setError(typeof custom === 'string' ? custom : err instanceof Error ? err.message : 'Ocurrió un error, intentá de nuevo');
     } finally {
       setSubmitting(false);
     }
@@ -109,7 +118,10 @@ export default function Confirm({
           <p className={styles.successMessage}>{successMessage}</p>
         </div>
       ) : (
-        <div className={styles.content}>{message}</div>
+        <div className={styles.content}>
+          {message}
+          {error && <div className={styles.error}><Alert variant="error" message={error} /></div>}
+        </div>
       )}
     </Modal>
   );

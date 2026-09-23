@@ -19,6 +19,8 @@ export interface AuthUser {
   role: string;
   tenantId: string | null;
   branchId: string | null;
+  /** País (ISO alpha-2) del local del usuario; null si todavía no tiene local. */
+  tenantCountry: string | null;
   isEmailVerified: boolean;
   active: boolean;
   theme: UserTheme;

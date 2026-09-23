@@ -9,6 +9,8 @@ export interface UserRecord {
   isEmailVerified: boolean;
   tenantId: string | null;
   branchId: string | null;
+  /** Solo viene en el listado (GET /api/users). */
+  branch?: { id: string; name: string } | null;
   active: boolean;
   theme: UserTheme;
   createdAt: string;

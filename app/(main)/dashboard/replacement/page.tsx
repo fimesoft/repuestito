@@ -13,7 +13,6 @@ import Table, { Column } from '@/components/ui/Table';
 import Filters from '@/components/shared/Filters';
 import Select from '@/components/ui/Select';
 import ViewToggle from '@/components/ui/ViewToggle';
-import ChipRail from '@/components/ui/ChipRail';
 import Toggle from '@/components/ui/Toggle';
 import Badge, { BADGE_ACCENT_VAR, BadgeVariant } from '@/components/ui/Badge';
 import EmptyState from '@/components/shared/EmptyState';
@@ -405,18 +404,17 @@ export default function ReplacementDashboardPage() {
             placeholder: 'Todos',
             options: [{ value: 'true', label: 'Activo' }, { value: 'false', label: 'Inactivo' }],
           },
+          {
+            label: 'Tipo',
+            value: typeFilter,
+            onChange: setTypeFilter,
+            placeholder: 'Todos',
+            options: productTypes.map(t => ({ value: String(t.id), label: t.name })),
+          },
         ]}
       >
         <ViewToggle value={viewMode} onChange={setViewMode} />
       </Filters>
-      {productTypes.length > 0 && (
-        <ChipRail
-          ariaLabel="Filtrar por tipo de producto"
-          value={typeFilter}
-          onChange={setTypeFilter}
-          options={[{ value: '', label: 'Todos' }, ...productTypes.map(t => ({ value: String(t.id), label: t.name }))]}
-        />
-      )}
       <div className={styles.subControls}>
         <PageCount total={total} limit={limit} onLimitChange={setLimit} />
       </div>
@@ -494,7 +492,7 @@ export default function ReplacementDashboardPage() {
               />
             );
           })}
-          {replacements.length === 0 && listEmptyMessage}
+          {replacements.length === 0 && <div className={styles.gridEmpty}>{listEmptyMessage}</div>}
         </div>
       )}
 

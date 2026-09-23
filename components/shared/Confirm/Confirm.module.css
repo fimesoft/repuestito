@@ -8,6 +8,10 @@
   margin: 0;
 }
 
+.error {
+  margin-top: 12px;
+}
+
 .success {
   display: flex;
   flex-direction: column;

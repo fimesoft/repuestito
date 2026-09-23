@@ -5,6 +5,11 @@
   margin-bottom: 28px;
 }
 
+.stepGroup {
+  display: flex;
+  align-items: flex-start;
+}
+
 .step {
   display: flex;
   flex-direction: column;
@@ -13,13 +18,13 @@
 }
 
 .dot {
-  width: 28px;
-  height: 28px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   background: var(--color-border);
   color: var(--color-text-faint);
@@ -49,7 +54,7 @@
   width: 60px;
   height: 2px;
   background: var(--color-border);
-  margin-top: 13px;
+  margin-top: 10px;
   flex-shrink: 0;
 }
 
@@ -102,6 +107,24 @@
 .error {
   font-size: 13px;
   color: var(--color-error);
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 16px;
+  margin: 0;
+}
+
+.summary dt {
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.summary dd {
+  margin: 0;
+  color: var(--color-text);
+  word-break: break-word;
 }
 
 @media (max-width: 480px) {

@@ -3,6 +3,8 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import * as Sentry from '@sentry/nextjs';
 import { getMeClient, type AuthUser } from '@/services/auth.service';
+import { useCountry } from '@/context/CountryContext';
+import { hasRole } from '@/lib/roles';
 
 interface AuthUserContextValue {
   currentUser: AuthUser | null;
@@ -15,22 +17,29 @@ const AuthUserContext = createContext<AuthUserContextValue | null>(null);
 export function AuthUserProvider({ children }: { children: React.ReactNode }) {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const { setCountry } = useCountry();
+
+  // Solo GOD elige el país (CountrySelect); el resto trabaja con el país de su local.
+  // Se fija junto con currentUser para que las páginas no disparen fetches con el país default.
+  const applyUser = useCallback((user: AuthUser | null) => {
+    if (user?.tenantCountry && !hasRole(user.role, 'ADMIN')) setCountry(user.tenantCountry);
+    setCurrentUser(user);
+  }, [setCountry]);
 
   const refetch = useCallback(async () => {
-    const user = await getMeClient();
-    setCurrentUser(user);
-  }, []);
+    applyUser(await getMeClient());
+  }, [applyUser]);
 
   useEffect(() => {
     getMeClient().then(user => {
-      setCurrentUser(user);
+      applyUser(user);
       setLoading(false);
     });
 
     return () => {
       delete document.documentElement.dataset.theme;
     };
-  }, []);
+  }, [applyUser]);
 
   useEffect(() => {
     if (!currentUser) {

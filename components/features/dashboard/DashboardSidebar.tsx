@@ -32,7 +32,7 @@ export default function DashboardSidebar() {
   const [showLogoutMenu, setShowLogoutMenu] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
-  const { hasRole, currentUser, needsOnboarding } = usePermissions();
+  const { hasRole, currentUser, needsOnboarding, loading } = usePermissions();
 
   const [openSections, setOpenSections] = useState<Set<string>>(
     () => new Set(NAV_SECTIONS.map(section => section.key))
@@ -111,7 +111,7 @@ export default function DashboardSidebar() {
         </button>
 
         <ul className={styles.nav} role="list">
-          {needsOnboarding ? (
+          {loading ? null : needsOnboarding ? (
             <li className={styles.section}>
               <ul className={styles.sectionList} role="list">
                 <li>

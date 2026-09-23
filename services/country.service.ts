@@ -34,6 +34,7 @@ export interface CountryQuery {
   search?: string;
   page?: number;
   limit?: number;
+  active?: boolean;
 }
 
 async function req<T>(url: string, init?: RequestInit): Promise<T> {
@@ -51,6 +52,7 @@ export const getCountries = (query: CountryQuery = {}): Promise<PaginatedCountri
   if (query.search) params.set('search', query.search);
   if (query.page) params.set('page', String(query.page));
   if (query.limit) params.set('limit', String(query.limit));
+  if (query.active !== undefined) params.set('active', String(query.active));
   return req<PaginatedCountries>(`${BASE}?${params.toString()}`);
 };
 export const createCountry = (dto: CreateCountryPayload) =>

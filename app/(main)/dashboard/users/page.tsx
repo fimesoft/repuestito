@@ -187,7 +187,7 @@ export default function UsersPage() {
               return <Badge label={toRole(u.role) ?? u.role} variant={ROLE_VARIANT[u.role] ?? 'neutral'} />;
             } },
           { header: 'Local', render: u => tenants.find(t => t.id === u.tenantId)?.businessName ?? '—', className: styles.tdMeta },
-          { header: 'Sucursal', render: u => u.branchId ? u.branchId.slice(0, 8) + '…' : '—', className: styles.tdMeta },
+          { header: 'Sucursal', render: u => u.branch?.name ?? '—', className: styles.tdMeta },
           { header: 'Estado', render: u => <Badge label={u.active ? 'Activo' : 'Inactivo'} variant={u.active ? 'active' : 'inactive'} /> },
           { header: '', render: u => canManage ? (
             <Dropdown items={[

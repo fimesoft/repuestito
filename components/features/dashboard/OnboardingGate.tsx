@@ -13,7 +13,7 @@ export default function OnboardingGate({ children }: { children: React.ReactNode
 
   if (needsOnboarding) {
     return (
-      <TenantBranchWizard isOpen onClose={() => {}} onSuccess={refetch} />
+      <TenantBranchWizard isOpen isOnboarding onClose={() => {}} onSuccess={refetch} />
     );
   }
 

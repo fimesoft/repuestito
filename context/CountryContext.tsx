@@ -2,22 +2,17 @@
 
 import { createContext, useContext, useState } from 'react';
 
-export type CountryCode = 'VE' | 'AR';
+/** Código ISO alpha-2 (`countries.code`). */
+export type CountryCode = string;
 
-interface CountryOption {
-  code: CountryCode;
-  label: string;
-  name: string;
-  flag: string;
-}
-
-export const COUNTRIES: CountryOption[] = [
-  { code: 'VE', label: 'VE', name: 'Venezuela', flag: '🇻🇪' },
-  { code: 'AR', label: 'AR', name: 'Argentina', flag: '🇦🇷' },
-];
+const REGION_NAMES = new Intl.DisplayNames(['es'], { type: 'region' });
 
 export function getCountryName(code: string): string {
-  return COUNTRIES.find(c => c.code === code)?.name ?? code;
+  try {
+    return REGION_NAMES.of(code) ?? code;
+  } catch {
+    return code;
+  }
 }
 
 interface CountryContextValue {

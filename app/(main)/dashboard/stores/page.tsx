@@ -222,7 +222,7 @@ export default function StoresPage() {
                       <Badge label={tenant.active ? 'Activo' : 'Inactivo'} variant={tenant.active ? 'active' : 'inactive'} />
                     </div>
                     <div className={styles.metaRow}>
-                      <span className={styles.metaItem}>CUIT {tenant.taxId}</span>
+                      <span className={styles.metaItem}><strong>{tenant.documentType?.code ?? 'Doc.'}</strong> {tenant.taxId}</span>
                       <span className={styles.metaItem}>
                         <img src="/icons/link.svg" width={13} height={13} alt="" className={styles.metaIcon} />
                         {tenant.subdomain}.piezify.com
@@ -311,7 +311,7 @@ export default function StoresPage() {
             <input className={styles.formInput} value={tenantForm.businessName ?? ''} onChange={e => setTenantForm(p => ({ ...p, businessName: e.target.value }))} />
           </Label>
           <div className={styles.formRow}>
-            <Label text="CUIT / RUT / NIT">
+            <Label text="Número de documento">
               <input className={styles.formInput} value={tenantForm.taxId ?? ''} onChange={e => setTenantForm(p => ({ ...p, taxId: e.target.value }))} />
             </Label>
             <Label text="Subdominio">

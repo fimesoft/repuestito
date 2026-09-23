@@ -89,6 +89,11 @@
   margin-bottom: 1.5rem;
 }
 
+/* El empty state ocupa todas las columnas de la grilla, no solo la primera. */
+.gridEmpty {
+  grid-column: 1 / -1;
+}
+
 .paginationWrapper {
   display: flex;
   align-items: center;
