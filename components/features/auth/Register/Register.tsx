@@ -2,6 +2,7 @@ import { FormEvent } from 'react';
 import Button from '@/components/ui/Button';
 import styles from '../authForm.module.css';
 import FloatingInput from '@/components/ui/FloatingInput';
+import PasswordInput from '@/components/ui/PasswordInput';
 
 interface Props {
   email: string;
@@ -41,18 +42,16 @@ export default function Register({
           required
           autoComplete="email"
         />
-        <FloatingInput
+        <PasswordInput
           label="Contraseña"
-          type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Mínimo 8 caracteres"
           required
           autoComplete="new-password"
         />
-        <FloatingInput
+        <PasswordInput
           label="Confirmar contraseña"
-          type="password"
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
           placeholder="Repite la contraseña"
@@ -63,7 +62,7 @@ export default function Register({
         <div className={styles.actions}>
           <Button label={loading ? 'Registrando...' : 'Registrarse'} type="submit" variant="solid" color="primary" size="lg" fullWidth disabled={loading} />
           <button type="button" className={styles.link} onClick={onLogin}>
-            ¿Ya tienes cuenta? Ingresa aquí
+            <span className={styles.linkMuted}>¿Ya tienes cuenta?</span> Ingresa aquí
           </button>
         </div>
       </form>

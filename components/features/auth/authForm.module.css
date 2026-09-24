@@ -39,23 +39,6 @@
   gap: 1rem;
 }
 
-.togglePassword {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: none;
-  padding: 4px;
-  color: var(--color-text-faint);
-  cursor: pointer;
-  line-height: 0;
-  transition: color 0.15s;
-}
-
-.togglePassword:hover {
-  color: var(--color-text-muted);
-}
-
 .codeRow {
   display: flex;
   gap: 0.5rem;
@@ -104,18 +87,26 @@
   color: var(--color-primary-hover);
 }
 
-.divider {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  color: var(--color-text-faint);
-  font-size: 0.8125rem;
+.linkMuted {
+  color: var(--color-text-muted);
 }
 
-.divider::before,
-.divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--color-border-subtle);
+.signup {
+  margin: 1.5rem 0 0;
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+}
+
+.signupLink {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.signupLink:hover {
+  color: var(--color-primary-hover);
 }

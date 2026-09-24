@@ -2,6 +2,7 @@ import { FormEvent } from 'react';
 import Button from '@/components/ui/Button';
 import styles from '../authForm.module.css';
 import FloatingInput from '@/components/ui/FloatingInput';
+import PasswordInput from '@/components/ui/PasswordInput';
 
 interface Props {
   email: string;
@@ -44,18 +45,16 @@ export default function Reset({
           onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
           required
         />
-        <FloatingInput
+        <PasswordInput
           label="Nueva contraseña"
-          type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Mínimo 8 caracteres"
           required
           autoComplete="new-password"
         />
-        <FloatingInput
+        <PasswordInput
           label="Confirmar contraseña"
-          type="password"
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
           placeholder="Repite la contraseña"

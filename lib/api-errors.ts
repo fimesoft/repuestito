@@ -8,6 +8,11 @@ const ERROR_MESSAGES: Record<string, string> = {
   INVALID_CREDENTIALS: 'Correo electrónico o contraseña incorrectos',
   EMAIL_NOT_VERIFIED: 'Debes verificar tu correo antes de ingresar',
   RATE_LIMIT_EXCEEDED: 'Demasiados intentos. Intenta de nuevo en unos minutos.',
+  EMAIL_ALREADY_REGISTERED: 'Ya existe una cuenta con ese correo',
+  EMAIL_INVALID: 'Ingresa un correo electrónico válido',
+  PASSWORD_TOO_SHORT: 'La contraseña debe tener al menos 8 caracteres',
+  PASSWORD_TOO_LONG: 'La contraseña no puede superar los 72 caracteres',
+  VERIFICATION_EMAIL_FAILED: 'No pudimos enviar el correo de verificación. Intenta de nuevo más tarde.',
   INSUFFICIENT_PERMISSIONS: 'No tenés permisos para esta acción',
   TENANT_ALREADY_ASSIGNED: 'Tu usuario ya tiene un local asignado',
   TENANT_REQUIRED: 'Tu usuario no tiene un local asignado',
@@ -47,8 +52,9 @@ export function translateApiError(data: unknown, fallback = 'Error inesperado'):
   if (data.code && ERROR_MESSAGES[data.code]) {
     return ERROR_MESSAGES[data.code];
   }
-  if (typeof data.message === 'string') return data.message;
-  if (Array.isArray(data.message) && data.message.length > 0) return data.message[0];
+  // Los errores de validación (DTO) pueden traer códigos como mensaje
+  const message = Array.isArray(data.message) ? data.message[0] : data.message;
+  if (message) return ERROR_MESSAGES[message] ?? message;
   return fallback;
 }
 
