@@ -36,6 +36,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   PRODUCT_TYPE_HAS_PRODUCTS: 'No se puede eliminar: el tipo tiene productos. Fusiónalo en otro tipo.',
   PRODUCT_TYPE_HAS_COMPATIBILITIES: 'Hay productos de este tipo con compatibilidades vehiculares cargadas',
   PRODUCT_TYPE_COMPATIBILITY_NOT_SUPPORTED: 'Este tipo de producto no admite compatibilidad vehicular',
+  BRANCH_HAS_USERS: 'No se puede eliminar: la sucursal tiene usuarios asignados. Reasignalos antes de borrarla.',
 };
 
 function isApiErrorPayload(data: unknown): data is ApiErrorPayload {

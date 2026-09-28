@@ -1,3 +1,5 @@
+import { throwApiError } from '@/lib/api-errors';
+
 export interface Branch {
   id: string;
   tenantId: string | null;
@@ -56,7 +58,7 @@ export async function updateBranch(id: string, payload: UpdateBranchPayload): Pr
 
 export async function deleteBranch(id: string): Promise<void> {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/branches/${id}`, { method: 'DELETE', credentials: 'include' });
-  if (!res.ok) throw new Error('Error al eliminar la sucursal');
+  if (!res.ok) await throwApiError(res, 'Error al eliminar la sucursal');
 }
 
 export async function createBranch(payload: CreateBranchPayload): Promise<Branch> {

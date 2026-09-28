@@ -1,10 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import BackPage from '@/components/shared/BackPage';
 import ProductImage from '@/components/shared/ProductImage';
-import { getReplacement, Replacement } from '@/services/replacement.service';
+import Dropdown from '@/components/ui/Dropdown';
+import Confirm from '@/components/shared/Confirm';
+import { deleteReplacement, getReplacement, Replacement } from '@/services/replacement.service';
 import PartMapWrapper from '@/components/features/replacements/PartMapWrapper';
+import { usePermissions } from '@/hooks/usePermissions';
 import styles from './page.module.css';
 
 interface PageProps {
@@ -12,18 +16,28 @@ interface PageProps {
 }
 
 export default function ReplacementShowPage({ params }: PageProps) {
+  const router = useRouter();
+  const { canManage } = usePermissions();
+  const [id, setId] = useState<string | null>(null);
   const [replacement, setReplacement] = useState<Replacement | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   useEffect(() => {
     params.then(({ id }) => {
+      setId(id);
       getReplacement(id)
         .then(setReplacement)
         .catch(() => setError('No se pudo cargar el producto'))
         .finally(() => setLoading(false));
     });
   }, [params]);
+
+  async function handleDelete() {
+    if (!id) return false;
+    await deleteReplacement(id);
+  }
 
   if (loading) return <main className={styles.page}><p className={styles.hint}>Cargando...</p></main>;
   if (error || !replacement) return <main className={styles.page}><p className={styles.error}>{error ?? 'Producto no encontrado'}</p></main>;
@@ -36,6 +50,14 @@ export default function ReplacementShowPage({ params }: PageProps) {
       <BackPage href="/dashboard/replacement" />
 
       <div className={styles.card}>
+        {canManage && (
+          <div className={styles.cardActions}>
+            <Dropdown items={[
+              { label: 'Eliminar', onClick: () => setConfirmingDelete(true), variant: 'danger', icon: '/icons/trash.svg' },
+            ]} />
+          </div>
+        )}
+
         <div className={styles.imageWrapper}>
           <ProductImage src={info.imageUrl} alt={info.name} width={200} height={200} className={styles.image} showLabel />
         </div>
@@ -85,6 +107,19 @@ export default function ReplacementShowPage({ params }: PageProps) {
           />
         </div>
       )}
+
+      <Confirm
+        isOpen={confirmingDelete}
+        onClose={() => setConfirmingDelete(false)}
+        onConfirm={handleDelete}
+        onSuccess={() => router.push('/dashboard/replacement')}
+        title="Eliminar producto"
+        message={`¿Eliminar «${info.name}»?`}
+        confirmLabel="Eliminar"
+        loadingLabel="Eliminando…"
+        confirmColor="danger"
+        successMessage="El producto se eliminó correctamente."
+      />
     </main>
   );
 }

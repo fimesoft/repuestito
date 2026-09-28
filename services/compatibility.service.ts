@@ -1,3 +1,5 @@
+import { throwApiError } from '@/lib/api-errors';
+
 const API = process.env.NEXT_PUBLIC_API_URL;
 
 export interface CompatibilityModel {
@@ -36,14 +38,7 @@ export async function addCompatibility(globalReplacementId: number, modelId: num
     credentials: 'include',
     body: JSON.stringify({ globalReplacementId, modelId, versionId }),
   });
-  if (!res.ok) {
-    const data: unknown = await res.json().catch(() => null);
-    throw new Error(
-      data && typeof data === 'object' && 'message' in data
-        ? String((data as { message: unknown }).message)
-        : 'Error al agregar compatibilidad',
-    );
-  }
+  if (!res.ok) await throwApiError(res, 'Error al agregar compatibilidad');
   return res.json() as Promise<Compatibility>;
 }
 
@@ -52,5 +47,5 @@ export async function removeCompatibility(compatibilityId: number): Promise<void
     method: 'DELETE',
     credentials: 'include',
   });
-  if (!res.ok) throw new Error('Error al eliminar compatibilidad');
+  if (!res.ok) await throwApiError(res, 'Error al eliminar compatibilidad');
 }
