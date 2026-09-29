@@ -17,4 +17,17 @@
   background: var(--color-primary-subtle);
 }
 
-.hidden { display: none; }
+/*
+ * display:none rompe la captura de cámara en iOS Safari (queda en negro): el input
+ * necesita seguir "renderizado" aunque sea invisible.
+ */
+.hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  opacity: 0;
+  border: 0;
+}
