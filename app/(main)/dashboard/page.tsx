@@ -54,7 +54,7 @@ export default function DashboardPage() {
     error: currencyError,
     canConvert,
     toggleCurrency,
-    formatAmount,
+    formatAmountParts,
   } = useCurrency();
 
   useEffect(() => {
@@ -72,7 +72,11 @@ export default function DashboardPage() {
   const trend = marginPercentage === null || marginPercentage === 0 ? null : marginPercentage > 0 ? 'up' : 'down';
   const withoutCost = stats.replacements.withoutCost ?? 0;
   const totalProducts = stats.replacements.total;
-  const hiddenAmount = `${activeCurrency} ••••••`;
+  // `null` = importe oculto. El código de moneda va en su propio span para poder achicarlo en mobile.
+  const renderAmount = (value: number | null) => {
+    const { amount, symbol } = value === null ? { amount: '••••••', symbol: activeCurrency } : formatAmountParts(value);
+    return <>{amount} <span className={styles.currencyCode}>{symbol}</span></>;
+  };
 
   const exchangeRateLabel = exchangeRate?.rate
     ? exchangeRate.rate.toLocaleString('es-AR', { maximumFractionDigits: 2 })
@@ -98,20 +102,18 @@ export default function DashboardPage() {
         )}
         <div className={styles.grid}>
           <Card className={`${styles.inventoryCard} ${styles.amountCard}`}>
+              <button
+                type="button"
+                className={styles.currencyTap}
+                onClick={toggleCurrency}
+                disabled={!canConvert || currencyLoading}
+                aria-label={displayCurrency === 'USD' ? `Mostrar importes en ${localCurrency}` : 'Mostrar importes en dólares'}
+                title={canConvert ? `Cambiar a ${displayCurrency === 'USD' ? localCurrency : 'USD'}` : 'Conversión disponible para usuarios asociados a un local'}
+              />
               <div className={styles.inventoryHeader}>
                 <span className={styles.statLabel}>Capital invertido</span>
-                <button
-                  type="button"
-                  className={styles.inventoryIcon}
-                  onClick={toggleCurrency}
-                  disabled={!canConvert || currencyLoading}
-                  aria-label={displayCurrency === 'USD' ? `Mostrar importes en ${localCurrency}` : 'Mostrar importes en dólares'}
-                  title={canConvert ? `Cambiar a ${displayCurrency === 'USD' ? localCurrency : 'USD'}` : 'Conversión disponible para usuarios asociados a un local'}
-                >
-                  {currencyLoading ? '…' : activeCurrency}
-                </button>
               </div>
-              <span className={styles.inventoryValue}>{showCapital ? formatAmount(stats.replacements.capitalInvested ?? 0) : hiddenAmount}</span>
+              <span className={styles.inventoryValue}>{renderAmount(showCapital ? stats.replacements.capitalInvested ?? 0 : null)}</span>
               {withoutCost > 0 && (
                 <span className={styles.metricSub}>
                   {withoutCost} {withoutCost === 1 ? 'producto' : 'productos'} sin costo
@@ -121,10 +123,10 @@ export default function DashboardPage() {
               {currencyError && <span className={styles.currencyError}>{currencyError}</span>}
           </Card>
           <Card className={styles.amountCard}>
-            <div className={`${styles.inventoryHeader} ${styles.headerAligned}`}>
-              <span className={styles.statLabel}>Valor potencial de ventas</span>
+            <div className={styles.inventoryHeader}>
+              <span className={styles.statLabel}>Valor de ventas</span>
             </div>
-            <span className={styles.inventoryValue}>{showPotential ? formatAmount(stats.replacements.potentialSalesValue ?? 0) : hiddenAmount}</span>
+            <span className={styles.inventoryValue}>{renderAmount(showPotential ? stats.replacements.potentialSalesValue ?? 0 : null)}</span>
             <VisibilityToggle visible={showPotential} onToggle={() => setShowPotential(v => !v)} label="valor potencial de ventas" className={styles.amountToggle} />
           </Card>
           <div className={styles.stack}>
@@ -132,7 +134,7 @@ export default function DashboardPage() {
               <div className={styles.inventoryHeader}>
                 <span className={styles.statLabel}>Margen de ganancias</span>
               </div>
-              <span className={styles.inventoryValue}>{formatAmount(margin?.amount ?? 0)}</span>
+              <span className={styles.inventoryValue}>{renderAmount(margin?.amount ?? 0)}</span>
               <span className={`${styles.metricSub} ${styles.trendRow}`}>
                 {formatPercentage(marginPercentage)}
                 {trend && <TrendIcon direction={trend} />}
@@ -140,7 +142,7 @@ export default function DashboardPage() {
             </Card>
             <Card className={styles.compactCard}>
               <div className={styles.inventoryHeader}>
-                <span className={styles.statLabel}>Cantidad de artículos totales</span>
+                <span className={styles.statLabel}>Cantidad de artículos</span>
               </div>
               <span className={styles.inventoryValue}>{(stats.replacements.totalStock ?? 0).toLocaleString('es-AR')}</span>
               <span className={`${styles.metricSub} ${styles.alignEnd}`}>

@@ -36,3 +36,9 @@
 .separator {
   color: var(--color-text-faint);
 }
+
+@media (max-width: 768px) {
+  .breadcrumbs {
+    display: none;
+  }
+}

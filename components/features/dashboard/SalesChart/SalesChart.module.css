@@ -57,3 +57,9 @@
   color: var(--color-text);
   line-height: 1;
 }
+
+@media (max-width: 768px) {
+  .title {
+    font-size: 11px;
+  }
+}

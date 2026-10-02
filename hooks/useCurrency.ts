@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAuthUser } from '@/context/AuthUserContext';
 import { useCountry } from '@/context/CountryContext';
-import { convertLocalToUsd, formatMoney } from '@/lib/currency';
+import { convertLocalToUsd, formatMoney, formatMoneyParts } from '@/lib/currency';
 import { getUsdExchangeRate, type ExchangeRate } from '@/services/exchange-rate.service';
 
 const CURRENCY_PREFERENCE_KEY = 'piezify-currency';
@@ -29,6 +29,7 @@ export interface UseCurrencyResult {
   canConvert: boolean;
   toggleCurrency: () => void;
   formatAmount: (value: number) => string;
+  formatAmountParts: (value: number) => { amount: string; symbol: string };
 }
 
 export function useCurrency(): UseCurrencyResult {
@@ -103,6 +104,11 @@ export function useCurrency(): UseCurrencyResult {
     [activeCurrency, activeRate],
   );
 
+  const formatAmountParts = useCallback(
+    (value: number) => formatMoneyParts(activeRate ? convertLocalToUsd(value, activeRate) : value, activeCurrency),
+    [activeCurrency, activeRate],
+  );
+
   return useMemo(
     () => ({
       displayCurrency,
@@ -115,6 +121,7 @@ export function useCurrency(): UseCurrencyResult {
       canConvert,
       toggleCurrency,
       formatAmount,
+      formatAmountParts,
     }),
     [
       activeCurrency,
@@ -124,6 +131,7 @@ export function useCurrency(): UseCurrencyResult {
       error,
       exchangeRate,
       formatAmount,
+      formatAmountParts,
       loading,
       localCurrency,
       toggleCurrency,
