@@ -30,7 +30,7 @@
   opacity: 0.55;
 }
 
-.image { object-fit: contain; padding: 8%; }
+.image { object-fit: contain; }
 
 .actions {
   position: absolute;
